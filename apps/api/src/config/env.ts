@@ -21,6 +21,11 @@ const envSchema = z.object({
   /** "anilist" enables live AniList imports; "none" runs on the local catalog only. */
   METADATA_PROVIDER: z.enum(["anilist", "none"]).default("anilist"),
   ANILIST_API_URL: z.string().default("https://graphql.anilist.co"),
+  /**
+   * Shared secret the web server sends on server-side render requests. Those requests fan out to many
+   * endpoints per page view, so they skip the global per-IP limit (per-route limits still apply).
+   */
+  INTERNAL_API_TOKEN: z.string().min(16).optional(),
   /** Disable rate limits (tests only). */
   DISABLE_RATE_LIMIT: bool,
 });

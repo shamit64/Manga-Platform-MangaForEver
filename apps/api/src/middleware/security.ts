@@ -6,10 +6,11 @@ import { AppError } from "../lib/errors.js";
 const handler = (_req: Request, _res: Response, next: NextFunction) =>
   next(new AppError(429, "RATE_LIMITED", "Too many requests. Wait a moment and try again."));
 
-function limiter(windowMs: number, limit: number, keyByUser = false) {
+function limiter(windowMs: number, limit: number, keyByUser = false, skipSuccessfulRequests = false) {
   return rateLimit({
     windowMs,
     limit,
+    skipSuccessfulRequests,
     standardHeaders: "draft-8",
     legacyHeaders: false,
     skip: () => env.DISABLE_RATE_LIMIT === true,
@@ -20,13 +21,27 @@ function limiter(windowMs: number, limit: number, keyByUser = false) {
   });
 }
 
-export const loginLimiter = limiter(15 * 60_000, 10);
+/** Login: 10 failed attempts per 15 minutes per IP (successful sign-ins don't count). */
+export const loginLimiter = limiter(15 * 60_000, 10, false, true);
 export const registerLimiter = limiter(60 * 60_000, 10);
 export const passwordResetLimiter = limiter(60 * 60_000, 5);
 export const searchLimiter = limiter(60_000, 120);
 export const reviewLimiter = limiter(60 * 60_000, 20, true);
 export const writeLimiter = limiter(60_000, 120, true);
-export const globalLimiter = limiter(60_000, 600);
+const LOOPBACK = new Set(["127.0.0.1", "::1", "::ffff:127.0.0.1"]);
+
+/** Global safety net per client IP. Trusted server-side render traffic is exempt (see INTERNAL_API_TOKEN). */
+export const globalLimiter = rateLimit({
+  windowMs: 60_000,
+  limit: 600,
+  standardHeaders: "draft-8",
+  legacyHeaders: false,
+  handler,
+  skip: (req) =>
+    env.DISABLE_RATE_LIMIT === true ||
+    (!!env.INTERNAL_API_TOKEN && req.get("x-internal-token") === env.INTERNAL_API_TOKEN) ||
+    (!env.isProd && LOOPBACK.has(req.ip ?? "")),
+});
 
 /**
  * CSRF defence for cookie-authenticated writes: state-changing requests must come from an

@@ -209,7 +209,7 @@ async function main() {
     const voters = memberIds.filter((id) => id !== author.id).slice(0, rv.helpful ?? 0);
     if (voters.length) {
       await prisma.reviewHelpfulVote.createMany({ data: voters.map((userId) => ({ userId, reviewId: review.id })) });
-      await prisma.review.update({ where: { id: review.id }, data: { helpfulCount: voters.length } });
+      await prisma.$executeRaw`UPDATE "Review" SET "helpfulCount" = ${voters.length} WHERE id = ${review.id}`;
     }
   }
 
