@@ -8,6 +8,8 @@ const bool = z
 const envSchema = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
   PORT: z.coerce.number().int().default(4000),
+  /** Interface to bind. Leave unset in production (all interfaces); 127.0.0.1 for local-only. */
+  HOST: z.string().optional(),
   DATABASE_URL: z.string().min(1, "DATABASE_URL is required"),
   /** Comma-separated list of browser origins allowed to call the API. */
   WEB_ORIGIN: z.string().default("http://localhost:3000"),

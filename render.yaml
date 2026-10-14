@@ -6,7 +6,7 @@ services:
     runtime: node
     plan: free
     rootDir: .
-    buildCommand: npm ci && npm run build -w @mangaverse/api && npx prisma migrate deploy
+    buildCommand: npm ci --include=dev && npm run build -w @mangaverse/api && npx prisma migrate deploy
     startCommand: npm run start -w @mangaverse/api
     healthCheckPath: /health
     envVars:
