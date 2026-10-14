@@ -1,0 +1,38 @@
+{
+  "name": "mangaverse",
+  "version": "1.0.0",
+  "private": true,
+  "description": "MangaVerse — Discover. Track. Review. Explore.",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "engines": {
+    "node": ">=20.19"
+  },
+  "scripts": {
+    "dev": "npm run build -w @mangaverse/shared && concurrently -n api,web -c magenta,cyan \"npm run dev -w @mangaverse/api\" \"npm run dev -w @mangaverse/web\"",
+    "build": "npm run build -w @mangaverse/shared && npm run db:generate && npm run build -w @mangaverse/api && npm run build -w @mangaverse/web",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate dev",
+    "db:deploy": "prisma migrate deploy",
+    "db:seed": "prisma db seed",
+    "db:reset": "prisma migrate reset --force",
+    "test": "npm run build -w @mangaverse/shared && npm run test -w @mangaverse/api",
+    "typecheck": "npm run typecheck -w @mangaverse/shared && npm run typecheck -w @mangaverse/api && npm run typecheck -w @mangaverse/web",
+    "lint": "npm run lint -w @mangaverse/web"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1",
+    "dotenv": "^17.2.3",
+    "prisma": "7.10.0",
+    "tsx": "^4.20.6",
+    "typescript": "~5.9.3"
+  },
+  "dependencies": {
+    "@prisma/adapter-pg": "7.10.0",
+    "@prisma/client": "7.10.0",
+    "bcryptjs": "^3.0.3",
+    "pg": "^8.16.3"
+  }
+}
