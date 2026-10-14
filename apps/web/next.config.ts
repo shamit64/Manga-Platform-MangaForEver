@@ -1,9 +1,15 @@
+import path from "node:path";
 import type { NextConfig } from "next";
+
+// Monorepo root (next is always run from apps/web: npm workspaces, Vercel root directory, scripts/local.mjs).
+const MONOREPO_ROOT = path.resolve(process.cwd(), "../..");
 
 const API_URL = (process.env.API_URL ?? "http://localhost:4000").replace(/\/$/, "");
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  turbopack: { root: MONOREPO_ROOT },
+  outputFileTracingRoot: MONOREPO_ROOT,
   poweredByHeader: false,
   transpilePackages: ["@mangaverse/shared"],
   images: {

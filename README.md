@@ -105,13 +105,29 @@ MangaVerse/
 │   ├── seed.ts
 │   └── seed-data/           labelled sample catalog, picks, collections, demo reviews
 ├── docs/                    architecture.md, api.md
-├── scripts/                 test-DB helpers
+├── scripts/                 local.mjs (one-command runner), test-DB helpers
+├── start-mangaverse.cmd     Windows double-click launcher
 ├── docker-compose.yml       local PostgreSQL
 ├── render.yaml              API blueprint
 └── .env.example
 ```
 
 ## Getting started
+
+### Quickest: one command, no database install
+
+**Windows:** double-click **`start-mangaverse.cmd`**. The first run downloads a portable Node.js if you don't have Node 20.19+, installs dependencies, sets up a private PostgreSQL inside the project folder (`.local-db`), loads the sample data, builds the app and opens **http://localhost:3000**. Later runs start in seconds. Keep the window open while you use the app; close it (or press Ctrl+C) to stop.
+
+**macOS / Linux / Windows terminal:**
+
+```bash
+npm install
+npm run local        # production build + start   (npm run local:dev for hot reload)
+```
+
+`scripts/local.mjs` uses the [`embedded-postgres`](https://github.com/leinelissen/embedded-postgres) package (real PostgreSQL 18 binaries from npm) on port 5433, binds the API and web app to 127.0.0.1, writes logs to `./logs`, and creates `.env` for you on first run. Delete `.local-db` to start over with a fresh database.
+
+### Manual setup
 
 **Requirements:** Node.js 20.19+ (22 recommended), npm 10+, and PostgreSQL 14+ (Docker works).
 
@@ -149,7 +165,8 @@ Useful scripts:
 
 | Command | What it does |
 | --- | --- |
-| `npm run dev` | API + web in watch mode |
+| `npm run local` / `npm run local:dev` | Everything incl. a private PostgreSQL — no setup (see above) |
+| `npm run dev` | API + web in watch mode (bring your own PostgreSQL) |
 | `npm run build` | Production build of every workspace |
 | `npm run start:api` / `npm run start:web` | Run the production builds |
 | `npm run db:migrate` | Create/apply a migration after editing `schema.prisma` |
