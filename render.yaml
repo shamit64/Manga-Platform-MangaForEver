@@ -1,0 +1,28 @@
+# Render Blueprint for the MangaVerse API. Database: Neon or Supabase (set DATABASE_URL).
+# The web app deploys separately to Vercel (see README → Deployment).
+services:
+  - type: web
+    name: mangaverse-api
+    runtime: node
+    plan: free
+    rootDir: .
+    buildCommand: npm ci && npm run build -w @mangaverse/api && npx prisma migrate deploy
+    startCommand: npm run start -w @mangaverse/api
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NODE_VERSION
+        value: "22"
+      - key: DATABASE_URL
+        sync: false
+      - key: WEB_ORIGIN
+        sync: false # e.g. https://mangaverse.vercel.app
+      - key: APP_URL
+        sync: false # e.g. https://mangaverse.vercel.app
+      - key: INTERNAL_API_TOKEN
+        generateValue: true # copy the generated value to the Vercel project too
+      - key: TRUST_PROXY
+        value: "2"
+      - key: METADATA_PROVIDER
+        value: anilist

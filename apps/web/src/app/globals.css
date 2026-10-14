@@ -1,0 +1,146 @@
+@import "tailwindcss";
+@import "@fontsource-variable/bricolage-grotesque";
+@import "@fontsource-variable/figtree";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/*
+ * MangaVerse palette
+ *   ink      — page background, a violet-tinted near-black
+ *   surface  — cards and panels
+ *   raised   — inputs, hovered rows
+ *   line     — hairlines and panel gutters
+ *   violet   — primary actions
+ *   indigo   — secondary accent / gradients
+ *   lilac    — links and highlights on dark
+ *   gold     — ratings only
+ */
+:root {
+  --ink: #f6f4fb;
+  --surface: #ffffff;
+  --raised: #efebf8;
+  --line: #ddd6ee;
+  --text: #1b1726;
+  --muted: #605a75;
+  --violet: #6d3fe0;
+  --violet-strong: #5b2fcb;
+  --indigo: #4f46e5;
+  --lilac: #6d3fe0;
+  --gold: #b7860b;
+  --danger: #c62f4a;
+  --ok: #0f8a5f;
+  --tone: rgba(27, 23, 38, 0.13);
+  color-scheme: light;
+}
+
+.dark {
+  --ink: #0f0d14;
+  --surface: #17141f;
+  --raised: #211d2c;
+  --line: #2e2940;
+  --text: #ece9f5;
+  --muted: #9d97b3;
+  --violet: #8b5cf6;
+  --violet-strong: #7c4dee;
+  --indigo: #6366f1;
+  --lilac: #c4b5fd;
+  --gold: #f2c14e;
+  --danger: #f0647d;
+  --ok: #4ad19a;
+  --tone: rgba(196, 181, 253, 0.12);
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-ink: var(--ink);
+  --color-surface: var(--surface);
+  --color-raised: var(--raised);
+  --color-line: var(--line);
+  --color-text: var(--text);
+  --color-muted: var(--muted);
+  --color-violet: var(--violet);
+  --color-violet-strong: var(--violet-strong);
+  --color-indigo: var(--indigo);
+  --color-lilac: var(--lilac);
+  --color-gold: var(--gold);
+  --color-danger: var(--danger);
+  --color-ok: var(--ok);
+  --font-display: "Bricolage Grotesque Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Figtree Variable", ui-sans-serif, system-ui, sans-serif;
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    overflow-x: clip;
+    background: var(--ink);
+    color: var(--text);
+    font-family: var(--font-sans);
+    font-feature-settings: "ss01";
+    text-rendering: optimizeLegibility;
+  }
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+  }
+  p {
+    text-wrap: pretty;
+  }
+  ::selection {
+    background: color-mix(in oklab, var(--violet) 45%, transparent);
+  }
+  :focus-visible {
+    outline: 2px solid var(--lilac);
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+}
+
+@layer utilities {
+  /* Screentone: the halftone dot texture used on manga pages. */
+  .tone {
+    background-image: radial-gradient(var(--tone) 1px, transparent 1.4px);
+    background-size: 6px 6px;
+  }
+  .tone-fade {
+    -webkit-mask-image: linear-gradient(to bottom, black, transparent 85%);
+    mask-image: linear-gradient(to bottom, black, transparent 85%);
+  }
+  .scrollbar-none {
+    scrollbar-width: none;
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+  .rank-numeral {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-variation-settings: "wdth" 75;
+    -webkit-text-stroke: 1.5px var(--lilac);
+    color: transparent;
+    line-height: 0.8;
+  }
+}
+
+@keyframes panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px) rotate(var(--tilt, 0deg));
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) rotate(var(--tilt, 0deg));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

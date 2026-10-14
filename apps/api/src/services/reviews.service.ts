@@ -190,7 +190,8 @@ export async function toggleHelpful(userId: string, reviewId: string) {
     if (existing) await tx.reviewHelpfulVote.delete({ where: { userId_reviewId: { userId, reviewId } } });
     else await tx.reviewHelpfulVote.create({ data: { userId, reviewId } });
     const count = await tx.reviewHelpfulVote.count({ where: { reviewId } });
-    await tx.review.update({ where: { id: reviewId }, data: { helpfulCount: count } });
+    // Raw update so a vote doesn't bump updatedAt (which drives the "edited" label).
+    await tx.$executeRaw`UPDATE "Review" SET "helpfulCount" = ${count} WHERE id = ${reviewId}`;
     return { voted: !existing, helpfulCount: count };
   });
 }
