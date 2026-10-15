@@ -94,6 +94,38 @@ async function main() {
   }
   console.log(`  catalog: ${SEED_CATALOG.length} sample series (${created} new)`);
 
+  // ── An original demo series with hosted pages, so the reader works on a fresh install.
+  // Written and drawn for MangaForEver (simple SVG pages in apps/web/public/sample); no third-party work.
+  const lanternExisting = await prisma.mangaSeries.findFirst({ where: { title: "The Lantern Keeper", source: "SEED_SAMPLE" }, select: { id: true } });
+  const lantern = await writeSeries(
+    {
+      title: "The Lantern Keeper", altTitles: [], localizedTitles: { en: "The Lantern Keeper" },
+      synopsis: "On a harbour island where the lighthouse went dark years ago, a girl who can't sleep takes over the night lanterns, and finds that each one remembers a different ship. A short original strip made to demo the MangaForEver reader.",
+      description: null, type: "MANHWA", countryOfOrigin: "South Korea", publisher: "MangaForEver Originals", demographic: null,
+      status: "ONGOING", releaseYear: 2026, startDate: null, endDate: null, chapterCount: null, volumeCount: null, source: "SEED_SAMPLE",
+      genres: ["Fantasy", "Slice of Life", "Mystery"], tags: ["Original", "Short"], authors: ["MangaForEver"], artists: ["MangaForEver"],
+    },
+    { id: lanternExisting?.id, db: prisma },
+  );
+  const LANTERN_CHAPTERS = [
+    { number: 1, title: "The dark lighthouse", pages: [1, 2, 3, 4] },
+    { number: 2, title: "Ships that remember", pages: [3, 5, 2, 6] },
+    { number: 3, title: "Low tide", pages: [5, 1, 6, 4] },
+  ];
+  for (const [i, ch] of LANTERN_CHAPTERS.entries()) {
+    const releasedAt = new Date(Date.now() - (LANTERN_CHAPTERS.length - i) * 3 * 86_400_000);
+    const row = await prisma.chapterMetadata.upsert({
+      where: { seriesId_number_source: { seriesId: lantern.id, number: ch.number, source: "hosted" } },
+      update: { title: ch.title },
+      create: { seriesId: lantern.id, number: ch.number, title: ch.title, source: "hosted", readable: true, publisher: "MangaForEver", language: "en", releasedAt },
+    });
+    await prisma.hostedPage.deleteMany({ where: { chapterId: row.id } });
+    await prisma.hostedPage.createMany({ data: ch.pages.map((n, index) => ({ chapterId: row.id, index, imageUrl: `/sample/page-${n}.svg`, width: 800, height: 1200 })) });
+  }
+  const lastLantern = LANTERN_CHAPTERS.at(-1)!;
+  await prisma.mangaSeries.update({ where: { id: lantern.id }, data: { latestChapter: lastLantern.number, lastChapterAt: new Date(Date.now() - 3 * 86_400_000) } });
+  console.log("  reader demo: The Lantern Keeper (3 hosted chapters)");
+
   // ── Staff + demo accounts
   const adminEmail = (process.env.SEED_ADMIN_EMAIL ?? "admin@mangaforever.local").toLowerCase();
   const adminPassword = process.env.SEED_ADMIN_PASSWORD ?? "ChangeMe-Admin-1";

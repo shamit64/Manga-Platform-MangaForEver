@@ -121,7 +121,7 @@ function ReviewForm({
   }
 
   return (
-    <form onSubmit={handleSubmit(submit)} className="space-y-4 rounded-2xl border border-violet/40 bg-surface p-5" noValidate>
+    <form onSubmit={handleSubmit(submit)} className="space-y-4 rounded-lg border border-violet/40 bg-surface p-5" noValidate>
       <h3 className="font-display text-lg font-semibold">{existing ? "Edit your review" : "Write a review"}</h3>
       <div>
         <Label htmlFor="rv-title">Title</Label>
@@ -201,7 +201,7 @@ export function ReviewsPanel({
 
   return (
     <div className="space-y-6">
-      <div className="rounded-2xl border border-line bg-surface p-5">
+      <div className="rounded-lg border border-line bg-surface p-5">
         <h3 className="mb-3 font-display text-lg font-semibold">Your rating</h3>
         <RatingControl seriesId={seriesId} initial={viewerRating} />
       </div>

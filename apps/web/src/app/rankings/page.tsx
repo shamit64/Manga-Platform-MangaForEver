@@ -70,7 +70,7 @@ export default async function RankingsPage({ searchParams }: { searchParams: Pro
             description={kind === "external" ? "Import titles from AniList (Admin → Import) to see AniList's own popularity figures here." : "Rankings appear once members add, rate or review series."}
           />
         ) : (
-          <ol className="divide-y divide-line overflow-hidden rounded-2xl border border-line bg-surface">
+          <ol className="divide-y divide-line overflow-hidden rounded-lg border border-line bg-surface">
             {data.items.map((s) => (
               <li key={s.id}>
                 <Link href={`/manga/${s.slug}`} className="group flex items-center gap-4 px-3 py-3 hover:bg-raised/40 sm:px-5">
@@ -103,7 +103,7 @@ export default async function RankingsPage({ searchParams }: { searchParams: Pro
         <h2 className="text-2xl font-bold">How rankings work</h2>
         <dl className="mt-4 grid gap-4 md:grid-cols-2">
           {KINDS.map(([k, label]) => (
-            <div key={k} className="rounded-2xl border border-line bg-surface p-5">
+            <div key={k} className="rounded-lg border border-line bg-surface p-5">
               <dt className="font-display font-semibold">{label}</dt>
               <dd className="mt-1 text-sm text-muted">{RANKING_EXPLANATIONS[k]}</dd>
             </div>

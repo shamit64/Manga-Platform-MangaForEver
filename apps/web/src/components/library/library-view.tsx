@@ -62,24 +62,24 @@ export function LibraryDashboard({ stats }: { stats: LibraryStats }) {
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-2">
         {(
           [
-            ["Series tracked", stats.total, BookMarked, "#8b5cf6"],
-            ["Completed", stats.completed, CheckCircle2, "#10b981"],
-            ["Chapters tracked", stats.chaptersTracked, BookOpen, "#06b6d4"],
-            ["Favorites", stats.favorites, Heart, "#ec4899"],
+            ["Series tracked", stats.total, BookMarked, "var(--violet)"],
+            ["Completed", stats.completed, CheckCircle2, "var(--ok)"],
+            ["Chapters tracked", stats.chaptersTracked, BookOpen, "var(--cyan)"],
+            ["Favorites", stats.favorites, Heart, "var(--gold)"],
           ] as const
         ).map(([label, n, Icon, color]) => (
-          <div key={label} className="flex items-center gap-3 rounded-2xl border border-line bg-surface p-4">
+          <div key={label} className="flex items-center gap-3 rounded-lg border border-line bg-surface p-4">
             <span className="chip-tint grid size-10 shrink-0 place-items-center rounded-xl" style={{ ["--chip" as string]: color }}>
               <Icon className="size-5" aria-hidden />
             </span>
             <div>
-              <p className="font-display text-2xl leading-none font-extrabold tabular-nums">{Number(n).toLocaleString()}</p>
+              <p className="font-display text-2xl leading-none font-medium tabular-nums">{Number(n).toLocaleString()}</p>
               <p className="mt-1 text-sm text-muted">{label}</p>
             </div>
           </div>
         ))}
       </div>
-      <div className="rounded-2xl border border-line bg-surface p-4">
+      <div className="rounded-lg border border-line bg-surface p-4">
         <h2 className="mb-3 font-display font-semibold">Genres you read</h2>
         {stats.genreDistribution.length ? (
           <ul className="space-y-2">
@@ -97,7 +97,7 @@ export function LibraryDashboard({ stats }: { stats: LibraryStats }) {
           <p className="text-sm text-muted">Add series to see your genre mix.</p>
         )}
       </div>
-      <div className="rounded-2xl border border-line bg-surface p-4">
+      <div className="rounded-lg border border-line bg-surface p-4">
         <h2 className="mb-3 font-display font-semibold">Recent activity</h2>
         {stats.recentActivity.length ? (
           <ul className="space-y-2.5 text-sm">
@@ -181,7 +181,7 @@ export function LibraryList({ initial, stats }: { initial: Paginated<LibraryEntr
       </div>
 
       <div className="my-5 flex flex-wrap gap-2">
-        <Input placeholder="Filter your library…" value={q} onChange={(e) => setQ(e.target.value)} className="max-w-xs" aria-label="Filter your library by title" />
+        <Input placeholder="Filter your list…" value={q} onChange={(e) => setQ(e.target.value)} className="max-w-xs" aria-label="Filter your list by title" />
         <Select className="w-40" value={sp.get("type") ?? ""} onChange={(e) => setParam("type", e.target.value || null)} aria-label="Content type">
           <option value="">All types</option>
           {CONTENT_TYPES.map((t) => (
@@ -203,17 +203,17 @@ export function LibraryList({ initial, stats }: { initial: Paginated<LibraryEntr
         <EmptyState
           icon={<BookMarked />}
           title={stats.total ? "Nothing matches these filters" : "Your library is empty"}
-          description={stats.total ? "Try another status or clear the filter." : "Add series from any page with “Add to library” to start tracking chapters."}
+          description={stats.total ? "Try another status or clear the filter." : "Add series from any page with “Add to List” to start tracking chapters."}
           action={
             <Button asChild>
-              <Link href="/explore">
+              <Link href="/browse">
                 <Plus /> Find something to read
               </Link>
             </Button>
           }
         />
       ) : (
-        <ul className="divide-y divide-line rounded-2xl border border-line bg-surface">
+        <ul className="divide-y divide-line rounded-lg border border-line bg-surface">
           {data.items.map((e) => {
             const s = e.series!;
             const pct = s.chapterCount ? Math.min(100, (e.progressChapter / s.chapterCount) * 100) : null;

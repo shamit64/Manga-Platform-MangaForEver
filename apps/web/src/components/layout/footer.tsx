@@ -3,21 +3,22 @@ import { Logo } from "./logo";
 
 export function Footer() {
   return (
-    <footer className="mt-16 border-t border-line">
-      <div className="mx-auto grid max-w-7xl gap-8 px-4 py-10 text-sm sm:px-6 md:grid-cols-[1.5fr_1fr_1fr_1fr]">
+    <footer data-site-chrome className="mt-16 border-t border-line pb-16 md:pb-0">
+      <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 text-sm sm:px-6 md:grid-cols-[1.5fr_1fr_1fr_1fr]">
         <div>
           <Logo />
-          <p className="mt-3 max-w-sm text-muted">Discover. Track. Review. Explore. A catalog and reading tracker for manga, manhwa and manhua.</p>
+          <p className="mt-3 max-w-sm text-muted">A live database, tracker and reader for manga, manhwa and manhua. New chapters appear the moment they release.</p>
           <p className="mt-3 max-w-sm text-xs text-muted">
-            MangaForEver lists metadata only and does not host or link to chapters. Read series through official, licensed publishers.
+            MangaForEver only shows chapters it has the right to host. Everything else links to the official publisher, so creators get paid.
           </p>
         </div>
-        <FooterCol title="Discover" links={[["Explore", "/explore"], ["Rankings", "/rankings"], ["Seasonal", "/seasonal"], ["Latest updates", "/latest"], ["New releases", "/new"]]} />
-        <FooterCol title="Your reading" links={[["Library", "/library"], ["Favorites", "/favorites"], ["History", "/history"], ["Recommendations", "/recommendations"]]} />
-        <FooterCol title="About the data" links={[["How rankings work", "/rankings#how"], ["Community reviews", "/reviews"], ["API docs", "/api-docs"]]} />
+        <FooterCol title="Discover" links={[["Browse", "/browse"], ["Latest updates", "/latest"], ["Rankings", "/rankings"], ["Manga", "/manga"], ["Manhwa", "/manhwa"], ["Manhua", "/manhua"]]} />
+        <FooterCol title="Your reading" links={[["Dashboard", "/dashboard"], ["My List", "/my-list"], ["Favorites", "/favorites"], ["Notifications", "/notifications"], ["For you", "/recommendations"]]} />
+        <FooterCol title="MangaForEver" links={[["About", "/about"], ["How rankings work", "/rankings#how"], ["Privacy", "/privacy"], ["Terms", "/terms"], ["DMCA", "/dmca"]]} />
       </div>
       <p className="mx-auto max-w-7xl px-4 pb-8 text-xs text-muted sm:px-6">
-        Titles marked “Sample data” come from MangaForEver’s bundled sample catalog. Cover art, banners and external scores are provided by AniList (anilist.co) and shown from AniList’s servers; each series page credits its sources.
+        Metadata and cover art from <a className="underline-offset-2 hover:underline" href="https://anilist.co" target="_blank" rel="noopener noreferrer">AniList</a>. Chapter data from{" "}
+        <a className="underline-offset-2 hover:underline" href="https://mangadex.org" target="_blank" rel="noopener noreferrer">MangaDex</a>. Titles marked “Sample data” come from the bundled sample catalog.
       </p>
     </footer>
   );
@@ -26,7 +27,7 @@ export function Footer() {
 function FooterCol({ title, links }: { title: string; links: [string, string][] }) {
   return (
     <div>
-      <p className="mb-2 font-display font-semibold">{title}</p>
+      <p className="eyebrow mb-3">{title}</p>
       <ul className="space-y-1.5">
         {links.map(([label, href]) => (
           <li key={href}>

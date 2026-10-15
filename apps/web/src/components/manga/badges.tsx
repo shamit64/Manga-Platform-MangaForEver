@@ -13,7 +13,7 @@ import { cn, formatScore } from "@/lib/utils";
 export function TypeBadge({ type, className }: { type: ContentType; className?: string }) {
   return (
     <span
-      className={cn("chip-tint inline-flex items-center rounded-md px-2 py-0.5 text-xs font-semibold", className)}
+      className={cn("chip-tint inline-flex items-center rounded-sm px-1.5 py-0.5 text-[0.66rem] font-semibold uppercase tracking-[0.08em]", className)}
       style={{ ["--chip" as string]: TYPE_COLORS[type].solid }}
     >
       {CONTENT_TYPE_LABELS[type]}

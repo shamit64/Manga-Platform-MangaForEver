@@ -52,8 +52,8 @@ export function RecommendationsView({ shelves, personalised }: { shelves: Recomm
       {!personalised && (
         <p className="mt-6 max-w-2xl rounded-xl border border-line bg-surface px-4 py-3 text-sm text-muted">
           {user
-            ? "We don't know your taste yet. Add a few series to your library, rate something, or pick favorite genres in Settings and this page becomes personal."
-            : "Sign in to get recommendations based on your library, ratings and favorite genres. Until then, here's what members like."}
+            ? "We don't know your taste yet. Add a few series to your list, rate something, or pick favorite genres in Settings and this page becomes personal."
+            : "Sign in to get recommendations based on your list, ratings and favorite genres. Until then, here's what members like."}
         </p>
       )}
       {shelves.map((shelf) => {

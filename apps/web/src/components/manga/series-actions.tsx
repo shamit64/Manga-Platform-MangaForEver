@@ -64,14 +64,14 @@ export function FavoriteButton({
       aria-pressed={fav}
       aria-label={compact ? (fav ? "Remove from favorites" : "Add to favorites") : undefined}
     >
-      <Heart className={cn(fav && "fill-[#e0558a] text-[#e0558a]")} />
+      <Heart className={cn(fav && "fill-[var(--pink)] text-[var(--pink)]")} />
       {!compact && (fav ? "Favorited" : "Favorite")}
     </Button>
   );
 }
 
 /** Library button + editor, used on hero and detail pages. */
-export function LibraryButton({ series, initial, size = "md" }: { series: SeriesLite; initial: LibraryEntryDTO | null; size?: "md" | "lg" }) {
+export function LibraryButton({ series, initial, size = "md", quiet }: { series: SeriesLite; initial: LibraryEntryDTO | null; size?: "md" | "lg"; quiet?: boolean }) {
   const { requireUser } = useAuth();
   const router = useRouter();
   const [entry, setEntry] = React.useState(initial);
@@ -80,9 +80,9 @@ export function LibraryButton({ series, initial, size = "md" }: { series: Series
 
   return (
     <>
-      <Button size={size} variant={entry ? "secondary" : "primary"} onClick={() => requireUser() && setOpen(true)}>
+      <Button size={size} variant={entry || quiet ? "secondary" : "primary"} onClick={() => requireUser() && setOpen(true)}>
         {entry ? <Check /> : <Plus />}
-        {entry ? READING_STATUS_LABELS[entry.status] : "Add to library"}
+        {entry ? READING_STATUS_LABELS[entry.status] : "Add to List"}
       </Button>
       <LibraryEditor
         open={open}
@@ -138,9 +138,9 @@ export function SeriesActions({ series, viewer }: { series: SeriesLite & { volum
 
   return (
     <div className="flex flex-wrap gap-2">
-      <Button size="lg" variant={entry ? "secondary" : "primary"} onClick={() => requireUser() && setEditor("edit")}>
+      <Button size="lg" variant="secondary" onClick={() => requireUser() && setEditor("edit")}>
         {entry ? <Check /> : <Plus />}
-        {entry ? READING_STATUS_LABELS[entry.status] : "Add to library"}
+        {entry ? READING_STATUS_LABELS[entry.status] : "Add to List"}
       </Button>
       {entry?.status !== "READING" && (
         <Button size="lg" variant="outline" onClick={markReading}>

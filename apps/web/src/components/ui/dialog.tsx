@@ -25,7 +25,7 @@ export function DialogContent({
           "fixed z-50 border border-line bg-surface shadow-2xl focus:outline-none",
           side === "right"
             ? "inset-y-0 right-0 w-[min(88vw,22rem)] overflow-y-auto border-y-0 border-r-0 p-5"
-            : "top-1/2 left-1/2 max-h-[90vh] w-[min(94vw,32rem)] -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-2xl p-6",
+            : "top-1/2 left-1/2 max-h-[90vh] w-[min(94vw,32rem)] -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-lg p-6",
           className,
         )}
         {...props}

@@ -64,6 +64,7 @@ api.get("/push/public-key", live.pushKey);
 api.post("/push/subscriptions", requireAuth, writeLimiter, live.pushSubscribe);
 api.delete("/push/subscriptions", requireAuth, writeLimiter, live.pushUnsubscribe);
 api.get("/events", live.events);
+api.get("/sitemap-entries", live.sitemapEntries);
 
 // ───────── Library ─────────
 api.get("/library", requireAuth, me.libraryList);

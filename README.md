@@ -4,7 +4,9 @@
 
 MangaForEver is a full-stack discovery, tracking and review platform for Japanese manga, Korean manhwa and Chinese manhua. Browse and search a real PostgreSQL-backed catalog of popular series imported from [AniList](https://anilist.co) (with their real cover art), keep a reading library with chapter progress, favorite and rate series, write reviews, and get recommendations that explain why each pick is there.
 
-MangaForEver is a **metadata catalog and tracker only**. It does not host, scrape or link to chapters.
+The catalog keeps itself current: scheduled jobs (free, on GitHub Actions) pick up new chapters every 15 minutes, refresh metadata daily and re-curate the home page, and followers get a live in-app update, a push notification or an opt-in email digest.
+
+**Chapters come only from legal sources.** MangaForEver hosts pages only for works it has the right to show (originals, creator submissions, public-domain and Creative Commons works). Every other chapter opens its official publisher (MANGA Plus, WEBTOON, Tapas and others). It never scrapes or links to scan sites.
 
 ---
 
@@ -33,9 +35,12 @@ MangaForEver is a **metadata catalog and tracker only**. It does not host, scrap
 | --- | --- |
 | **Catalog** | Manga / manhwa / manhua with alternative and native titles, creators, genres, tags, demographic, status, dates, chapter/volume counts (unknown stays unknown). |
 | **Search** | PostgreSQL full-text ranking + `pg_trgm` trigram matching (GIN-indexed) over titles, native titles, creators, genres and tags. Debounced autocomplete with cover thumbnails, keyboard navigation and `/` shortcut. Typos and partial words work ("berzerk", "solo lev"). |
-| **Explore** | Filters for type, multiple genres (match all/any), tags, status, demographic, year range, author/artist, minimum rating, popularity and recently updated; 8 sort orders; accessible link-based pagination. |
+| **Browse** | Filters for type, multiple genres (match all/any), tags, status, demographic, year range, author/artist, minimum rating, popularity and recently updated; 8 sort orders; accessible link-based pagination. |
 | **Series pages** | Shareable `/manga/[slug]` pages with overview, chapters (provider data only), reviews, creators and similar series. Community vs. external ratings are shown separately with sources. |
-| **Accounts** | Register, sign in/out, forgot/reset password (single-use, 1-hour tokens), change password, roles (User / Moderator / Admin). Server-side sessions in httpOnly cookies. |
+| **Chapter updates** | New-chapter information from MangaDex's public API (every 15 minutes for followed series first), official-publisher links from AniList, a live "Latest updates" feed (server-sent events with polling fallback), NEW tags, follower notifications in-app, by Web Push and by daily email digest. |
+| **Reader** | `/manga/[slug]/chapter/[n]`: long-strip and page-by-page modes (right-to-left for manga), fit and gap settings, keyboard, tap and swipe navigation, auto-hiding toolbar, progress saved to My List automatically, chapter reactions and moderated comments. Official chapters open the publisher with progress still tracked. |
+| **Install as an app** | Web app manifest, icons and a service worker with an offline page, so phones can add MangaForEver to the home screen. |
+| **Accounts** | Register with email confirmation (Resend), sign in/out, forgot/reset password (single-use, 1-hour tokens), change password, roles (User / Moderator / Admin). Server-side sessions in httpOnly cookies. |
 | **Library** | Five reading statuses, chapter + volume progress (validated against known totals only), personal score, private notes, start/finish dates, per-entry privacy, quick “+1 chapter”, dashboard with status counts, chapters tracked, genre mix and recent activity. |
 | **Favorites** | Toggle anywhere; dedicated page with type/genre filters and four sort orders. |
 | **Ratings & reviews** | 1–10 ratings (create/update/remove), averages computed from stored rows, one review per member per series, spoiler masking, helpful votes (one per member, no self-votes), reporting. |
@@ -44,7 +49,7 @@ MangaForEver is a **metadata catalog and tracker only**. It does not host, scrap
 | **Recommendations** | Explainable content-based scoring with diversity re-ranking, “Because you read…”, “Similar to your favorites”, “Popular in your genre”, dismiss/refresh, and a new-user fallback. |
 | **Discovery** | Editor’s-pick hero carousel, Top 10 with type tabs, trending, highest-rated, most-reviewed, most-favorited, latest catalog updates, newly published vs. newly added, editor-curated seasonal collections. |
 | **Community** | Public profiles with privacy controls, follow/unfollow, activity feed, recent reviews feed. |
-| **Admin** | Live statistics dashboard, catalog CRUD + archive, duplicate detection and merge, AniList import/refresh, featured picks, seasonal collections, user roles/suspension, audit log. |
+| **Admin** | Scheduled-job status with "run now", hosted-chapter publishing, manual MangaDex linking for unmatched series, held-comment queue, live statistics dashboard, catalog CRUD + archive, duplicate detection and merge, AniList import/refresh, featured picks, seasonal collections, user roles/suspension, audit log. |
 | **UX** | Dark theme by default with persistent light/system themes (synced to the account), responsive layouts, skeleton loaders, empty/error/retry states, keyboard focus styles, reduced-motion support. |
 
 ## Tech stack
@@ -202,6 +207,13 @@ All variables live in one root `.env` (see [`.env.example`](.env.example)). The 
 | `LOG_LEVEL` | API | Pino log level |
 | `API_URL` | web | Where Next.js reaches the API |
 | `NEXT_PUBLIC_API_URL` | web | Public API URL (Swagger link) |
+| `SITE_URL` | web | Public site address for links, sitemap and social previews (Vercel's address is used automatically) |
+| `REQUIRE_EMAIL_VERIFICATION` | API | New accounts must confirm their email before signing in (default `true`) |
+| `ADMIN_EMAILS` | API | Comma-separated emails that always get the Admin role |
+| `RESEND_API_KEY`, `MAIL_FROM` | API | Email delivery through Resend (logged to the console when unset) |
+| `JOBS_TOKEN` | API, GitHub Actions | Secret for `POST /internal/jobs/<job>` |
+| `CHAPTER_PROVIDER`, `MANGADEX_API_URL`, `CHAPTER_LANGUAGES` | API | New-chapter source (`mangadex` or `none`) and languages |
+| `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT` | API | Optional Web Push keys (`npx web-push generate-vapid-keys`) |
 | `SEED_*` | seed | Staff and demo account credentials |
 
 ## Database, migrations and seed data
@@ -293,7 +305,7 @@ All routes are under `/api/v1`. Errors share one shape — `{ "error": { "code",
 
 1. New → Blueprint → select the repo (or create a Node web service with root `.`).
 2. Build: `npm ci && npm run build -w @mangaforever/api && npx prisma migrate deploy` · Start: `npm run start -w @mangaforever/api` · Health check: `/health`.
-3. Env: `DATABASE_URL`, `NODE_ENV=production`, `WEB_ORIGIN` and `APP_URL` (your Vercel URL), `TRUST_PROXY=2`, `INTERNAL_API_TOKEN`, `METADATA_PROVIDER=anilist`.
+3. Env: `DATABASE_URL`, `NODE_ENV=production`, `WEB_ORIGIN` and `APP_URL` (your Vercel URL), `TRUST_PROXY=2`, `INTERNAL_API_TOKEN`, `METADATA_PROVIDER=anilist`, `ADMIN_EMAILS`, `RESEND_API_KEY`, `MAIL_FROM`, `JOBS_TOKEN` (and optionally the `VAPID_*` keys).
 4. Seed once from your machine: `DATABASE_URL=<prod url> SEED_ADMIN_PASSWORD=<strong> npm run db:seed` (or skip the seed and import from AniList).
 
 **Web — Vercel:**
@@ -301,6 +313,12 @@ All routes are under `/api/v1`. Errors share one shape — `{ "error": { "code",
 1. Import the repo and set **Root Directory** to `apps/web` (`vercel.json` installs and builds from the monorepo root).
 2. Env: `API_URL` = your API URL, `NEXT_PUBLIC_API_URL` = same, `INTERNAL_API_TOKEN` = same value as the API.
 3. Deploy. The `/api/v1/*` rewrite keeps cookies first-party, so no cross-site cookie configuration is needed.
+
+**Automatic updates — GitHub Actions** (`.github/workflows/jobs.yml`):
+
+1. In the GitHub repo, Settings → Secrets and variables → Actions: add the **variable** `API_URL` (your Render URL) and the **secret** `JOBS_TOKEN` (same value as on the API).
+2. That's all. Jobs then run on schedule: `sync-chapters` every 15 minutes, `rankings` hourly, `link-sources`, `refresh-metadata`, `curate` and `cleanup` daily, `digest` daily, `import-series` weekly. A failing job opens (or comments on) an issue labelled `jobs`, and `keepalive.yml` stops GitHub from pausing the schedule.
+3. Any job can also be run from Admin → Jobs, or from the Actions tab with "Run workflow".
 
 ## Data honesty rules
 
@@ -316,35 +334,30 @@ These are enforced in code, not just in copy:
 
 ## Screenshots
 
-Captured from a local run with the sample catalog plus about 410 series imported from AniList. Covers are AniList's, shown from its CDN with attribution.
+Captured from a local run with the sample catalog (generated covers; imported AniList series show their real cover art).
 
 | | |
 | --- | --- |
-| ![Home — editor's-pick hero and Top 10](docs/screenshots/home.png) | ![Explore with genre filter](docs/screenshots/explore.png) |
-| **Home** — editor's-pick “panel spread” and member Top 10 | **Explore** — manhwa from the AniList import, filters and sorting |
-| ![Series page](docs/screenshots/series.png) | ![Reviews tab](docs/screenshots/reviews.png) |
-| **Series page** — AniList banner and cover, metadata, sources and actions | **Reviews** — rating control, helpful votes, reporting |
-| ![Manhua](docs/screenshots/manhua.png) | ![Website edition](docs/screenshots/website.png) |
-| **Manhua** — most popular Chinese titles | **Website edition** — generated covers, same catalog |
-| ![Rankings](docs/screenshots/rankings.png) | ![Seasonal](docs/screenshots/seasonal.png) |
-| **Rankings** — every list explains its formula | **Seasonal** — clearly labelled editor-curated lists |
-| ![Admin dashboard](docs/screenshots/admin.png) | ![Light theme](docs/screenshots/light.png) |
-| **Admin** — live statistics from stored data | **Light theme** |
+| ![Home](docs/screenshots/home.png) | ![Series page](docs/screenshots/series.png) |
+| **Home** — curated hero carousel and live Latest updates | **Series page** — read first / latest, follow, chapter list |
+| ![Reader](docs/screenshots/reader.png) | ![Dashboard](docs/screenshots/dashboard.png) |
+| **Reader** — long-strip mode with saved progress | **Dashboard** — new chapters, reading stats, recommendations |
+| ![Latest updates](docs/screenshots/latest.png) | ![Browse](docs/screenshots/browse.png) |
+| **Latest updates** — refreshes live as chapters release | **Browse** — filters and sorting |
 
-<img src="docs/screenshots/mobile.png" alt="Mobile home page" width="260">
+<img src="docs/screenshots/mobile.png" alt="Mobile home page" width="260"> <img src="docs/screenshots/mobile-reader.png" alt="Mobile reader" width="260">
 
 ## Known limitations and future work
 
-- **Email delivery** uses a development transport (console). Add a provider such as Resend or Postmark in `mailer.ts`.
-- **Email verification and Google sign-in** are not implemented yet (the session model supports adding Auth.js-style accounts).
+- **Google sign-in** is not implemented yet (the session model supports adding Auth.js-style accounts).
+- **Hosted chapters** take image URLs (Cloudinary, Cloudflare R2 or files in `public/`); there is no upload widget yet.
 - **Avatars** are https URLs rather than uploads; a Cloudinary/S3 upload endpoint is a natural next step.
 - **Rate limits** use an in-memory store — fine for a single API instance; use a Redis store when scaling horizontally.
 - **Recommendations** are content-based. Collaborative filtering should only be added once there is enough genuine rating data.
-- **Chapter release feeds** need a provider that legitimately publishes them; AniList does not.
-- **Notifications and discussion threads** are not built; the schema leaves room for them (`Follow` and `ReadingActivity` already exist).
+- **Chapter release information** depends on MangaDex listing the series; series it can't match are listed in Admin → Chapters for manual linking.
 - The sample catalog is a static snapshot — some ongoing series may have finished since it was compiled. Import or re-sync from AniList for current data.
 - AniList's API is free for non-commercial use only; a commercial deployment needs a different metadata licence.
 
 ---
 
-MangaForEver lists metadata only. Support creators by reading through official, licensed publishers.
+MangaForEver hosts only chapters it has the right to show. Support creators by reading through official, licensed publishers.

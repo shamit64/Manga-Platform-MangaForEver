@@ -72,7 +72,7 @@ export function HistoryView({ initial, prefs }: { initial: Paginated<Entry>; pre
             description={tracking.browse ? "Series you open will appear here so you can find them again." : "Browsing history is turned off."}
           />
         ) : (
-          <ul className="divide-y divide-line rounded-2xl border border-line bg-surface">
+          <ul className="divide-y divide-line rounded-lg border border-line bg-surface">
             {items.map((h) => (
               <li key={h.id} className="flex items-center gap-4 p-3 sm:p-4">
                 <Link href={`/manga/${h.series.slug}`} className="shrink-0">
@@ -98,10 +98,10 @@ export function HistoryView({ initial, prefs }: { initial: Paginated<Entry>; pre
         )}
       </div>
       <aside className="space-y-4">
-        <div className="rounded-2xl border border-line bg-surface p-5">
+        <div className="rounded-lg border border-line bg-surface p-5">
           <h2 className="font-display font-semibold">What MangaForEver records</h2>
           <p className="mt-1 text-sm text-muted">
-            Only activity on MangaForEver: series pages you open, searches you run, and changes you make to your library. Nothing from other
+            Only activity on MangaForEver: series pages you open, searches you run, and changes you make to your list. Nothing from other
             websites or reading apps. History is private and never shown on your profile.
           </p>
           <div className="mt-3 divide-y divide-line">
@@ -109,7 +109,7 @@ export function HistoryView({ initial, prefs }: { initial: Paginated<Entry>; pre
             <Switch checked={tracking.search} onCheckedChange={(v) => setPref("trackSearchHistory", v)} label="Record my searches" description="Shown as recent searches in the search box." />
           </div>
         </div>
-        <div className="rounded-2xl border border-line bg-surface p-5">
+        <div className="rounded-lg border border-line bg-surface p-5">
           <h2 className="mb-3 font-display font-semibold">Clear history</h2>
           <div className="flex flex-col gap-2">
             <Button variant="outline" onClick={() => clear("browsing")}>
@@ -122,7 +122,7 @@ export function HistoryView({ initial, prefs }: { initial: Paginated<Entry>; pre
               <Trash2 /> Clear everything
             </Button>
           </div>
-          <p className="mt-3 text-xs text-muted">Clearing history doesn’t change your library, ratings or reviews. Search history can be cleared from the search box.</p>
+          <p className="mt-3 text-xs text-muted">Clearing history doesn’t change your list, ratings or reviews. Search history can be cleared from the search box.</p>
         </div>
       </aside>
     </div>

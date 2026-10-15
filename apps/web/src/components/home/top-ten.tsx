@@ -50,7 +50,7 @@ export function TopTen({ data }: { data: Record<string, RankingResponse | null> 
               <Link
                 href={`/manga/${s.slug}`}
                 className={cn(
-                  "group flex items-center gap-4 rounded-2xl px-2 py-2.5 hover:bg-surface",
+                  "group flex items-center gap-4 rounded-lg px-2 py-2.5 hover:bg-surface",
                   s.rank <= 3 && "bg-[linear-gradient(90deg,color-mix(in_oklab,var(--violet)_14%,transparent),transparent)]",
                 )}
               >

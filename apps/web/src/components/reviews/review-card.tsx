@@ -56,7 +56,7 @@ export function ReviewCard({
   }
 
   return (
-    <article className="rounded-2xl border border-line bg-surface p-5">
+    <article className="rounded-lg border border-line bg-surface p-5">
       <header className="flex flex-wrap items-center gap-x-3 gap-y-2">
         <Link href={`/u/${review.author.username}`} className="flex items-center gap-2.5 hover:text-lilac">
           <Avatar name={review.author.displayName ?? review.author.username} url={review.author.avatarUrl} size={34} />

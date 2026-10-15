@@ -16,6 +16,7 @@ import { formatDate } from "@/lib/utils";
 type Profile = {
   user: { id: string; username: string; displayName: string | null; avatarUrl: string | null; bio: string | null; role: string; isDemo: boolean; joinedAt: string };
   favoriteGenres: string[];
+  favoriteTypes?: string[];
   visibility: { library: boolean; favorites: boolean; stats: boolean };
   stats: { byStatus: Record<ReadingStatus, number>; total: number; completed: number; chaptersTracked: number; favorites: number; genreDistribution: { name: string; slug: string; count: number }[] } | null;
   favorites: Card[] | null;
@@ -55,7 +56,7 @@ export default async function ProfilePage({ params }: Params) {
           </div>
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2">
-              <h1 className="text-3xl font-extrabold sm:text-4xl">{u.displayName ?? u.username}</h1>
+              <h1 className="text-3xl font-medium sm:text-4xl">{u.displayName ?? u.username}</h1>
               {u.role !== "USER" && <Badge tone="violet">{u.role === "ADMIN" ? "Admin" : "Moderator"}</Badge>}
               {u.isDemo && <Badge tone="outline" title="Seeded demo account">Demo account</Badge>}
             </div>
@@ -65,10 +66,18 @@ export default async function ProfilePage({ params }: Params) {
               <span>{p.social.followers} followers · {p.social.following} following</span>
             </p>
             {u.bio && <p className="mt-3 max-w-2xl text-text/90">{u.bio}</p>}
+            {p.favoriteTypes?.length ? (
+              <p className="mt-3 text-sm text-muted">
+                Favorite types:{" "}
+                {p.favoriteTypes.map((t, i) => (
+                  <span key={t}>{i ? ", " : ""}<Link href={`/${t.toLowerCase()}`} className="text-lilac hover:underline">{t.charAt(0) + t.slice(1).toLowerCase()}</Link></span>
+                ))}
+              </p>
+            ) : null}
             {p.favoriteGenres.length > 0 && (
               <ul className="mt-3 flex flex-wrap gap-1.5" aria-label="Favorite genres">
                 {p.favoriteGenres.map((g) => (
-                  <li key={g}><Link href={`/explore?genres=${g}`} className="rounded-full bg-violet/15 px-2.5 py-1 text-xs text-lilac">{genreName(g)}</Link></li>
+                  <li key={g}><Link href={`/browse?genres=${g}`} className="rounded-full bg-violet/15 px-2.5 py-1 text-xs text-lilac">{genreName(g)}</Link></li>
                 ))}
               </ul>
             )}
@@ -84,8 +93,8 @@ export default async function ProfilePage({ params }: Params) {
       {p.stats ? (
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
           {[["Tracked", p.stats.total], ["Reading", p.stats.byStatus.READING], ["Completed", p.stats.completed], ["Plan to read", p.stats.byStatus.PLAN_TO_READ], ["Chapters", p.stats.chaptersTracked], ["Favorites", p.stats.favorites]].map(([l, n]) => (
-            <div key={l as string} className="rounded-2xl border border-line bg-surface p-4">
-              <p className="font-display text-2xl font-extrabold tabular-nums">{Number(n).toLocaleString()}</p>
+            <div key={l as string} className="rounded-lg border border-line bg-surface p-4">
+              <p className="font-display text-2xl font-medium tabular-nums">{Number(n).toLocaleString()}</p>
               <p className="text-xs text-muted">{l}</p>
             </div>
           ))}

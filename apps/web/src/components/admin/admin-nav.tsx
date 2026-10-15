@@ -8,6 +8,8 @@ const ITEMS = [
   ["/admin", "Dashboard", "ADMIN"],
   ["/admin/catalog", "Catalog", "ADMIN"],
   ["/admin/import", "Import", "ADMIN"],
+  ["/admin/chapters", "Chapters", "ADMIN"],
+  ["/admin/jobs", "Jobs", "ADMIN"],
   ["/admin/featured", "Featured", "ADMIN"],
   ["/admin/collections", "Collections", "ADMIN"],
   ["/admin/moderation", "Moderation", "MODERATOR"],
