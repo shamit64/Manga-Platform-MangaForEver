@@ -266,7 +266,7 @@ Cover and banner images are **not downloaded**: the app shows them from AniList'
 npm run site:build   # reads the catalog from DATABASE_URL → site/dist/mangaforever.html (+ index.html to open from disk)
 ```
 
-It has the home page (editor's picks, Top 10, origin and genre browsing, seasonal lists), Explore with search and filters, series pages, rankings, a personal shelf with chapter progress, favorites and history, recommendations that say why, and reader ratings and reviews. Hosted as a Claude artifact, shelves are saved privately per signed-in viewer and reviews are shared between viewers; opened anywhere else, the shelf is kept in the browser.
+It has the home page (editor's picks, Top 10, origin and genre browsing, seasonal lists), Explore with search and filters, series pages, rankings, a personal shelf with chapter progress, favorites and history, recommendations that say why, and reader ratings and reviews. On a host that provides per-viewer storage, shelves are saved privately per signed-in viewer and reviews are shared between viewers; opened anywhere else, the shelf is kept in the browser.
 
 It deliberately carries **facts only**: no AniList description text (each series links to AniList instead; summaries appear only where MangaForEver wrote its own) and no cover images. Static hosts like artifacts can't load AniList's CDN and publishers' art shouldn't be re-hosted, so the page draws generated covers that use each series' original-script title and genre palette.
 

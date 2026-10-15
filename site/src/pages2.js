@@ -46,7 +46,7 @@ function RatingPanel({ s }) {
         ${[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => html`<button key=${n} type="button" data-on=${mine != null && n <= mine} aria-pressed=${mine === n} aria-label=${`Rate ${n} out of 10`}
           disabled=${rt.mode === "cloud" && !commWritable} onClick=${() => rate(s.id, mine === n ? null : n)}>${n}</button>`)}
       </div>
-      <p className="note">${rt.mode === "cloud" ? (commWritable ? "Your rating is public and counts toward the reader average. Tap it again to clear it." : "Your access to this page is view-only, so you can't rate here.") : "Saved in this browser only. Open this page signed in to claude.ai to share ratings with other readers."}</p>
+      <p className="note">${rt.mode === "cloud" ? (commWritable ? "Your rating is public and counts toward the reader average. Tap it again to clear it." : "Your access to this page is view-only, so you can't rate here.") : "Saved in this browser only. Open this page while signed in to share ratings with other readers."}</p>
     </div>
   </div>`;
 }
@@ -130,7 +130,7 @@ function Reviews({ s }) {
       ? html`<div>${list.map((r) => html`<${ReviewItem} key=${r.uid} r=${r} s=${s} profile=${profiles[r.uid]} />`)}</div>`
       : !editing && html`<div className="empty"><strong>No reviews yet</strong>${rt.mode === "cloud"
           ? commWritable ? "Be the first to say what this series does well, or doesn't." : "Your access to this page is view-only, so you can read reviews but not write them."
-          : "Reviews are shared through claude.ai. Open this page while signed in to read and write them."}</div>`}
+          : "Reviews are shared between signed-in readers. Open this page while signed in to read and write them."}</div>`}
   <//>`;
 }
 
@@ -321,7 +321,7 @@ function Shelf() {
     <div className="wrap page-head"><div className="aurora" aria-hidden="true"></div>
       <div style=${{ display: "flex", flexWrap: "wrap", gap: "12px", alignItems: "center", justifyContent: "space-between" }}>
         <h1>My shelf</h1>
-        <span className=${"sync" + (cloud ? "" : " local")}><i></i>${cloud ? "Private to you · saved to your claude.ai account" : rt.ready ? "Saved in this browser only" : "Connecting…"}</span>
+        <span className=${"sync" + (cloud ? "" : " local")}><i></i>${cloud ? "Private to you · saved to your account" : rt.ready ? "Saved in this browser only" : "Connecting…"}</span>
       </div>
       <p>Everything you're reading, planning, finished or dropped, with chapter progress. Only you can see your shelf.</p>
     </div>
@@ -361,7 +361,7 @@ function Shelf() {
           ${recs.length > 0 && html`<${Section} title="For you" desc="Each pick says which series on your shelf it's matched to and what they share.">
             <${Row} items=${recs} render=${(r) => html`<${Card} s=${r.s} sub=${r.because ? `Like ${r.because.title}: ${r.why.join(", ")}` : r.why.join(" · ")} />`} />
           <//>`}`}
-      ${!cloud && rt.ready && html`<${Note}>${rt.mode === "cloud" ? "Your access to this page can't save to your account, so your shelf is kept in this browser." : "Your shelf is kept in this browser. Open this page signed in to claude.ai to keep it with your account across devices."}<//>`}
+      ${!cloud && rt.ready && html`<${Note}>${rt.mode === "cloud" ? "Your access to this page can't save to your account, so your shelf is kept in this browser." : "Your shelf is kept in this browser. Open this page while signed in to keep it with your account across devices."}<//>`}
     </div>
   </main>`;
 }
