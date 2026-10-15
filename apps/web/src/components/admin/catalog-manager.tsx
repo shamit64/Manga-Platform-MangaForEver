@@ -10,7 +10,7 @@ import {
   PUBLICATION_STATUS_LABELS,
   type SeriesDetail,
   type SeriesCard,
-} from "@mangaverse/shared";
+} from "@mangaforever/shared";
 import { Archive, ArchiveRestore, GitMerge, Pencil, Plus, RefreshCw } from "lucide-react";
 import Link from "next/link";
 import * as React from "react";

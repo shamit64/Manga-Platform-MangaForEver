@@ -1,6 +1,6 @@
 "use client";
 
-import { CONTENT_TYPES, CONTENT_TYPE_LABELS, PUBLICATION_STATUS_LABELS, type Paginated, type SeriesCard as Card } from "@mangaverse/shared";
+import { CONTENT_TYPES, CONTENT_TYPE_LABELS, PUBLICATION_STATUS_LABELS, type Paginated, type SeriesCard as Card } from "@mangaforever/shared";
 import { Heart } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";

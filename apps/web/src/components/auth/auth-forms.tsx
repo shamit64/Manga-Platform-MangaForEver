@@ -6,7 +6,7 @@ import {
   registerSchema,
   resetPasswordSchema,
   type Me,
-} from "@mangaverse/shared";
+} from "@mangaforever/shared";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -109,7 +109,7 @@ export function RegisterForm() {
     try {
       const { user } = await api<{ user: Me }>("/auth/register", { method: "POST", body: values });
       setUser(user);
-      toast.success("Account created — welcome to MangaVerse");
+      toast.success("Account created — welcome to MangaForEver");
       router.push(safeNext(sp.get("next")) === "/" ? "/settings?welcome=1" : safeNext(sp.get("next")));
       router.refresh();
     } catch (e) {

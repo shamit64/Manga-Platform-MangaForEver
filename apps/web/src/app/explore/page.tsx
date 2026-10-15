@@ -1,4 +1,4 @@
-import type { Paginated, SeriesCard } from "@mangaverse/shared";
+import type { Paginated, SeriesCard } from "@mangaforever/shared";
 import { SearchX } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -45,7 +45,7 @@ export default async function ExplorePage({ searchParams }: { searchParams: Prom
         description={
           q
             ? "Matching titles, alternative and native titles, creators, genres and tags."
-            : "Browse every manga, manhwa and manhua in the MangaVerse catalog."
+            : "Browse every manga, manhwa and manhua in the MangaForEver catalog."
         }
       />
       <div className="flex gap-10">

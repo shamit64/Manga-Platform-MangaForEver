@@ -1,4 +1,4 @@
-import { CONTENT_TYPES, CONTENT_TYPE_LABELS, DATA_SOURCE_LABELS, type DataSource, type SeriesCard } from "@mangaverse/shared";
+import { CONTENT_TYPES, CONTENT_TYPE_LABELS, DATA_SOURCE_LABELS, type DataSource, type SeriesCard } from "@mangaforever/shared";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { EmptyState, ErrorNotice, PageHeader, Section } from "@/components/layout/section";
@@ -46,7 +46,7 @@ export default async function LatestPage({ searchParams }: { searchParams: Promi
                 ))}
               </ul>
             ) : (
-              <EmptyState title="No chapter release data" description="None of the configured metadata sources publish chapter release dates, so MangaVerse doesn't show any rather than guess." />
+              <EmptyState title="No chapter release data" description="None of the configured metadata sources publish chapter release dates, so MangaForEver doesn't show any rather than guess." />
             )}
           </Section>
           <Section title="Catalog updates" description="Entries whose metadata (titles, synopsis, status, creators…) changed most recently — not the series' publication dates.">

@@ -11,7 +11,7 @@ const nextConfig: NextConfig = {
   turbopack: { root: MONOREPO_ROOT },
   outputFileTracingRoot: MONOREPO_ROOT,
   poweredByHeader: false,
-  transpilePackages: ["@mangaverse/shared"],
+  transpilePackages: ["@mangaforever/shared"],
   images: {
     // Set NEXT_IMAGE_UNOPTIMIZED=1 to let browsers load provider covers directly (e.g. behind a proxy).
     unoptimized: process.env.NEXT_IMAGE_UNOPTIMIZED === "1",

@@ -9,7 +9,7 @@ export function Footer() {
           <Logo />
           <p className="mt-3 max-w-sm text-muted">Discover. Track. Review. Explore. A catalog and reading tracker for manga, manhwa and manhua.</p>
           <p className="mt-3 max-w-sm text-xs text-muted">
-            MangaVerse lists metadata only and does not host or link to chapters. Read series through official, licensed publishers.
+            MangaForEver lists metadata only and does not host or link to chapters. Read series through official, licensed publishers.
           </p>
         </div>
         <FooterCol title="Discover" links={[["Explore", "/explore"], ["Rankings", "/rankings"], ["Seasonal", "/seasonal"], ["Latest updates", "/latest"], ["New releases", "/new"]]} />
@@ -17,7 +17,7 @@ export function Footer() {
         <FooterCol title="About the data" links={[["How rankings work", "/rankings#how"], ["Community reviews", "/reviews"], ["API docs", "/api-docs"]]} />
       </div>
       <p className="mx-auto max-w-7xl px-4 pb-8 text-xs text-muted sm:px-6">
-        Titles marked “Sample data” come from MangaVerse’s bundled sample catalog. Cover art, banners and external scores are provided by AniList (anilist.co) and shown from AniList’s servers; each series page credits its sources.
+        Titles marked “Sample data” come from MangaForEver’s bundled sample catalog. Cover art, banners and external scores are provided by AniList (anilist.co) and shown from AniList’s servers; each series page credits its sources.
       </p>
     </footer>
   );

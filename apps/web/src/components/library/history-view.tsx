@@ -1,6 +1,6 @@
 "use client";
 
-import { READING_STATUS_LABELS, type Paginated, type Preferences, type ReadingStatus, type SeriesCard } from "@mangaverse/shared";
+import { READING_STATUS_LABELS, type Paginated, type Preferences, type ReadingStatus, type SeriesCard } from "@mangaforever/shared";
 import { History, Trash2, X } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -99,9 +99,9 @@ export function HistoryView({ initial, prefs }: { initial: Paginated<Entry>; pre
       </div>
       <aside className="space-y-4">
         <div className="rounded-2xl border border-line bg-surface p-5">
-          <h2 className="font-display font-semibold">What MangaVerse records</h2>
+          <h2 className="font-display font-semibold">What MangaForEver records</h2>
           <p className="mt-1 text-sm text-muted">
-            Only activity on MangaVerse: series pages you open, searches you run, and changes you make to your library. Nothing from other
+            Only activity on MangaForEver: series pages you open, searches you run, and changes you make to your library. Nothing from other
             websites or reading apps. History is private and never shown on your profile.
           </p>
           <div className="mt-3 divide-y divide-line">

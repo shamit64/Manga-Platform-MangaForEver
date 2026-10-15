@@ -6,7 +6,7 @@ import {
   type SeasonalCollectionDTO,
   type SeriesCard as Card,
   type SeriesDetail,
-} from "@mangaverse/shared";
+} from "@mangaforever/shared";
 import Link from "next/link";
 import { Hero, type HeroItem } from "@/components/home/hero";
 import { TopTen } from "@/components/home/top-ten";
@@ -57,7 +57,7 @@ export default async function HomePage() {
       {apiDown ? (
         <div className="pt-10">
           <ErrorNotice
-            title="MangaVerse can't reach its API right now"
+            title="MangaForEver can't reach its API right now"
             description="The catalog server didn't respond. If you're running locally, start the API with `npm run dev` and refresh."
           />
         </div>
@@ -90,7 +90,7 @@ export default async function HomePage() {
         </Section>
       ) : null}
 
-      <Section title="Top 10 on MangaVerse" description="Ranked by member activity — not sales or external charts." href="/rankings" hrefLabel="All rankings">
+      <Section title="Top 10 on MangaForEver" description="Ranked by member activity — not sales or external charts." href="/rankings" hrefLabel="All rankings">
         <TopTen data={Object.fromEntries(types.map((t, i) => [t, tops[i] as RankingResponse | null]))} />
       </Section>
 
@@ -106,7 +106,7 @@ export default async function HomePage() {
       ))}
 
       {featured?.items.length ? (
-        <Section title="Featured" description="Hand-picked by MangaVerse editors, with a note on why.">
+        <Section title="Featured" description="Hand-picked by MangaForEver editors, with a note on why.">
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {featured.items.slice(0, 3).map(({ series: s, reason }) => (
               <Link key={s.id} href={`/manga/${s.slug}`} className="group flex gap-4 rounded-2xl border border-line bg-surface p-4 hover:border-violet/60">
@@ -133,7 +133,7 @@ export default async function HomePage() {
                     <div className="min-w-0 flex-1">
                       <p className="truncate font-medium">{u.series.title}</p>
                       <p className="text-xs text-muted">
-                        {u.source === "ANILIST" ? `Synced from AniList ${u.lastSyncedAt ? timeAgo(u.lastSyncedAt) : ""}` : u.source === "SEED_SAMPLE" ? "Sample catalog entry" : "Edited by MangaVerse"} · {formatDate(u.updatedAt)}
+                        {u.source === "ANILIST" ? `Synced from AniList ${u.lastSyncedAt ? timeAgo(u.lastSyncedAt) : ""}` : u.source === "SEED_SAMPLE" ? "Sample catalog entry" : "Edited by MangaForEver"} · {formatDate(u.updatedAt)}
                       </p>
                     </div>
                     <TypeBadge type={u.series.type} />
@@ -159,7 +159,7 @@ export default async function HomePage() {
           </div>
           {added?.items.length ? (
             <p className="mt-4 text-sm text-muted">
-              Newly added to the MangaVerse catalog:{" "}
+              Newly added to the MangaForEver catalog:{" "}
               {added.items.slice(0, 3).map((s, i) => (
                 <span key={s.id}>
                   {i > 0 && ", "}

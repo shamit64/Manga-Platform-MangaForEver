@@ -1,4 +1,4 @@
-import { READING_STATUS_LABELS, type ReadingStatus } from "@mangaverse/shared";
+import { READING_STATUS_LABELS, type ReadingStatus } from "@mangaforever/shared";
 import Link from "next/link";
 import { timeAgo } from "@/lib/utils";
 

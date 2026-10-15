@@ -1,5 +1,5 @@
 /**
- * MangaVerse seed script.
+ * MangaForEver seed script.
  *
  *   npm run db:seed
  *
@@ -53,7 +53,7 @@ const DEMO_MEMBERS: { username: string; displayName: string; bio: string; likes:
 ];
 
 async function main() {
-  console.log("Seeding MangaVerse sample data…");
+  console.log("Seeding MangaForEver sample data…");
 
   // ── Genres (fixed list so filters always show them)
   for (const name of SEED_GENRES) {
@@ -95,28 +95,28 @@ async function main() {
   console.log(`  catalog: ${SEED_CATALOG.length} sample series (${created} new)`);
 
   // ── Staff + demo accounts
-  const adminEmail = (process.env.SEED_ADMIN_EMAIL ?? "admin@mangaverse.local").toLowerCase();
+  const adminEmail = (process.env.SEED_ADMIN_EMAIL ?? "admin@mangaforever.local").toLowerCase();
   const adminPassword = process.env.SEED_ADMIN_PASSWORD ?? "ChangeMe-Admin-1";
-  const modEmail = (process.env.SEED_MODERATOR_EMAIL ?? "moderator@mangaverse.local").toLowerCase();
+  const modEmail = (process.env.SEED_MODERATOR_EMAIL ?? "moderator@mangaforever.local").toLowerCase();
   const modPassword = process.env.SEED_MODERATOR_PASSWORD ?? "ChangeMe-Mod-1";
   const demoPassword = process.env.SEED_DEMO_PASSWORD ?? "DemoReader-1";
 
   const admin = await prisma.user.upsert({
     where: { email: adminEmail },
     update: { role: "ADMIN" },
-    create: { email: adminEmail, username: "mv_admin", displayName: "MangaVerse Admin", role: "ADMIN", passwordHash: await bcrypt.hash(adminPassword, 12), preference: { create: {} } },
+    create: { email: adminEmail, username: "mf_admin", displayName: "MangaForEver Admin", role: "ADMIN", passwordHash: await bcrypt.hash(adminPassword, 12), preference: { create: {} } },
   });
   await prisma.user.upsert({
     where: { email: modEmail },
     update: { role: "MODERATOR" },
-    create: { email: modEmail, username: "mv_moderator", displayName: "MangaVerse Moderator", role: "MODERATOR", passwordHash: await bcrypt.hash(modPassword, 12), preference: { create: {} } },
+    create: { email: modEmail, username: "mf_moderator", displayName: "MangaForEver Moderator", role: "MODERATOR", passwordHash: await bcrypt.hash(modPassword, 12), preference: { create: {} } },
   });
   await prisma.user.upsert({
-    where: { email: "reader@mangaverse.local" },
+    where: { email: "reader@mangaforever.local" },
     update: {},
     create: {
-      email: "reader@mangaverse.local", username: "demo_reader", displayName: "Demo Reader", isDemo: true,
-      bio: "A demo account for trying MangaVerse. Everything here can be edited or deleted.",
+      email: "reader@mangaforever.local", username: "demo_reader", displayName: "Demo Reader", isDemo: true,
+      bio: "A demo account for trying MangaForEver. Everything here can be edited or deleted.",
       passwordHash: await bcrypt.hash(demoPassword, 12),
       preference: { create: { favoriteGenres: ["fantasy", "adventure"] } },
     },
@@ -134,7 +134,7 @@ async function main() {
       where: { username: m.username },
       update: {},
       create: {
-        email: `${m.username}@demo.mangaverse.local`, username: m.username, displayName: m.displayName, bio: m.bio,
+        email: `${m.username}@demo.mangaforever.local`, username: m.username, displayName: m.displayName, bio: m.bio,
         isDemo: true, passwordHash: demoHash,
         preference: { create: { favoriteGenres: m.likes.map((g) => g.toLowerCase().replace(/[^a-z0-9]+/g, "-")) } },
       },
@@ -238,7 +238,7 @@ async function main() {
     });
   }
 
-  console.log(`  accounts: admin ${adminEmail}, moderator ${modEmail}, demo reader reader@mangaverse.local`);
+  console.log(`  accounts: admin ${adminEmail}, moderator ${modEmail}, demo reader reader@mangaforever.local`);
   if (!process.env.SEED_ADMIN_PASSWORD) console.log(`  ⚠ Using default local admin password "${adminPassword}" — set SEED_ADMIN_PASSWORD before seeding anything public.`);
   console.log(`  demo reader password: ${demoPassword}`);
   console.log("Done.");

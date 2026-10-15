@@ -1,6 +1,6 @@
 "use client";
 
-import { REPORT_REASONS, REPORT_REASON_LABELS, type ReviewDTO } from "@mangaverse/shared";
+import { REPORT_REASONS, REPORT_REASON_LABELS, type ReviewDTO } from "@mangaforever/shared";
 import { EyeOff, Flag, Pencil, Star, ThumbsUp, Trash2 } from "lucide-react";
 import Link from "next/link";
 import * as React from "react";

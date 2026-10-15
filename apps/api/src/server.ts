@@ -4,7 +4,7 @@ import { logger } from "./lib/logger.js";
 import { prisma } from "./lib/prisma.js";
 
 const app = createApp();
-const onListen = () => logger.info(`MangaVerse API listening on http://${env.HOST ?? "localhost"}:${env.PORT} (docs at /docs)`);
+const onListen = () => logger.info(`MangaForEver API listening on http://${env.HOST ?? "localhost"}:${env.PORT} (docs at /docs)`);
 const server = env.HOST ? app.listen(env.PORT, env.HOST, onListen) : app.listen(env.PORT, onListen);
 
 // Periodically remove expired sessions and reset tokens.

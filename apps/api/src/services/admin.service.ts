@@ -1,4 +1,4 @@
-import type { AdminSeriesInput } from "@mangaverse/shared";
+import type { AdminSeriesInput } from "@mangaforever/shared";
 import { badRequest, notFound } from "../lib/errors.js";
 import { prisma } from "../lib/prisma.js";
 import { slugify } from "../lib/util.js";

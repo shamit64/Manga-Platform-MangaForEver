@@ -1,5 +1,5 @@
 import bcrypt from "bcryptjs";
-import type { LoginInput, Me, Preferences, RegisterInput } from "@mangaverse/shared";
+import type { LoginInput, Me, Preferences, RegisterInput } from "@mangaforever/shared";
 import { env } from "../config/env.js";
 import { AppError, badRequest, conflict, unauthorized } from "../lib/errors.js";
 import { logger } from "../lib/logger.js";
@@ -73,7 +73,7 @@ export async function requestPasswordReset(email: string) {
   const link = `${env.APP_URL.replace(/\/$/, "")}/reset-password?token=${encodeURIComponent(token)}`;
   await sendMail({
     to: user.email,
-    subject: "Reset your MangaVerse password",
+    subject: "Reset your MangaForEver password",
     text: `Someone asked to reset the password for ${user.username}. Use this link within an hour:\n\n${link}\n\nIf you didn't ask for this, you can ignore this email.`,
   });
   return { token }; // returned for tests only; controllers never expose it

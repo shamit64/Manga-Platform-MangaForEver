@@ -1,4 +1,4 @@
-import { type LibraryEntryDTO, type Paginated, type ReadingStatus, type ReviewDTO, type SeriesCard as Card } from "@mangaverse/shared";
+import { type LibraryEntryDTO, type Paginated, type ReadingStatus, type ReviewDTO, type SeriesCard as Card } from "@mangaforever/shared";
 import { CalendarDays, Lock, Settings } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";

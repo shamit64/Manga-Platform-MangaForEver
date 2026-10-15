@@ -1,6 +1,6 @@
 "use client";
 
-import { READING_STATUSES, READING_STATUS_LABELS, type LibraryEntryDTO, type Paginated, type ReadingStatus } from "@mangaverse/shared";
+import { READING_STATUSES, READING_STATUS_LABELS, type LibraryEntryDTO, type Paginated, type ReadingStatus } from "@mangaforever/shared";
 import { Lock, UserMinus, UserPlus } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";

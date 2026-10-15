@@ -1,7 +1,7 @@
 import "server-only";
 import { cookies, headers } from "next/headers";
 import { cache } from "react";
-import type { Me } from "@mangaverse/shared";
+import type { Me } from "@mangaforever/shared";
 
 const API_URL = (process.env.API_URL ?? "http://localhost:4000").replace(/\/$/, "");
 
@@ -30,10 +30,10 @@ function qs(query?: Query) {
  */
 export async function serverApi<T>(path: string, query?: Query): Promise<T> {
   const jar = await cookies();
-  const session = jar.get("mv_session")?.value;
+  const session = jar.get("mf_session")?.value;
   const h = await headers();
   const fwd: Record<string, string> = {};
-  if (session) fwd.cookie = `mv_session=${session}`;
+  if (session) fwd.cookie = `mf_session=${session}`;
   // Pass the visitor's IP along so per-IP limits on the API apply to them, not to this server.
   const clientIp = h.get("x-forwarded-for")?.split(",")[0]?.trim() || h.get("x-real-ip");
   if (clientIp) fwd["x-forwarded-for"] = clientIp;
@@ -42,7 +42,7 @@ export async function serverApi<T>(path: string, query?: Query): Promise<T> {
   try {
     res = await fetch(`${API_URL}/api/v1${path}${qs(query)}`, { headers: fwd, cache: "no-store" });
   } catch {
-    throw new ServerApiError(0, "The MangaVerse API is unreachable.");
+    throw new ServerApiError(0, "The MangaForEver API is unreachable.");
   }
   if (!res.ok) {
     const body = await res.json().catch(() => null);
@@ -63,7 +63,7 @@ export async function tryServerApi<T>(path: string, query?: Query): Promise<T | 
 /** Current user for this request (deduplicated across the render tree). */
 export const getMe = cache(async (): Promise<Me | null> => {
   const jar = await cookies();
-  if (!jar.get("mv_session")) return null;
+  if (!jar.get("mf_session")) return null;
   const r = await tryServerApi<{ user: Me }>("/auth/me");
   return r?.user ?? null;
 });

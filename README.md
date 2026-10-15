@@ -1,10 +1,10 @@
-# MangaVerse
+# MangaForEver
 
 **Discover. Track. Review. Explore.**
 
-MangaVerse is a full-stack discovery, tracking and review platform for Japanese manga, Korean manhwa and Chinese manhua. Browse and search a real PostgreSQL-backed catalog of popular series imported from [AniList](https://anilist.co) (with their real cover art), keep a reading library with chapter progress, favorite and rate series, write reviews, and get recommendations that explain why each pick is there.
+MangaForEver is a full-stack discovery, tracking and review platform for Japanese manga, Korean manhwa and Chinese manhua. Browse and search a real PostgreSQL-backed catalog of popular series imported from [AniList](https://anilist.co) (with their real cover art), keep a reading library with chapter progress, favorite and rate series, write reviews, and get recommendations that explain why each pick is there.
 
-MangaVerse is a **metadata catalog and tracker only**. It does not host, scrape or link to chapters.
+MangaForEver is a **metadata catalog and tracker only**. It does not host, scrape or link to chapters.
 
 ---
 
@@ -52,7 +52,7 @@ MangaVerse is a **metadata catalog and tracker only**. It does not host, scrape 
 - **Web:** Next.js 16 (App Router) · React 19 · TypeScript · Tailwind CSS 4 · shadcn-style components on Radix primitives · Lucide icons · React Hook Form + Zod · next-themes · Sonner
 - **API:** Node.js · Express 5 · TypeScript · Zod validation · Helmet · express-rate-limit · Pino · Swagger UI (OpenAPI 3.1)
 - **Database:** PostgreSQL · Prisma 7 (driver adapter `@prisma/adapter-pg`) · `pg_trgm`
-- **Shared:** `@mangaverse/shared` — Zod schemas, enums and DTO types used by both apps
+- **Shared:** `@mangaforever/shared` — Zod schemas, enums and DTO types used by both apps
 - **Metadata:** AniList GraphQL API behind a replaceable provider interface
 - **Tests:** Vitest + Supertest integration tests against a real PostgreSQL database
 
@@ -86,7 +86,7 @@ flowchart LR
 The browser only ever talks to the web origin; Next.js proxies `/api/v1/*` to the API, so the session cookie is first-party and `SameSite=Lax` works across the Vercel ↔ Render split. More detail, including the data model, ranking formulas and the recommendation algorithm, is in [`docs/architecture.md`](docs/architecture.md).
 
 ```
-MangaVerse/
+MangaForEver/
 ├── apps/
 │   ├── api/                 Express API
 │   │   ├── src/
@@ -108,7 +108,7 @@ MangaVerse/
 │   └── seed-data/           labelled sample catalog, picks, collections, demo reviews
 ├── docs/                    architecture.md, api.md
 ├── scripts/                 local.mjs (one-command runner), test-DB helpers
-├── start-mangaverse.cmd     Windows double-click launcher
+├── start-mangaforever.cmd     Windows double-click launcher
 ├── docker-compose.yml       local PostgreSQL
 ├── render.yaml              API blueprint
 └── .env.example
@@ -118,7 +118,7 @@ MangaVerse/
 
 ### Quickest: one command, no database install
 
-**Windows:** double-click **`start-mangaverse.cmd`**. The first run downloads a portable Node.js if you don't have Node 20.19+, installs dependencies, sets up a private PostgreSQL inside the project folder (`.local-db`), loads the sample data, builds the app and opens **http://localhost:3000**. Later runs start in seconds. Keep the window open while you use the app; close it (or press Ctrl+C) to stop.
+**Windows:** double-click **`start-mangaforever.cmd`**. The first run downloads a portable Node.js if you don't have Node 20.19+, installs dependencies, sets up a private PostgreSQL inside the project folder (`.local-db`), loads the sample data, builds the app and opens **http://localhost:3000**. Later runs start in seconds. Keep the window open while you use the app; close it (or press Ctrl+C) to stop.
 
 **macOS / Linux / Windows terminal:**
 
@@ -157,9 +157,9 @@ Sign in with the seeded accounts (change these in `.env` before seeding anything
 
 | Account | Email | Password |
 | --- | --- | --- |
-| Admin | `admin@mangaverse.local` | `ChangeMe-Admin-1` |
-| Moderator | `moderator@mangaverse.local` | `ChangeMe-Mod-1` |
-| Demo reader | `reader@mangaverse.local` | `DemoReader-1` |
+| Admin | `admin@mangaforever.local` | `ChangeMe-Admin-1` |
+| Moderator | `moderator@mangaforever.local` | `ChangeMe-Mod-1` |
+| Demo reader | `reader@mangaforever.local` | `DemoReader-1` |
 
 Or register a new account. Password-reset emails are printed to the API console in development (look for 📧) — plug a real provider into `apps/api/src/services/mailer.ts` for production.
 
@@ -248,20 +248,20 @@ Cover and banner images are **not downloaded**: the app shows them from AniList'
 
 ## Website edition
 
-`site/` holds a single-page edition of MangaVerse that needs no server: one HTML file with the catalog embedded, React loaded from a CDN, and the same colour system as the app.
+`site/` holds a single-page edition of MangaForEver that needs no server: one HTML file with the catalog embedded, React loaded from a CDN, and the same colour system as the app.
 
 ```bash
-npm run site:build   # reads the catalog from DATABASE_URL → site/dist/mangaverse.html (+ index.html to open from disk)
+npm run site:build   # reads the catalog from DATABASE_URL → site/dist/mangaforever.html (+ index.html to open from disk)
 ```
 
 It has the home page (editor's picks, Top 10, origin and genre browsing, seasonal lists), Explore with search and filters, series pages, rankings, a personal shelf with chapter progress, favorites and history, recommendations that say why, and reader ratings and reviews. Hosted as a Claude artifact, shelves are saved privately per signed-in viewer and reviews are shared between viewers; opened anywhere else, the shelf is kept in the browser.
 
-It deliberately carries **facts only**: no AniList description text (each series links to AniList instead; summaries appear only where MangaVerse wrote its own) and no cover images. Static hosts like artifacts can't load AniList's CDN and publishers' art shouldn't be re-hosted, so the page draws generated covers that use each series' original-script title and genre palette.
+It deliberately carries **facts only**: no AniList description text (each series links to AniList instead; summaries appear only where MangaForEver wrote its own) and no cover images. Static hosts like artifacts can't load AniList's CDN and publishers' art shouldn't be re-hosted, so the page draws generated covers that use each series' original-script title and genre palette.
 
 ## Testing
 
 ```bash
-docker compose up -d          # creates mangaverse and mangaverse_test databases
+docker compose up -d          # creates mangaforever and mangaforever_test databases
 npm run db:test:prepare       # apply migrations to TEST_DATABASE_URL
 npm test
 ```
@@ -292,7 +292,7 @@ All routes are under `/api/v1`. Errors share one shape — `{ "error": { "code",
 **API — Render** (blueprint in `render.yaml`) or Railway:
 
 1. New → Blueprint → select the repo (or create a Node web service with root `.`).
-2. Build: `npm ci && npm run build -w @mangaverse/api && npx prisma migrate deploy` · Start: `npm run start -w @mangaverse/api` · Health check: `/health`.
+2. Build: `npm ci && npm run build -w @mangaforever/api && npx prisma migrate deploy` · Start: `npm run start -w @mangaforever/api` · Health check: `/health`.
 3. Env: `DATABASE_URL`, `NODE_ENV=production`, `WEB_ORIGIN` and `APP_URL` (your Vercel URL), `TRUST_PROXY=2`, `INTERNAL_API_TOKEN`, `METADATA_PROVIDER=anilist`.
 4. Seed once from your machine: `DATABASE_URL=<prod url> SEED_ADMIN_PASSWORD=<strong> npm run db:seed` (or skip the seed and import from AniList).
 
@@ -308,7 +308,7 @@ These are enforced in code, not just in copy:
 
 - **Unknown is unknown.** Missing chapters, volumes, publishers, dates or demographics are stored as `null` and displayed as “Unknown”.
 - **No invented chapter releases.** `ChapterMetadata` is only written from a provider that supplies it; the UI says so when there's none.
-- **Community vs. external numbers are separate.** `ratingAvg`/`popularityScore` come from stored MangaVerse rows (recomputed on every change); `externalRating`/`externalPopularity` come from the provider and are labelled with their source. Rankings say which one they use and how it's calculated, and flag when seeded demo accounts are included.
+- **Community vs. external numbers are separate.** `ratingAvg`/`popularityScore` come from stored MangaForEver rows (recomputed on every change); `externalRating`/`externalPopularity` come from the provider and are labelled with their source. Rankings say which one they use and how it's calculated, and flag when seeded demo accounts are included.
 - **Import date ≠ publication date.** “Newly added” uses `createdAt`; “Newly published” uses `releaseYear`/`startDate`; “Latest updates” uses `metadataUpdatedAt`.
 - **Seasonal lists are labelled.** Editor-curated collections are always marked as curated; only series with a provider-supplied start date appear under “Started this season”.
 - **Sample data is labelled** everywhere it appears.
@@ -347,4 +347,4 @@ Captured from a local run with the sample catalog plus about 410 series imported
 
 ---
 
-MangaVerse lists metadata only. Support creators by reading through official, licensed publishers.
+MangaForEver lists metadata only. Support creators by reading through official, licensed publishers.

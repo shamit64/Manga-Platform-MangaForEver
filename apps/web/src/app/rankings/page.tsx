@@ -5,7 +5,7 @@ import {
   RANKING_EXPLANATIONS,
   type RankingKind,
   type RankingResponse,
-} from "@mangaverse/shared";
+} from "@mangaforever/shared";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { EmptyState, ErrorNotice, PageHeader } from "@/components/layout/section";
@@ -35,7 +35,7 @@ export default async function RankingsPage({ searchParams }: { searchParams: Pro
 
   return (
     <div>
-      <PageHeader title="Rankings" description="Every list says exactly how it’s calculated. Community lists use stored MangaVerse activity; the AniList list uses provider data." />
+      <PageHeader title="Rankings" description="Every list says exactly how it’s calculated. Community lists use stored MangaForEver activity; the AniList list uses provider data." />
       <nav aria-label="Ranking type" className="flex gap-1 overflow-x-auto border-b border-line scrollbar-none">
         {KINDS.map(([k, label]) => (
           <Link key={k} href={link(k, type)} aria-current={k === kind ? "page" : undefined}
@@ -55,7 +55,7 @@ export default async function RankingsPage({ searchParams }: { searchParams: Pro
 
       {data && (
         <p className="mt-5 max-w-3xl rounded-xl border border-line bg-surface px-4 py-3 text-sm text-muted">
-          <span className="font-semibold text-text">{data.source === "external" ? "External data · " : "MangaVerse community · "}</span>
+          <span className="font-semibold text-text">{data.source === "external" ? "External data · " : "MangaForEver community · "}</span>
           {data.explanation}
           {data.includesDemoActivity && " This installation's numbers include seeded demo accounts."}
         </p>
@@ -110,7 +110,7 @@ export default async function RankingsPage({ searchParams }: { searchParams: Pro
           ))}
         </dl>
         <p className="mt-4 max-w-3xl text-sm text-muted">
-          MangaVerse never mixes provider numbers into community rankings. External ratings and popularity are shown separately on each series page with their source.
+          MangaForEver never mixes provider numbers into community rankings. External ratings and popularity are shown separately on each series page with their source.
         </p>
       </section>
     </div>

@@ -1,4 +1,4 @@
-// MangaVerse data model
+// MangaForEver data model
 // Global catalog data (MangaSeries, Creator, Genre, Tag, collections) is kept separate
 // from private, user-owned data (LibraryEntry, Favorite, Rating, ReadingHistory, SearchHistory...).
 
@@ -440,7 +440,7 @@ model ReviewReport {
   @@index([status, createdAt(sort: Desc)])
 }
 
-/// One row per (user, series) the user has opened on MangaVerse.
+/// One row per (user, series) the user has opened on MangaForEver.
 model ReadingHistory {
   id           String      @id @default(cuid())
   userId       String

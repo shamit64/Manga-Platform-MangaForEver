@@ -1,6 +1,6 @@
 "use client";
 
-import type { RecommendationShelf } from "@mangaverse/shared";
+import type { RecommendationShelf } from "@mangaforever/shared";
 import { EyeOff, RefreshCw, RotateCcw } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import * as React from "react";

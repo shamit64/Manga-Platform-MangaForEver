@@ -1,4 +1,4 @@
-import type { SeriesCard as Card } from "@mangaverse/shared";
+import type { SeriesCard as Card } from "@mangaforever/shared";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { CommunityScore, TypeBadge } from "./badges";

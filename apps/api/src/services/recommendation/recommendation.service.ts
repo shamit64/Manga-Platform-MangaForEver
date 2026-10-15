@@ -1,4 +1,4 @@
-import type { Recommendation, RecommendationShelf } from "@mangaverse/shared";
+import type { Recommendation, RecommendationShelf } from "@mangaforever/shared";
 import type { Prisma } from "../../generated/prisma/client.js";
 import { prisma } from "../../lib/prisma.js";
 import { cardInclude, toCard } from "../series-mapper.js";
@@ -84,8 +84,8 @@ async function fallbackShelves(exclude: Set<string> = new Set()): Promise<Recomm
   return [
     {
       key: "popular",
-      title: "Popular on MangaVerse",
-      explanation: "Most-tracked series by MangaVerse members. Add a few titles or pick favorite genres to personalise this page.",
+      title: "Popular on MangaForEver",
+      explanation: "Most-tracked series by MangaForEver members. Add a few titles or pick favorite genres to personalise this page.",
       items: popular.items.filter((s) => !exclude.has(s.id)).slice(0, 12).map((s) => ({ series: s, score: s.popularityScore, reasons: ["Popular with members"] })),
     },
     {
@@ -97,7 +97,7 @@ async function fallbackShelves(exclude: Set<string> = new Set()): Promise<Recomm
     {
       key: "editors",
       title: "Editor's picks",
-      explanation: "Hand-picked by MangaVerse editors.",
+      explanation: "Hand-picked by MangaForEver editors.",
       items: featured.filter((f) => !exclude.has(f.seriesId)).map((f) => ({ series: toCard(f.series), score: 0, reasons: [f.reason] })),
     },
   ].filter((s) => s.items.length);

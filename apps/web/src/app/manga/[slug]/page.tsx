@@ -7,7 +7,7 @@ import {
   type Recommendation,
   type ReviewDTO,
   type SeriesDetail,
-} from "@mangaverse/shared";
+} from "@mangaforever/shared";
 import { ExternalLink, Info, Star } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -116,7 +116,7 @@ export default async function SeriesPage({ params }: Params) {
         <div className="mt-8 flex gap-3 rounded-2xl border border-line bg-surface p-4 text-sm text-muted">
           <Info className="mt-0.5 size-4 shrink-0" aria-hidden />
           <p>
-            MangaVerse is a catalog and tracker. This page lists metadata only — chapters are not hosted or linked here. Read through the
+            MangaForEver is a catalog and tracker. This page lists metadata only — chapters are not hosted or linked here. Read through the
             series’ official publisher{s.publisher ? ` (${s.publisher})` : ""}.
           </p>
         </div>
@@ -130,7 +130,7 @@ export default async function SeriesPage({ params }: Params) {
             <span className="font-display text-4xl font-extrabold tabular-nums">{formatScore(s.ratingAvg)}</span>
             <span className="mb-1 text-sm text-muted">/ 10</span>
           </div>
-          <p className="text-sm text-muted">MangaVerse members · {s.ratingCount ? `${s.ratingCount} ratings` : "no ratings yet"}</p>
+          <p className="text-sm text-muted">MangaForEver members · {s.ratingCount ? `${s.ratingCount} ratings` : "no ratings yet"}</p>
           <div className="mt-4 border-t border-line pt-3 text-sm">
             {s.externalRating !== null ? (
               <p>

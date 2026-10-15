@@ -6,9 +6,9 @@ import { getMe } from "@/lib/server-api";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: { default: "MangaVerse — Discover. Track. Review. Explore.", template: "%s · MangaVerse" },
+  title: { default: "MangaForEver — Discover. Track. Review. Explore.", template: "%s · MangaForEver" },
   description: "Discover manga, manhwa and manhua, track your reading, and read honest community reviews.",
-  applicationName: "MangaVerse",
+  applicationName: "MangaForEver",
 };
 
 export const viewport: Viewport = {
