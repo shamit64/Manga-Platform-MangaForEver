@@ -8,6 +8,10 @@ function meta(req: Request) {
 
 export async function register(req: Request, res: Response) {
   const user = await auth.register(req.body);
+  if (!user.emailVerifiedAt) {
+    // Account created; the emailed link signs the member in.
+    return res.status(201).json({ user: null, verificationRequired: true, email: user.email });
+  }
   const { token, expiresAt } = await auth.createSession(user.id, meta(req));
   res.cookie(SESSION_COOKIE, token, cookieOptions(expiresAt.getTime() - Date.now()));
   res.status(201).json({ user: await auth.getMe(user.id) });
@@ -44,4 +48,16 @@ export async function resetPassword(req: Request, res: Response) {
 export async function changePassword(req: Request, res: Response) {
   await auth.changePassword(req.user!.id, req.body.currentPassword, req.body.newPassword, req.user!.sessionId);
   res.json({ message: "Password updated. Other devices have been signed out." });
+}
+
+export async function verifyEmail(req: Request, res: Response) {
+  const user = await auth.verifyEmail(req.body.token);
+  const { token, expiresAt } = await auth.createSession(user.id, meta(req));
+  res.cookie(SESSION_COOKIE, token, cookieOptions(expiresAt.getTime() - Date.now()));
+  res.json({ user: await auth.getMe(user.id) });
+}
+
+export async function resendVerification(req: Request, res: Response) {
+  await auth.resendVerification(req.body.email);
+  res.json({ message: "If that account still needs confirming, a new link is on its way." });
 }

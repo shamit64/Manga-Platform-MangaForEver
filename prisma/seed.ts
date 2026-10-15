@@ -104,12 +104,12 @@ async function main() {
   const admin = await prisma.user.upsert({
     where: { email: adminEmail },
     update: { role: "ADMIN" },
-    create: { email: adminEmail, username: "mf_admin", displayName: "MangaForEver Admin", role: "ADMIN", passwordHash: await bcrypt.hash(adminPassword, 12), preference: { create: {} } },
+    create: { email: adminEmail, username: "mf_admin", displayName: "MangaForEver Admin", role: "ADMIN", passwordHash: await bcrypt.hash(adminPassword, 12), emailVerifiedAt: new Date(), preference: { create: {} } },
   });
   await prisma.user.upsert({
     where: { email: modEmail },
     update: { role: "MODERATOR" },
-    create: { email: modEmail, username: "mf_moderator", displayName: "MangaForEver Moderator", role: "MODERATOR", passwordHash: await bcrypt.hash(modPassword, 12), preference: { create: {} } },
+    create: { email: modEmail, username: "mf_moderator", displayName: "MangaForEver Moderator", role: "MODERATOR", passwordHash: await bcrypt.hash(modPassword, 12), emailVerifiedAt: new Date(), preference: { create: {} } },
   });
   await prisma.user.upsert({
     where: { email: "reader@mangaforever.local" },
@@ -118,6 +118,7 @@ async function main() {
       email: "reader@mangaforever.local", username: "demo_reader", displayName: "Demo Reader", isDemo: true,
       bio: "A demo account for trying MangaForEver. Everything here can be edited or deleted.",
       passwordHash: await bcrypt.hash(demoPassword, 12),
+      emailVerifiedAt: new Date(),
       preference: { create: { favoriteGenres: ["fantasy", "adventure"] } },
     },
   });
@@ -135,7 +136,7 @@ async function main() {
       update: {},
       create: {
         email: `${m.username}@demo.mangaforever.local`, username: m.username, displayName: m.displayName, bio: m.bio,
-        isDemo: true, passwordHash: demoHash,
+        isDemo: true, passwordHash: demoHash, emailVerifiedAt: new Date(),
         preference: { create: { favoriteGenres: m.likes.map((g) => g.toLowerCase().replace(/[^a-z0-9]+/g, "-")) } },
       },
     });

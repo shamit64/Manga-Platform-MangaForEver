@@ -179,7 +179,7 @@ export async function upsertFeatured(actorId: string, input: { seriesId: string;
   if (!s) throw notFound("Series");
   const row = await prisma.featuredSeries.upsert({
     where: { seriesId: input.seriesId },
-    update: { reason: input.reason, position: input.position, isActive: input.isActive },
+    update: { reason: input.reason, position: input.position, isActive: input.isActive, isAuto: false, createdById: actorId },
     create: { ...input, createdById: actorId },
   });
   await audit(actorId, "featured.set", "FeaturedSeries", row.id, { seriesId: input.seriesId });

@@ -9,3 +9,6 @@ process.env.DISABLE_RATE_LIMIT = "true";
 process.env.METADATA_PROVIDER = "none";
 process.env.DATABASE_URL =
   process.env.TEST_DATABASE_URL ?? "postgresql://postgres:postgres@localhost:5432/mangaforever_test";
+process.env.REQUIRE_EMAIL_VERIFICATION = "false";
+process.env.CHAPTER_PROVIDER = "none";
+process.env.JOBS_TOKEN = "test-jobs-token-0123456789";

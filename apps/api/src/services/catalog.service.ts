@@ -150,11 +150,12 @@ export async function getSeriesDetail(idOrSlug: string, opts: { includeArchived?
 }
 
 export async function getViewerState(userId: string, seriesId: string) {
-  const [entry, fav, rating, review] = await Promise.all([
+  const [entry, fav, rating, review, follow] = await Promise.all([
     prisma.libraryEntry.findUnique({ where: { userId_seriesId: { userId, seriesId } } }),
     prisma.favorite.findUnique({ where: { userId_seriesId: { userId, seriesId } }, select: { id: true } }),
     prisma.rating.findUnique({ where: { userId_seriesId: { userId, seriesId } }, select: { score: true } }),
     prisma.review.findUnique({ where: { userId_seriesId: { userId, seriesId } }, select: { id: true } }),
+    prisma.seriesFollow.findUnique({ where: { userId_seriesId: { userId, seriesId } }, select: { userId: true } }),
   ]);
   return {
     libraryEntry: entry
@@ -176,6 +177,7 @@ export async function getViewerState(userId: string, seriesId: string) {
     isFavorite: !!fav,
     rating: rating?.score ?? null,
     reviewId: review?.id ?? null,
+    isFollowing: !!follow,
   };
 }
 
@@ -238,6 +240,36 @@ export async function getLatest(limit: number, type?: string) {
       externalUrl: c.externalUrl,
     })),
   };
+}
+
+/**
+ * Latest Updates grid: series ordered by their newest chapter, each with its three newest chapters
+ * (one row per chapter number). Powers the home page and /latest; refreshed live by the sync job.
+ */
+export async function getLatestUpdates(page: number, pageSize: number, type?: string) {
+  const where: Prisma.MangaSeriesWhereInput = { isArchived: false, lastChapterAt: { not: null }, ...(type ? { type: type as "MANGA" } : {}) };
+  const [total, rows] = await Promise.all([
+    prisma.mangaSeries.count({ where }),
+    prisma.mangaSeries.findMany({
+      where,
+      orderBy: [{ lastChapterAt: "desc" }, { id: "asc" }],
+      skip: (page - 1) * pageSize,
+      take: pageSize,
+      include: { ...cardInclude, chapters: { orderBy: { number: "desc" }, take: 9, select: { number: true, title: true, releasedAt: true, readable: true, externalUrl: true, publisher: true } } },
+    }),
+  ]);
+  const items = rows.map((s) => {
+    const seen = new Map<number, (typeof s.chapters)[number]>();
+    for (const c of s.chapters) {
+      const cur = seen.get(c.number);
+      if (!cur || (c.readable && !cur.readable) || (c.externalUrl && !cur.externalUrl)) seen.set(c.number, c);
+    }
+    return {
+      series: toCard(s),
+      chapters: [...seen.values()].slice(0, 3).map((c) => ({ ...c, releasedAt: c.releasedAt?.toISOString() ?? null })),
+    };
+  });
+  return pageResult(items, total, page, pageSize);
 }
 
 /** New releases by original publication date, or new additions to the MangaForEver catalog. */

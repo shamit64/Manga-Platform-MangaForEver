@@ -10,7 +10,8 @@ export const detailInclude = {
   genres: { include: { genre: true } },
   tags: { include: { tag: true } },
   creators: { include: { creator: true } },
-  chapters: { orderBy: { number: "desc" }, take: 20 },
+  chapters: { orderBy: { number: "desc" }, take: 60 },
+  _count: { select: { follows: true } },
 } satisfies Prisma.MangaSeriesInclude;
 
 export type CardRow = Prisma.MangaSeriesGetPayload<{ include: typeof cardInclude }>;
@@ -37,6 +38,8 @@ export function toCard(s: CardRow): SeriesCard {
     externalRatingSource: s.externalRatingSource,
     externalPopularity: s.externalPopularity,
     chapterCount: s.chapterCount,
+    latestChapter: s.latestChapter,
+    lastChapterAt: s.lastChapterAt?.toISOString() ?? null,
     source: s.source,
     synopsis: s.synopsis,
     metadataUpdatedAt: s.metadataUpdatedAt.toISOString(),
@@ -70,13 +73,26 @@ export function toDetail(s: DetailRow, communityRank: number | null): SeriesDeta
     tags: s.tags.map((t) => ({ name: t.tag.name, slug: t.tag.slug })),
     creators: [...creatorMap.values()],
     communityRank,
-    chapters: s.chapters.map((c) => ({
-      number: c.number,
-      title: c.title,
-      releasedAt: c.releasedAt?.toISOString() ?? null,
-      source: c.source,
-      externalUrl: c.externalUrl,
-    })),
+    // One row per chapter number: a readable copy wins, then an official link.
+    chapters: [...new Map(
+      [...s.chapters]
+        .sort((a, b) => Number(a.readable) - Number(b.readable) || Number(!!a.externalUrl) - Number(!!b.externalUrl))
+        .map((c) => [c.number, c] as const),
+    ).values()]
+      .sort((a, b) => b.number - a.number)
+      .slice(0, 20)
+      .map((c) => ({
+        id: c.id,
+        number: c.number,
+        title: c.title,
+        releasedAt: c.releasedAt?.toISOString() ?? null,
+        source: c.source,
+        externalUrl: c.externalUrl,
+        publisher: c.publisher,
+        readable: c.readable,
+        language: c.language,
+      })),
+    followerCount: s._count.follows,
     updatedAt: s.updatedAt.toISOString(),
   };
 }

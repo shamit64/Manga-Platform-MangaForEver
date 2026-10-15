@@ -96,6 +96,9 @@ export const resetPasswordSchema = z.object({
   password: passwordSchema,
 });
 
+export const verifyEmailSchema = z.object({ token: z.string().min(20).max(200) });
+export const resendVerificationSchema = z.object({ email: z.email("Enter a valid email address").trim().toLowerCase() });
+
 export const changePasswordSchema = z.object({
   currentPassword: z.string().min(1).max(128),
   newPassword: passwordSchema,
@@ -116,6 +119,9 @@ export const updateProfileSchema = z.object({
     .object({
       theme: z.enum(["dark", "light", "system"]).optional(),
       favoriteGenres: z.array(z.string().max(60)).max(15).optional(),
+      favoriteTypes: z.array(z.enum(CONTENT_TYPES)).max(3).optional(),
+      readerMode: z.enum(["strip", "paged"]).nullable().optional(),
+      emailDigest: z.boolean().optional(),
       libraryVisibility: z.enum(["PUBLIC", "PRIVATE"]).optional(),
       favoritesVisibility: z.enum(["PUBLIC", "PRIVATE"]).optional(),
       showStats: z.boolean().optional(),
@@ -271,4 +277,49 @@ export const rankingQuerySchema = z.object({
     .default("popular"),
   type: z.enum(CONTENT_TYPES).optional(),
   limit: z.preprocess((v) => (v === undefined ? 10 : Number(v)), z.number().int().min(1).max(100)),
+});
+
+// ───────── Chapters, follows & notifications ─────────
+
+export const CHAPTER_REACTIONS = ["LOVED", "HYPE", "SAD", "FUNNY", "SHOCKED"] as const;
+export type ChapterReaction = (typeof CHAPTER_REACTIONS)[number];
+
+export const chapterListQuerySchema = paginationSchema.extend({
+  pageSize: z.preprocess((v) => (v === undefined || v === "" ? 50 : Number(v)), z.number().int().min(1).max(500)),
+  order: z.enum(["asc", "desc"]).default("desc"),
+});
+
+export const reactionSchema = z.object({ kind: z.enum(CHAPTER_REACTIONS).nullable() });
+
+export const chapterCommentSchema = z.object({
+  body: z.string().trim().min(2, "Write a little more").max(2000),
+  containsSpoilers: z.boolean().default(true),
+});
+
+export const followSeriesSchema = z.object({
+  notifyEmail: z.boolean().optional(),
+  notifyPush: z.boolean().optional(),
+});
+
+export const pushSubscriptionSchema = z.object({
+  endpoint: z.url().max(1000),
+  keys: z.object({ p256dh: z.string().min(10).max(200), auth: z.string().min(8).max(100) }),
+});
+
+export const hostedChapterSchema = z.object({
+  number: z.number().min(0).max(100_000),
+  title: z.string().trim().max(200).nullable().optional(),
+  pages: z
+    .array(z.object({ url: z.string().trim().max(1000).refine((u) => /^https:\/\/[^\s]+$/.test(u) || /^\/[\w\-./]+$/.test(u), "Use an https URL or a path on this site"), width: z.number().int().positive().optional(), height: z.number().int().positive().optional() }))
+    .min(1)
+    .max(300),
+});
+
+export const sourceLinkSchema = z.object({
+  provider: z.enum(["mangadex"]).default("mangadex"),
+  externalId: z.string().trim().regex(/^[0-9a-f-]{36}$/i, "Use the MangaDex manga ID (a UUID)"),
+});
+
+export const latestUpdatesQuerySchema = paginationSchema.extend({
+  type: z.enum(CONTENT_TYPES).optional(),
 });
