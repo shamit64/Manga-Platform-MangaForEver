@@ -1,0 +1,16 @@
+node_modules/
+.next/
+dist/
+coverage/
+*.tsbuildinfo
+.env
+.env.local
+.env.*.local
+apps/api/src/generated/
+.vercel
+.DS_Store
+npm-debug.log*
+.local-db/
+logs/
+.tools/
+!site/dist/

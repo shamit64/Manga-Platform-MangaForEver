@@ -1,0 +1,185 @@
+@import "tailwindcss";
+@import "@fontsource-variable/bricolage-grotesque";
+@import "@fontsource-variable/figtree";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/*
+ * MangaVerse palette — deep indigo night with a violet → pink → amber brand gradient.
+ *   ink / surface / raised / line   page, panels, inputs, hairlines (indigo-biased neutrals)
+ *   violet, pink, amber, cyan       brand + content hues (types and genres add their own)
+ *   lilac                           links and highlights
+ *   gold                            ratings only
+ */
+:root {
+  --ink: #f8f6ff;
+  --surface: #ffffff;
+  --raised: #f0ecfd;
+  --line: #e2dcf5;
+  --text: #17132b;
+  --muted: #5f5a7d;
+  --violet: #6d28d9;
+  --violet-strong: #5b21b6;
+  --indigo: #4f46e5;
+  --pink: #db2777;
+  --amber: #d97706;
+  --cyan: #0891b2;
+  --lilac: #6d28d9;
+  --gold: #b45309;
+  --danger: #c62f4a;
+  --ok: #047857;
+  --tone: rgba(23, 19, 43, 0.12);
+  --aurora-a: rgba(124, 58, 237, 0.22);
+  --aurora-b: rgba(236, 72, 153, 0.16);
+  --aurora-c: rgba(6, 182, 212, 0.14);
+  --brand: linear-gradient(100deg, #7c3aed, #db2777 55%, #ea8a0c);
+  color-scheme: light;
+}
+
+.dark {
+  --ink: #0b0918;
+  --surface: #141127;
+  --raised: #1d1937;
+  --line: #2a2550;
+  --text: #f1eeff;
+  --muted: #a5a0c8;
+  --violet: #8b5cf6;
+  --violet-strong: #7c3aed;
+  --indigo: #6366f1;
+  --pink: #ec4899;
+  --amber: #f59e0b;
+  --cyan: #22d3ee;
+  --lilac: #c4b5fd;
+  --gold: #fbbf24;
+  --danger: #f0647d;
+  --ok: #34d399;
+  --tone: rgba(196, 181, 253, 0.12);
+  --aurora-a: rgba(124, 58, 237, 0.5);
+  --aurora-b: rgba(236, 72, 153, 0.38);
+  --aurora-c: rgba(6, 182, 212, 0.3);
+  --brand: linear-gradient(100deg, #8b5cf6, #ec4899 55%, #f59e0b);
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-ink: var(--ink);
+  --color-surface: var(--surface);
+  --color-raised: var(--raised);
+  --color-line: var(--line);
+  --color-text: var(--text);
+  --color-muted: var(--muted);
+  --color-violet: var(--violet);
+  --color-violet-strong: var(--violet-strong);
+  --color-indigo: var(--indigo);
+  --color-pink: var(--pink);
+  --color-amber: var(--amber);
+  --color-cyan: var(--cyan);
+  --color-lilac: var(--lilac);
+  --color-gold: var(--gold);
+  --color-danger: var(--danger);
+  --color-ok: var(--ok);
+  --font-display: "Bricolage Grotesque Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Figtree Variable", ui-sans-serif, system-ui, sans-serif;
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    overflow-x: clip;
+  }
+  body {
+    overflow-x: clip;
+    background: var(--ink);
+    color: var(--text);
+    font-family: var(--font-sans);
+    font-feature-settings: "ss01";
+    text-rendering: optimizeLegibility;
+  }
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+  }
+  p {
+    text-wrap: pretty;
+  }
+  ::selection {
+    background: color-mix(in oklab, var(--violet) 45%, transparent);
+  }
+  :focus-visible {
+    outline: 2px solid var(--lilac);
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+}
+
+@layer utilities {
+  /* Screentone: the halftone dot texture used on manga pages. */
+  .tone {
+    background-image: radial-gradient(var(--tone) 1px, transparent 1.4px);
+    background-size: 6px 6px;
+  }
+  .tone-fade {
+    -webkit-mask-image: linear-gradient(to bottom, black, transparent 85%);
+    mask-image: linear-gradient(to bottom, black, transparent 85%);
+  }
+  .scrollbar-none {
+    scrollbar-width: none;
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+  .rank-numeral {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-variation-settings: "wdth" 72;
+    background: var(--brand);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    line-height: 0.85;
+  }
+  .bg-brand {
+    background-image: var(--brand);
+  }
+  .text-brand {
+    background-image: var(--brand);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  /* Soft colour field behind heroes and page headers. */
+  .aurora {
+    background:
+      radial-gradient(40% 50% at 18% 30%, var(--aurora-a), transparent 70%),
+      radial-gradient(35% 45% at 62% 20%, var(--aurora-b), transparent 70%),
+      radial-gradient(30% 40% at 90% 55%, var(--aurora-c), transparent 70%);
+    filter: blur(60px);
+  }
+  /* Tinted chip in the element's own hue (set --chip). */
+  .chip-tint {
+    color: color-mix(in oklab, var(--chip) 72%, var(--text));
+    background: color-mix(in oklab, var(--chip) 15%, transparent);
+    border: 1px solid color-mix(in oklab, var(--chip) 34%, transparent);
+  }
+}
+
+@keyframes panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px) rotate(var(--tilt, 0deg));
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) rotate(var(--tilt, 0deg));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
