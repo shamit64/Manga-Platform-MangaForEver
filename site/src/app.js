@@ -117,7 +117,7 @@ function App() {
     return () => { document.removeEventListener("visibilitychange", away); window.removeEventListener("pagehide", flush); };
   }, [flush]);
 
-  /* Runtime capabilities (claude.ai viewer). Everything works without them. */
+  /* Optional host storage capabilities. Everything works without them. */
   useEffect(() => {
     let live = true;
     (async () => {

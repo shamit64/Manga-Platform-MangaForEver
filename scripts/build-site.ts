@@ -1,6 +1,6 @@
 /**
  * Build the MangaForEver website edition: one self-contained HTML page (React from a CDN, catalog
- * embedded as JSON) that can be published anywhere static, e.g. as a Claude artifact.
+ * embedded as JSON) that can be published anywhere static, e.g. on any static host.
  *
  *   npm run site:build              # reads the catalog from DATABASE_URL → site/dist/mangaforever.html
  *   npm run site:build -- --offline # skip refreshing curated entries' facts from AniList
