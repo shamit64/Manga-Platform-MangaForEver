@@ -198,7 +198,7 @@ function LatestReviews() {
   const profiles = useProfiles(list.map((r) => r.uid));
   if (!list.length) {
     return html`<div className="empty"><strong>No reader reviews yet</strong>
-      ${rt.mode === "cloud" ? "Open any series and be the first to review it. Reviews you write here are visible to everyone who opens this page." : "Reviews are shared through claude.ai. Open this page while signed in to read and write them."}</div>`;
+      ${rt.mode === "cloud" ? "Open any series and be the first to review it. Reviews you write here are visible to everyone who opens this page." : "Reviews are shared between signed-in readers. Open this page while signed in to read and write them."}</div>`;
   }
   return html`<div className="origins">${list.map((r) => {
     const s = BY_ID.get(r.sid);
