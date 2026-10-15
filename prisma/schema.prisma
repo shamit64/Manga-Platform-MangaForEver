@@ -1,0 +1,564 @@
+// MangaVerse data model
+// Global catalog data (MangaSeries, Creator, Genre, Tag, collections) is kept separate
+// from private, user-owned data (LibraryEntry, Favorite, Rating, ReadingHistory, SearchHistory...).
+
+generator client {
+  provider = "prisma-client"
+  output   = "../apps/api/src/generated/prisma"
+  moduleFormat = "esm"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  extensions = [pg_trgm]
+}
+
+// ───────────────────────────── Enums ─────────────────────────────
+
+enum Role {
+  USER
+  MODERATOR
+  ADMIN
+}
+
+enum ContentType {
+  MANGA
+  MANHWA
+  MANHUA
+}
+
+enum PublicationStatus {
+  ONGOING
+  COMPLETED
+  HIATUS
+  CANCELLED
+  UPCOMING
+  UNKNOWN
+}
+
+enum Demographic {
+  SHOUNEN
+  SHOUJO
+  SEINEN
+  JOSEI
+  KODOMO
+}
+
+enum ReadingStatus {
+  READING
+  PLAN_TO_READ
+  COMPLETED
+  ON_HOLD
+  DROPPED
+}
+
+/// Where a catalog record's metadata came from.
+enum DataSource {
+  SEED_SAMPLE
+  ANILIST
+  MANUAL
+}
+
+enum CreatorRole {
+  STORY
+  ART
+  STORY_AND_ART
+}
+
+enum ReportStatus {
+  OPEN
+  RESOLVED
+  DISMISSED
+}
+
+enum Season {
+  WINTER
+  SPRING
+  SUMMER
+  FALL
+}
+
+enum ActivityType {
+  ADDED_TO_LIBRARY
+  STATUS_CHANGED
+  PROGRESS_UPDATED
+  RATED
+  REVIEWED
+  FAVORITED
+}
+
+enum Visibility {
+  PUBLIC
+  PRIVATE
+}
+
+// ───────────────────────────── Accounts ─────────────────────────────
+
+model User {
+  id              String    @id @default(cuid())
+  email           String    @unique
+  username        String    @unique
+  passwordHash    String
+  displayName     String?
+  bio             String?
+  avatarUrl       String?
+  role            Role      @default(USER)
+  /// Accounts created by the seed script to populate demo community activity.
+  isDemo          Boolean   @default(false)
+  isSuspended     Boolean   @default(false)
+  emailVerifiedAt DateTime?
+  lastLoginAt     DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  sessions          Session[]
+  resetTokens       PasswordResetToken[]
+  preference        UserPreference?
+  library           LibraryEntry[]
+  favorites         Favorite[]
+  ratings           Rating[]
+  reviews           Review[]
+  helpfulVotes      ReviewHelpfulVote[]
+  reportsFiled      ReviewReport[]          @relation("ReportReporter")
+  reportsResolved   ReviewReport[]          @relation("ReportResolver")
+  readingHistory    ReadingHistory[]
+  activity          ReadingActivity[]
+  searchHistory     SearchHistory[]
+  dismissedRecs     DismissedRecommendation[]
+  following         Follow[]                @relation("Follower")
+  followers         Follow[]                @relation("Following")
+  featuredCreated   FeaturedSeries[]
+  collectionsMade   SeasonalCollection[]
+  auditLogs         AdminAuditLog[]
+
+  @@index([role])
+}
+
+/// Server-side session. Only a SHA-256 hash of the cookie token is stored.
+model Session {
+  id         String   @id @default(cuid())
+  tokenHash  String   @unique
+  userId     String
+  expiresAt  DateTime
+  userAgent  String?
+  ipAddress  String?
+  createdAt  DateTime @default(now())
+  lastUsedAt DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  tokenHash String    @unique
+  userId    String
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model UserPreference {
+  userId                String     @id
+  theme                 String     @default("dark")
+  /// Genre slugs the user picked as favorites (used as a recommendation signal).
+  favoriteGenres        String[]   @default([])
+  libraryVisibility     Visibility @default(PUBLIC)
+  favoritesVisibility   Visibility @default(PUBLIC)
+  showStats             Boolean    @default(true)
+  showRecentlyCompleted Boolean    @default(true)
+  trackBrowsingHistory  Boolean    @default(true)
+  trackSearchHistory    Boolean    @default(true)
+  updatedAt             DateTime   @updatedAt
+  user                  User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// ───────────────────────────── Catalog ─────────────────────────────
+
+model MangaSeries {
+  id                 String            @id @default(cuid())
+  slug               String            @unique
+  title              String
+  altTitles          String[]          @default([])
+  /// Localized titles keyed by language code, e.g. {"ja":"進撃の巨人","en":"Attack on Titan"}.
+  localizedTitles    Json?
+  coverUrl           String?
+  bannerUrl          String?
+  synopsis           String?
+  description        String?
+  type               ContentType
+  countryOfOrigin    String?
+  publisher          String?
+  demographic        Demographic?
+  status             PublicationStatus @default(UNKNOWN)
+  releaseYear        Int?
+  startDate          DateTime?         @db.Date
+  endDate            DateTime?         @db.Date
+  chapterCount       Int?
+  volumeCount        Int?
+  isAdult            Boolean           @default(false)
+
+  /// External provider rating normalised to 0–10. Null when the source supplies none.
+  externalRating       Float?
+  externalRatingSource String?
+  /// Provider's own popularity number (e.g. AniList member count) and rank.
+  externalPopularity   Int?
+  externalPopularityRank Int?
+  /// [{ "label": "AniList", "url": "https://anilist.co/manga/1" }]
+  externalUrls       Json?
+
+  source             DataSource        @default(MANUAL)
+  externalProvider   String?
+  externalId         String?
+  lastSyncedAt       DateTime?
+
+  /// Denormalised community statistics, recomputed from stored rows on every change.
+  ratingAvg          Float?
+  ratingCount        Int               @default(0)
+  reviewCount        Int               @default(0)
+  favoriteCount      Int               @default(0)
+  libraryCount       Int               @default(0)
+  /// Weighted community popularity — see docs/architecture.md#rankings.
+  popularityScore    Float             @default(0)
+
+  /// Concatenated titles, creators, genres and tags; indexed for full-text and trigram search.
+  searchText         String            @default("")
+  isArchived         Boolean           @default(false)
+  /// Date this record's metadata last changed (not counters) — powers "Latest updates".
+  metadataUpdatedAt  DateTime          @default(now())
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+
+  creators       SeriesCreator[]
+  genres         SeriesGenre[]
+  tags           SeriesTag[]
+  chapters       ChapterMetadata[]
+  libraryEntries LibraryEntry[]
+  favorites      Favorite[]
+  ratings        Rating[]
+  reviews        Review[]
+  history        ReadingHistory[]
+  activity       ReadingActivity[]
+  featured       FeaturedSeries?
+  collectionItems SeasonalCollectionItem[]
+  dismissedBy    DismissedRecommendation[]
+
+  @@unique([externalProvider, externalId])
+  @@index([type, isArchived])
+  @@index([status])
+  @@index([releaseYear])
+  @@index([popularityScore(sort: Desc)])
+  @@index([ratingAvg(sort: Desc)])
+  @@index([metadataUpdatedAt(sort: Desc)])
+  @@index([createdAt(sort: Desc)])
+  @@index([searchText(ops: raw("gin_trgm_ops"))], type: Gin, map: "MangaSeries_searchText_trgm_idx")
+  @@index([title(ops: raw("gin_trgm_ops"))], type: Gin, map: "MangaSeries_title_trgm_idx")
+}
+
+/// Authors and artists. A person's role on a given series lives on SeriesCreator.
+model Creator {
+  id        String          @id @default(cuid())
+  name      String
+  slug      String          @unique
+  createdAt DateTime        @default(now())
+  series    SeriesCreator[]
+
+  @@index([name])
+}
+
+model SeriesCreator {
+  seriesId  String
+  creatorId String
+  role      CreatorRole
+  series    MangaSeries @relation(fields: [seriesId], references: [id], onDelete: Cascade)
+  creator   Creator     @relation(fields: [creatorId], references: [id], onDelete: Restrict)
+
+  @@id([seriesId, creatorId, role])
+  @@index([creatorId])
+}
+
+model Genre {
+  id     Int           @id @default(autoincrement())
+  name   String        @unique
+  slug   String        @unique
+  series SeriesGenre[]
+}
+
+model SeriesGenre {
+  seriesId String
+  genreId  Int
+  series   MangaSeries @relation(fields: [seriesId], references: [id], onDelete: Cascade)
+  genre    Genre       @relation(fields: [genreId], references: [id], onDelete: Restrict)
+
+  @@id([seriesId, genreId])
+  @@index([genreId])
+}
+
+model Tag {
+  id       Int         @id @default(autoincrement())
+  name     String      @unique
+  slug     String      @unique
+  /// "theme" | "setting" | "trope" ...
+  category String?
+  series   SeriesTag[]
+}
+
+model SeriesTag {
+  seriesId String
+  tagId    Int
+  series   MangaSeries @relation(fields: [seriesId], references: [id], onDelete: Cascade)
+  tag      Tag         @relation(fields: [tagId], references: [id], onDelete: Restrict)
+
+  @@id([seriesId, tagId])
+  @@index([tagId])
+}
+
+/// Chapter release metadata. Only populated from a reliable provider — never fabricated.
+model ChapterMetadata {
+  id          String      @id @default(cuid())
+  seriesId    String
+  number      Float
+  title       String?
+  releasedAt  DateTime?
+  source      String
+  externalUrl String?
+  createdAt   DateTime    @default(now())
+  series      MangaSeries @relation(fields: [seriesId], references: [id], onDelete: Cascade)
+
+  @@unique([seriesId, number, source])
+  @@index([releasedAt(sort: Desc)])
+}
+
+// ───────────────────────────── Private user data ─────────────────────────────
+
+model LibraryEntry {
+  id              String        @id @default(cuid())
+  userId          String
+  seriesId        String
+  status          ReadingStatus @default(PLAN_TO_READ)
+  progressChapter Int           @default(0)
+  progressVolume  Int           @default(0)
+  /// Private to the owner; never returned by public endpoints.
+  notes           String?
+  /// Hide this single entry from the public profile even if the library is public.
+  isPrivate       Boolean       @default(false)
+  startedAt       DateTime?     @db.Date
+  completedAt     DateTime?     @db.Date
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  series          MangaSeries   @relation(fields: [seriesId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, seriesId])
+  @@index([userId, status])
+  @@index([userId, updatedAt(sort: Desc)])
+  @@index([seriesId])
+}
+
+model Favorite {
+  id        String      @id @default(cuid())
+  userId    String
+  seriesId  String
+  createdAt DateTime    @default(now())
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  series    MangaSeries @relation(fields: [seriesId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, seriesId])
+  @@index([seriesId])
+  @@index([userId, createdAt(sort: Desc)])
+}
+
+/// A member's 1–10 score. Also serves as the "personal score" shown in the library.
+model Rating {
+  id        String      @id @default(cuid())
+  userId    String
+  seriesId  String
+  score     Int
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  series    MangaSeries @relation(fields: [seriesId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, seriesId])
+  @@index([seriesId])
+}
+
+model Review {
+  id               String              @id @default(cuid())
+  userId           String
+  seriesId         String
+  title            String
+  body             String
+  containsSpoilers Boolean             @default(false)
+  isHidden         Boolean             @default(false)
+  hiddenReason     String?
+  helpfulCount     Int                 @default(0)
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
+  user             User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  series           MangaSeries         @relation(fields: [seriesId], references: [id], onDelete: Cascade)
+  helpfulVotes     ReviewHelpfulVote[]
+  reports          ReviewReport[]
+
+  @@unique([userId, seriesId])
+  @@index([seriesId, isHidden, createdAt(sort: Desc)])
+  @@index([createdAt(sort: Desc)])
+}
+
+model ReviewHelpfulVote {
+  userId    String
+  reviewId  String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  review    Review   @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+
+  @@id([userId, reviewId])
+  @@index([reviewId])
+}
+
+model ReviewReport {
+  id             String       @id @default(cuid())
+  reviewId       String
+  reporterId     String
+  reason         String
+  details        String?
+  status         ReportStatus @default(OPEN)
+  resolvedById   String?
+  resolvedAt     DateTime?
+  resolutionNote String?
+  createdAt      DateTime     @default(now())
+  review         Review       @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  reporter       User         @relation("ReportReporter", fields: [reporterId], references: [id], onDelete: Cascade)
+  resolvedBy     User?        @relation("ReportResolver", fields: [resolvedById], references: [id], onDelete: SetNull)
+
+  @@unique([reviewId, reporterId])
+  @@index([status, createdAt(sort: Desc)])
+}
+
+/// One row per (user, series) the user has opened on MangaVerse.
+model ReadingHistory {
+  id           String      @id @default(cuid())
+  userId       String
+  seriesId     String
+  viewCount    Int         @default(1)
+  firstViewedAt DateTime   @default(now())
+  lastViewedAt DateTime    @default(now())
+  user         User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  series       MangaSeries @relation(fields: [seriesId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, seriesId])
+  @@index([userId, lastViewedAt(sort: Desc)])
+}
+
+/// Log of tracking actions (library adds, status changes, progress updates...).
+model ReadingActivity {
+  id        String       @id @default(cuid())
+  userId    String
+  seriesId  String
+  type      ActivityType
+  /// Small structured payload, e.g. {"from":"READING","to":"COMPLETED"} or {"chapter":42}.
+  data      Json?
+  createdAt DateTime     @default(now())
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  series    MangaSeries  @relation(fields: [seriesId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt(sort: Desc)])
+}
+
+model SearchHistory {
+  id             String   @id @default(cuid())
+  userId         String
+  query          String
+  normalized     String
+  lastSearchedAt DateTime @default(now())
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, normalized])
+  @@index([userId, lastSearchedAt(sort: Desc)])
+}
+
+model DismissedRecommendation {
+  userId    String
+  seriesId  String
+  createdAt DateTime    @default(now())
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  series    MangaSeries @relation(fields: [seriesId], references: [id], onDelete: Cascade)
+
+  @@id([userId, seriesId])
+}
+
+model Follow {
+  followerId  String
+  followingId String
+  createdAt   DateTime @default(now())
+  follower    User     @relation("Follower", fields: [followerId], references: [id], onDelete: Cascade)
+  following   User     @relation("Following", fields: [followingId], references: [id], onDelete: Cascade)
+
+  @@id([followerId, followingId])
+  @@index([followingId])
+}
+
+// ───────────────────────────── Curation & admin ─────────────────────────────
+
+model FeaturedSeries {
+  id          String      @id @default(cuid())
+  seriesId    String      @unique
+  /// Short editorial note explaining why the series is featured.
+  reason      String
+  position    Int         @default(0)
+  isActive    Boolean     @default(true)
+  createdById String?
+  createdAt   DateTime    @default(now())
+  series      MangaSeries @relation(fields: [seriesId], references: [id], onDelete: Cascade)
+  createdBy   User?       @relation(fields: [createdById], references: [id], onDelete: SetNull)
+
+  @@index([isActive, position])
+}
+
+/// Editor-curated seasonal collections. These are recommendations, not official release seasons.
+model SeasonalCollection {
+  id          String                   @id @default(cuid())
+  slug        String                   @unique
+  title       String
+  description String?
+  season      Season
+  year        Int
+  isPublished Boolean                  @default(true)
+  createdById String?
+  createdAt   DateTime                 @default(now())
+  updatedAt   DateTime                 @updatedAt
+  createdBy   User?                    @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  items       SeasonalCollectionItem[]
+
+  @@index([year, season])
+}
+
+model SeasonalCollectionItem {
+  collectionId String
+  seriesId     String
+  note         String?
+  position     Int                @default(0)
+  collection   SeasonalCollection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+  series       MangaSeries        @relation(fields: [seriesId], references: [id], onDelete: Cascade)
+
+  @@id([collectionId, seriesId])
+}
+
+model AdminAuditLog {
+  id         String   @id @default(cuid())
+  actorId    String?
+  action     String
+  entityType String
+  entityId   String?
+  details    Json?
+  createdAt  DateTime @default(now())
+  actor      User?    @relation(fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([createdAt(sort: Desc)])
+  @@index([entityType, entityId])
+}

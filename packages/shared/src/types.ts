@@ -1,0 +1,181 @@
+import type {
+  ContentType,
+  DataSource,
+  Demographic,
+  PublicationStatus,
+  ReadingStatus,
+  Role,
+  Season,
+} from "./constants.js";
+
+export interface Paginated<T> {
+  items: T[];
+  page: number;
+  pageSize: number;
+  total: number;
+  totalPages: number;
+}
+
+export interface ApiErrorBody {
+  error: { code: string; message: string; details?: unknown };
+}
+
+export interface GenreRef {
+  name: string;
+  slug: string;
+}
+
+export interface CreatorRef {
+  name: string;
+  slug: string;
+  role: "STORY" | "ART" | "STORY_AND_ART";
+}
+
+/** Lightweight card representation used in grids, rankings and suggestions. */
+export interface SeriesCard {
+  id: string;
+  slug: string;
+  title: string;
+  altTitles: string[];
+  coverUrl: string | null;
+  type: ContentType;
+  status: PublicationStatus;
+  releaseYear: number | null;
+  genres: GenreRef[];
+  ratingAvg: number | null;
+  ratingCount: number;
+  favoriteCount: number;
+  reviewCount: number;
+  libraryCount: number;
+  popularityScore: number;
+  externalRating: number | null;
+  externalRatingSource: string | null;
+  externalPopularity: number | null;
+  chapterCount: number | null;
+  source: DataSource;
+  synopsis: string | null;
+  metadataUpdatedAt: string;
+  createdAt: string;
+}
+
+export interface SeriesDetail extends SeriesCard {
+  localizedTitles: Record<string, string> | null;
+  bannerUrl: string | null;
+  description: string | null;
+  countryOfOrigin: string | null;
+  publisher: string | null;
+  demographic: Demographic | null;
+  startDate: string | null;
+  endDate: string | null;
+  volumeCount: number | null;
+  externalPopularityRank: number | null;
+  externalUrls: { label: string; url: string }[];
+  externalProvider: string | null;
+  externalId: string | null;
+  lastSyncedAt: string | null;
+  tags: GenreRef[];
+  creators: CreatorRef[];
+  communityRank: number | null;
+  chapters: { number: number; title: string | null; releasedAt: string | null; source: string; externalUrl: string | null }[];
+  updatedAt: string;
+  /** Present when the request is authenticated. */
+  viewer?: ViewerSeriesState;
+}
+
+export interface ViewerSeriesState {
+  libraryEntry: LibraryEntryDTO | null;
+  isFavorite: boolean;
+  rating: number | null;
+  reviewId: string | null;
+}
+
+export interface PublicUser {
+  id: string;
+  username: string;
+  displayName: string | null;
+  avatarUrl: string | null;
+  role: Role;
+  isDemo: boolean;
+}
+
+export interface Me extends PublicUser {
+  email: string;
+  bio: string | null;
+  createdAt: string;
+  preferences: Preferences;
+}
+
+export interface Preferences {
+  theme: "dark" | "light" | "system";
+  favoriteGenres: string[];
+  libraryVisibility: "PUBLIC" | "PRIVATE";
+  favoritesVisibility: "PUBLIC" | "PRIVATE";
+  showStats: boolean;
+  showRecentlyCompleted: boolean;
+  trackBrowsingHistory: boolean;
+  trackSearchHistory: boolean;
+}
+
+export interface LibraryEntryDTO {
+  id: string;
+  seriesId: string;
+  status: ReadingStatus;
+  progressChapter: number;
+  progressVolume: number;
+  score: number | null;
+  notes: string | null;
+  isPrivate: boolean;
+  startedAt: string | null;
+  completedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+  series?: SeriesCard;
+}
+
+export interface ReviewDTO {
+  id: string;
+  title: string;
+  body: string;
+  containsSpoilers: boolean;
+  isHidden: boolean;
+  helpfulCount: number;
+  score: number | null;
+  createdAt: string;
+  updatedAt: string;
+  author: PublicUser;
+  series?: { id: string; slug: string; title: string; coverUrl: string | null; type: ContentType };
+  viewerVotedHelpful?: boolean;
+  isOwn?: boolean;
+}
+
+export interface Recommendation {
+  series: SeriesCard;
+  score: number;
+  reasons: string[];
+}
+
+export interface RecommendationShelf {
+  key: string;
+  title: string;
+  explanation: string;
+  items: Recommendation[];
+}
+
+export interface RankingResponse {
+  kind: string;
+  explanation: string;
+  source: "community" | "external";
+  includesDemoActivity: boolean;
+  items: (SeriesCard & { rank: number; metric: number | null })[];
+}
+
+export interface SeasonalCollectionDTO {
+  id: string;
+  slug: string;
+  title: string;
+  description: string | null;
+  season: Season;
+  year: number;
+  isCurated: true;
+  items: { series: SeriesCard; note: string | null }[];
+}
