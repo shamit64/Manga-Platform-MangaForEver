@@ -9,6 +9,6 @@ export default defineConfig({
   },
   datasource: {
     // Placeholder keeps `prisma generate` working without a database configured.
-    url: process.env.DATABASE_URL ?? "postgresql://postgres:postgres@localhost:5432/mangaverse",
+    url: process.env.DATABASE_URL ?? "postgresql://postgres:postgres@localhost:5432/mangaforever",
   },
 });

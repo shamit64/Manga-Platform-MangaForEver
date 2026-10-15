@@ -1,11 +1,11 @@
 @echo off
 rem --------------------------------------------------------------
-rem  MangaVerse - double-click to install (first time) and run.
+rem  MangaForEver - double-click to install (first time) and run.
 rem  Needs an internet connection the first time. No admin rights,
 rem  Docker or PostgreSQL install required.
 rem --------------------------------------------------------------
 setlocal EnableExtensions
-title MangaVerse
+title MangaForEver
 cd /d "%~dp0"
 if not exist logs mkdir logs
 
@@ -52,5 +52,5 @@ if not exist "node_modules\.package-lock.json" (
 rem -- 3. Database, build and servers
 node scripts\local.mjs %*
 echo.
-echo MangaVerse has stopped.
+echo MangaForEver has stopped.
 pause

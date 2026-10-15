@@ -1,4 +1,4 @@
-import type { UpdateProfileInput } from "@mangaverse/shared";
+import type { UpdateProfileInput } from "@mangaforever/shared";
 import { badRequest, notFound } from "../lib/errors.js";
 import { prisma } from "../lib/prisma.js";
 import { getMe } from "./auth.service.js";

@@ -1,8 +1,8 @@
 {
-  "name": "mangaverse",
+  "name": "mangaforever",
   "version": "1.0.0",
   "private": true,
-  "description": "MangaVerse \u2014 Discover. Track. Review. Explore.",
+  "description": "MangaForEver \u2014 Discover. Track. Review. Explore.",
   "workspaces": [
     "packages/*",
     "apps/*"
@@ -11,19 +11,19 @@
     "node": ">=20.19"
   },
   "scripts": {
-    "postinstall": "npm run build -w @mangaverse/shared && prisma generate",
-    "dev": "npm run build -w @mangaverse/shared && concurrently -n api,web -c magenta,cyan \"npm run dev -w @mangaverse/api\" \"npm run dev -w @mangaverse/web\"",
-    "build": "npm run build -w @mangaverse/shared && npm run db:generate && npm run build -w @mangaverse/api && npm run build -w @mangaverse/web",
+    "postinstall": "npm run build -w @mangaforever/shared && prisma generate",
+    "dev": "npm run build -w @mangaforever/shared && concurrently -n api,web -c magenta,cyan \"npm run dev -w @mangaforever/api\" \"npm run dev -w @mangaforever/web\"",
+    "build": "npm run build -w @mangaforever/shared && npm run db:generate && npm run build -w @mangaforever/api && npm run build -w @mangaforever/web",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:deploy": "prisma migrate deploy",
     "db:seed": "prisma db seed",
     "db:reset": "prisma migrate reset --force",
-    "test": "npm run build -w @mangaverse/shared && npm run test -w @mangaverse/api",
-    "typecheck": "npm run typecheck -w @mangaverse/shared && npm run typecheck -w @mangaverse/api && npm run typecheck -w @mangaverse/web",
-    "lint": "npm run lint -w @mangaverse/web",
-    "start:api": "npm run start -w @mangaverse/api",
-    "start:web": "npm run start -w @mangaverse/web",
+    "test": "npm run build -w @mangaforever/shared && npm run test -w @mangaforever/api",
+    "typecheck": "npm run typecheck -w @mangaforever/shared && npm run typecheck -w @mangaforever/api && npm run typecheck -w @mangaforever/web",
+    "lint": "npm run lint -w @mangaforever/web",
+    "start:api": "npm run start -w @mangaforever/api",
+    "start:web": "npm run start -w @mangaforever/web",
     "db:test:prepare": "node scripts/prepare-test-db.mjs",
     "local": "node scripts/local.mjs",
     "local:dev": "node scripts/local.mjs --dev",

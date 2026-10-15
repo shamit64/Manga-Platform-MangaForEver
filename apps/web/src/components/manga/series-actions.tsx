@@ -1,6 +1,6 @@
 "use client";
 
-import { READING_STATUS_LABELS, type LibraryEntryDTO, type ViewerSeriesState } from "@mangaverse/shared";
+import { READING_STATUS_LABELS, type LibraryEntryDTO, type ViewerSeriesState } from "@mangaforever/shared";
 import { BookOpen, Check, Heart, Pencil, Plus, Share2, Star } from "lucide-react";
 import { useRouter } from "next/navigation";
 import * as React from "react";

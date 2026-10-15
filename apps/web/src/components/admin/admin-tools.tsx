@@ -11,7 +11,7 @@ import {
   type ReviewDTO,
   type Season,
   type SeriesCard,
-} from "@mangaverse/shared";
+} from "@mangaforever/shared";
 import { Check, Download, EyeOff, RotateCcw, Trash2, X } from "lucide-react";
 import Link from "next/link";
 import * as React from "react";
@@ -103,7 +103,7 @@ export function ImportTool() {
           Imports pull real metadata (titles, synopsis, cover, genres, tags, status, dates, AniList score and popularity) from the{" "}
           <a href="https://anilist.co" className="text-lilac hover:underline" target="_blank" rel="noopener noreferrer">AniList</a> GraphQL API.
           Re-importing the same title refreshes it instead of duplicating it. Community ratings are never affected. AniList asks for attribution and
-          limits requests to about 90 per minute — MangaVerse caches responses and backs off when limited.
+          limits requests to about 90 per minute — MangaForEver caches responses and backs off when limited.
         </p>
       </Card>
       <form onSubmit={search} className="flex flex-wrap gap-2">

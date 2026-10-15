@@ -124,7 +124,7 @@ function Reviews({ s }) {
   if (rt.mode === "cloud" && commWritable && !editing) {
     action = html`<button type="button" className=${"btn btn-sm" + (mine ? "" : " btn-brand")} onClick=${() => setEditing(true)}><${Icon} name=${mine ? "edit" : "plus"} size=${15} />${mine ? "Edit your review" : "Write a review"}</button>`;
   }
-  return html`<${Section} id="reviews" title=${`Reader reviews${list.length ? ` (${list.length})` : ""}`} desc="Written by people using MangaVerse. Most helpful first." action=${action}>
+  return html`<${Section} id="reviews" title=${`Reader reviews${list.length ? ` (${list.length})` : ""}`} desc="Written by people using MangaForEver. Most helpful first." action=${action}>
     ${editing && html`<${ReviewForm} s=${s} initial=${mine} onDone=${() => setEditing(false)} />`}
     ${list.length
       ? html`<div>${list.map((r) => html`<${ReviewItem} key=${r.uid} r=${r} s=${s} profile=${profiles[r.uid]} />`)}</div>`
@@ -157,7 +157,7 @@ function SeriesPage({ id }) {
             <div className="hero-meta" style=${{ marginTop: 0 }}>
               <${TypeTag} type=${s.type} />
               <span className=${"pill" + (s.status === "ONGOING" ? " ongoing" : "")}>${STATUS[s.status]}</span>
-              ${s.curated && html`<span className="pill" title="This entry has a summary written by MangaVerse editors">Editor summary</span>`}
+              ${s.curated && html`<span className="pill" title="This entry has a summary written by MangaForEver editors">Editor summary</span>`}
             </div>
             <h1>${s.title}</h1>
             ${alt.length > 0 && html`<p className="alt">${alt.map((a, i) => html`<span key=${a} className=${CJK.test(a) ? "native" : ""} lang=${CJK.test(a) ? TYPES[s.type].lang : undefined}>${i ? " · " : ""}${a}</span>`)}</p>`}
@@ -183,12 +183,12 @@ function SeriesPage({ id }) {
         <div><dt>AniList score</dt><dd className="tnum">${s.score != null ? `${fmtScore(s.score)} / 10` : "Not enough scores"}</dd></div>
         <div><dt>Popularity</dt><dd className="tnum">${s.popRank ? `#${s.popRank} all-time on AniList` : `#${s.catRank} in this catalog`} · ${fmtK(s.pop)} members</dd></div>
       </dl>
-      <p className="src-line"><span>Facts from AniList · synced ${fmtDate(SYNCED)}</span>${url && html`<a href=${url} target="_blank" rel="noopener">See official cover art and links on AniList ↗</a>`}<span>MangaVerse hosts no chapters.</span></p>
+      <p className="src-line"><span>Facts from AniList · synced ${fmtDate(SYNCED)}</span>${url && html`<a href=${url} target="_blank" rel="noopener">See official cover art and links on AniList ↗</a>`}<span>MangaForEver hosts no chapters.</span></p>
 
       <div className="series-body" style=${{ marginTop: "30px" }}>
         <div style=${{ minWidth: 0 }}>
           <div className="panel">
-            <div className="label" style=${{ marginBottom: "10px" }}>${s.summary ? "MangaVerse summary" : "Summary"}</div>
+            <div className="label" style=${{ marginBottom: "10px" }}>${s.summary ? "MangaForEver summary" : "Summary"}</div>
             ${s.summary
               ? html`<p className="prose">${s.summary}</p>`
               : html`<p className="prose muted">We haven't written our own summary for this one yet.${url && html` The publisher's synopsis is on <a href=${url} target="_blank" rel="noopener" style=${{ color: "var(--violet)" }}>its AniList page</a>.`}</p>`}
@@ -232,12 +232,12 @@ function Rankings() {
       return rb.sum / rb.n - ra.sum / ra.n || rb.n - ra.n;
     });
     val = (s) => { const r = agg.rating[s.id]; return [`${fmtScore(r.sum / r.n)} · ${plural(r.n, "rating")}`, r.sum / r.n / 10]; };
-    label = "Average rating from MangaVerse readers";
+    label = "Average rating from MangaForEver readers";
   }
   const desc = {
     popular: "How many AniList members track each series. The broadest measure of reach.",
     score: "AniList's average member score, for series with more than 5,000 members so a handful of votes can't top the chart.",
-    readers: "Average ratings from people using this MangaVerse page. Rate any series to add yours.",
+    readers: "Average ratings from people using this MangaForEver page. Rate any series to add yours.",
   }[kind];
   return html`<main>
     <div className="wrap page-head"><div className="aurora" aria-hidden="true"></div>

@@ -1,4 +1,4 @@
-import type { CatalogQuery, SeriesCard } from "@mangaverse/shared";
+import type { CatalogQuery, SeriesCard } from "@mangaforever/shared";
 import { Prisma } from "../generated/prisma/client.js";
 import { notFound } from "../lib/errors.js";
 import { prisma } from "../lib/prisma.js";
@@ -240,7 +240,7 @@ export async function getLatest(limit: number, type?: string) {
   };
 }
 
-/** New releases by original publication date, or new additions to the MangaVerse catalog. */
+/** New releases by original publication date, or new additions to the MangaForEver catalog. */
 export async function getNewReleases(by: "published" | "added", limit: number, type?: string, year?: number) {
   const where: Prisma.MangaSeriesWhereInput = { isArchived: false };
   if (type) where.type = type as "MANGA";

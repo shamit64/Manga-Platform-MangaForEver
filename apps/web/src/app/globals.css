@@ -5,7 +5,7 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 /*
- * MangaVerse palette — deep indigo night with a violet → pink → amber brand gradient.
+ * MangaForEver palette — deep indigo night with a violet → pink → amber brand gradient.
  *   ink / surface / raised / line   page, panels, inputs, hairlines (indigo-biased neutrals)
  *   violet, pink, amber, cyan       brand + content hues (types and genres add their own)
  *   lilac                           links and highlights

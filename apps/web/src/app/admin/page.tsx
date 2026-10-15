@@ -1,4 +1,4 @@
-import { CONTENT_TYPE_LABELS, DATA_SOURCE_LABELS, type ContentType, type DataSource, type SeriesCard } from "@mangaverse/shared";
+import { CONTENT_TYPE_LABELS, DATA_SOURCE_LABELS, type ContentType, type DataSource, type SeriesCard } from "@mangaforever/shared";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { ErrorNotice } from "@/components/layout/section";

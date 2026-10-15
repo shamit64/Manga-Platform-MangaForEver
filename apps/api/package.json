@@ -1,5 +1,5 @@
 {
-  "name": "@mangaverse/api",
+  "name": "@mangaforever/api",
   "version": "1.0.0",
   "private": true,
   "type": "module",
@@ -13,7 +13,7 @@
     "test:watch": "vitest"
   },
   "dependencies": {
-    "@mangaverse/shared": "*",
+    "@mangaforever/shared": "*",
     "@prisma/adapter-pg": "7.10.0",
     "@prisma/client": "7.10.0",
     "bcryptjs": "^3.0.3",

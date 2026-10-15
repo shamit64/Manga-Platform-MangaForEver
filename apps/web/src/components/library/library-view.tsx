@@ -9,7 +9,7 @@ import {
   type LibraryEntryDTO,
   type Paginated,
   type ReadingStatus,
-} from "@mangaverse/shared";
+} from "@mangaforever/shared";
 import { BookMarked, BookOpen, CheckCircle2, Heart, Lock, Pencil, Plus, Star } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";

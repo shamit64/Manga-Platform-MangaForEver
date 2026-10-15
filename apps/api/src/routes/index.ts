@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { forgotPasswordSchema, changePasswordSchema, loginSchema, registerSchema, resetPasswordSchema } from "@mangaverse/shared";
+import { forgotPasswordSchema, changePasswordSchema, loginSchema, registerSchema, resetPasswordSchema } from "@mangaforever/shared";
 import * as admin from "../controllers/admin.controller.js";
 import * as auth from "../controllers/auth.controller.js";
 import * as catalog from "../controllers/catalog.controller.js";

@@ -1,4 +1,4 @@
-import type { LibraryEntryDTO, Paginated } from "@mangaverse/shared";
+import type { LibraryEntryDTO, Paginated } from "@mangaforever/shared";
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { ErrorNotice, PageHeader } from "@/components/layout/section";

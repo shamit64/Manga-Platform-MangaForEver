@@ -1,6 +1,6 @@
 "use client";
 
-import { READING_STATUSES, READING_STATUS_LABELS, type LibraryEntryDTO, type ReadingStatus } from "@mangaverse/shared";
+import { READING_STATUSES, READING_STATUS_LABELS, type LibraryEntryDTO, type ReadingStatus } from "@mangaforever/shared";
 import { Minus, Plus, Trash2 } from "lucide-react";
 import * as React from "react";
 import { toast } from "sonner";

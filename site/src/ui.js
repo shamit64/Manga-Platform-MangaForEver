@@ -74,7 +74,7 @@ function Card({ s, badge, sub }) {
       <div className="card-meta" style=${{ marginTop: "6px" }}>
         <${TypeTag} type=${s.type} />
         <${Score} value=${s.score} />
-        ${r && html`<span title="MangaVerse reader rating" className="tnum">· readers ${fmtScore(r.sum / r.n)}</span>`}
+        ${r && html`<span title="MangaForEver reader rating" className="tnum">· readers ${fmtScore(r.sum / r.n)}</span>`}
       </div>
       <div className="card-genres" style=${{ marginTop: "4px" }}>${sub || s.genres.slice(0, 3).join(" · ")}</div>
     </div>

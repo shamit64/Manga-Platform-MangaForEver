@@ -11,7 +11,7 @@ export interface Mail {
 export const outbox: Mail[] = [];
 
 /**
- * Mail transport. MangaVerse ships without an email provider, so in development messages are
+ * Mail transport. MangaForEver ships without an email provider, so in development messages are
  * written to the server log (look for "📧"). Plug a provider (Resend, Postmark, SES…) in here
  * for production and set MAIL_FROM / provider credentials.
  */

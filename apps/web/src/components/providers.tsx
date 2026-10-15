@@ -1,6 +1,6 @@
 "use client";
 
-import type { Me } from "@mangaverse/shared";
+import type { Me } from "@mangaforever/shared";
 import { ThemeProvider } from "next-themes";
 import { usePathname, useRouter } from "next/navigation";
 import * as React from "react";
@@ -28,7 +28,7 @@ export function Providers({ initialUser, children }: { initialUser: Me | null; c
   }, [user, router, pathname]);
 
   return (
-    <ThemeProvider attribute="class" defaultTheme={initialUser?.preferences.theme ?? "dark"} enableSystem storageKey="mv-theme" disableTransitionOnChange>
+    <ThemeProvider attribute="class" defaultTheme={initialUser?.preferences.theme ?? "dark"} enableSystem storageKey="mf-theme" disableTransitionOnChange>
       <Ctx.Provider value={{ user, setUser, requireUser }}>
         {children}
         <Toaster position="bottom-center" theme="system" toastOptions={{ classNames: { toast: "!bg-surface !border-line !text-text !rounded-xl" } }} />

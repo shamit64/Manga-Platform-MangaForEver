@@ -1,6 +1,6 @@
 "use client";
 
-import { changePasswordSchema, type Me, type Preferences } from "@mangaverse/shared";
+import { changePasswordSchema, type Me, type Preferences } from "@mangaforever/shared";
 import { useTheme } from "next-themes";
 import { useRouter } from "next/navigation";
 import * as React from "react";

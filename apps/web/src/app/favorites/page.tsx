@@ -1,4 +1,4 @@
-import type { Paginated, SeriesCard } from "@mangaverse/shared";
+import type { Paginated, SeriesCard } from "@mangaforever/shared";
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { FavoritesView } from "@/components/library/favorites-view";

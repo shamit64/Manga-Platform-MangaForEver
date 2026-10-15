@@ -1,6 +1,6 @@
 "use client";
 
-import { DEMOGRAPHIC_LABELS, PUBLICATION_STATUS_LABELS, type SeriesDetail } from "@mangaverse/shared";
+import { DEMOGRAPHIC_LABELS, PUBLICATION_STATUS_LABELS, type SeriesDetail } from "@mangaforever/shared";
 import { ChevronLeft, ChevronRight, Star } from "lucide-react";
 import Link from "next/link";
 import * as React from "react";
@@ -106,7 +106,7 @@ export function Hero({ items }: { items: HeroItem[] }) {
           >
             <div className="tone absolute inset-0 opacity-70" />
             <p className="relative rounded-2xl rounded-bl-sm bg-white px-3.5 py-3 text-sm leading-snug font-medium text-[#16122b] shadow-sm">“{item.reason}”</p>
-            <p className="relative mt-2 text-right text-xs text-muted">— MangaVerse editors</p>
+            <p className="relative mt-2 text-right text-xs text-muted">— MangaForEver editors</p>
           </div>
           <div
             className="bg-brand flex flex-col justify-center gap-3 rounded-2xl border-2 border-white/20 p-4 text-white [animation:panel-in_.5s_.16s_ease-out_both]"

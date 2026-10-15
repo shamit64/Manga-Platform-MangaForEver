@@ -1,6 +1,6 @@
 "use client";
 
-import { reviewCreateSchema, type Paginated, type ReviewDTO } from "@mangaverse/shared";
+import { reviewCreateSchema, type Paginated, type ReviewDTO } from "@mangaforever/shared";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { MessageSquarePlus } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -248,7 +248,7 @@ export function ReviewsPanel({
       )}
 
       {data.items.length === 0 ? (
-        <EmptyState title="No reviews yet" description="Be the first MangaVerse member to review this series." />
+        <EmptyState title="No reviews yet" description="Be the first MangaForEver member to review this series." />
       ) : (
         <div className={cn("space-y-4", loading && "opacity-60")}>
           {data.items.map((r) => (

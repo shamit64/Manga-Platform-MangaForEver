@@ -1,4 +1,4 @@
-import type { LibraryCreateInput, LibraryEntryDTO, LibraryUpdateInput } from "@mangaverse/shared";
+import type { LibraryCreateInput, LibraryEntryDTO, LibraryUpdateInput } from "@mangaforever/shared";
 import type { Prisma } from "../generated/prisma/client.js";
 import { AppError, conflict, notFound } from "../lib/errors.js";
 import { prisma } from "../lib/prisma.js";

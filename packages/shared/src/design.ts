@@ -1,5 +1,5 @@
 /**
- * MangaVerse colour system shared by the web app and the website edition.
+ * MangaForEver colour system shared by the web app and the website edition.
  * Content gets colour from what it is: each content type and genre owns a hue,
  * and generated covers take their palette from the series' primary genre.
  */

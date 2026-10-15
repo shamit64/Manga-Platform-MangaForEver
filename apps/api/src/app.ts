@@ -54,7 +54,7 @@ export function createApp() {
   });
 
   app.get("/openapi.json", (_req, res) => res.json(openApiDocument));
-  app.use("/docs", swaggerUi.serve, swaggerUi.setup(openApiDocument, { customSiteTitle: "MangaVerse API" }));
+  app.use("/docs", swaggerUi.serve, swaggerUi.setup(openApiDocument, { customSiteTitle: "MangaForEver API" }));
 
   app.use("/api/v1", originCheck, loadSession, api);
 

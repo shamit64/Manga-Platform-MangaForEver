@@ -25,7 +25,7 @@ const SHELF = [
 ];
 const SHELF_LABEL = Object.fromEntries(SHELF);
 
-/* Same colour system as the MangaVerse app (packages/shared/src/design.ts). */
+/* Same colour system as the MangaForEver app (packages/shared/src/design.ts). */
 const GENRE_COLORS = {
   action: "#f43f5e", adventure: "#f59e0b", comedy: "#eab308", drama: "#a855f7", fantasy: "#8b5cf6",
   historical: "#d97706", horror: "#dc2626", mystery: "#3b82f6", psychological: "#d946ef", romance: "#ec4899",
@@ -206,7 +206,7 @@ function recommend(entries, ratings, k = 12) {
 }
 
 /* ───────── Storage helpers ───────── */
-const LS_KEY = "mangaverse.shelf.v1";
+const LS_KEY = "mangaforever.shelf.v1";
 const emptyShelf = () => ({ entries: {}, history: [], ratings: {} });
 function readLocal() {
   try {
@@ -215,11 +215,11 @@ function readLocal() {
   } catch { return emptyShelf(); }
 }
 function writeLocal(v) { try { localStorage.setItem(LS_KEY, JSON.stringify(v)); } catch { /* storage blocked */ } }
-function readTheme() { try { return localStorage.getItem("mangaverse.theme") || "system"; } catch { return "system"; } }
+function readTheme() { try { return localStorage.getItem("mangaforever.theme") || "system"; } catch { return "system"; } }
 function applyTheme(t) {
   if (t === "system") document.documentElement.removeAttribute("data-theme");
   else document.documentElement.setAttribute("data-theme", t);
-  try { localStorage.setItem("mangaverse.theme", t); } catch { /* ignore */ }
+  try { localStorage.setItem("mangaforever.theme", t); } catch { /* ignore */ }
 }
 /** Drop entries that point at series no longer in the catalog and keep the shape sane. */
 function cleanShelf(v) {

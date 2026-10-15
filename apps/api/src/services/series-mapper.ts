@@ -1,4 +1,4 @@
-import type { SeriesCard, SeriesDetail } from "@mangaverse/shared";
+import type { SeriesCard, SeriesDetail } from "@mangaforever/shared";
 import type { Prisma } from "../generated/prisma/client.js";
 import { isoDate } from "../lib/util.js";
 

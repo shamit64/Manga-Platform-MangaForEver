@@ -15,7 +15,7 @@ export default async function LoginPage() {
       description="Pick up your library, favorites and reviews on any device."
       footer={
         <>
-          New to MangaVerse?{" "}
+          New to MangaForEver?{" "}
           <Link href="/register" className="text-lilac hover:underline">
             Create an account
           </Link>

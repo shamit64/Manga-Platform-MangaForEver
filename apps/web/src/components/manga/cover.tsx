@@ -1,4 +1,4 @@
-import { coverArt, coverBackground } from "@mangaverse/shared";
+import { coverArt, coverBackground } from "@mangaforever/shared";
 import { cn } from "@/lib/utils";
 import { RemoteCover } from "./remote-cover";
 

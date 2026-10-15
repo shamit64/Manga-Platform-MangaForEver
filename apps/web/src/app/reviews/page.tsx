@@ -1,4 +1,4 @@
-import type { ReviewDTO } from "@mangaverse/shared";
+import type { ReviewDTO } from "@mangaforever/shared";
 import type { Metadata } from "next";
 import { EmptyState, ErrorNotice, PageHeader } from "@/components/layout/section";
 import { ReviewCard } from "@/components/reviews/review-card";
@@ -15,7 +15,7 @@ export default async function ReviewsPage() {
   ]);
   return (
     <div>
-      <PageHeader title="Community reviews" description="The latest reviews from MangaVerse members. Spoilers stay hidden until you choose to read them." />
+      <PageHeader title="Community reviews" description="The latest reviews from MangaForEver members. Spoilers stay hidden until you choose to read them." />
       <div className="grid gap-10 lg:grid-cols-[1fr_320px]">
         <div className="space-y-4">
           {!recent ? (

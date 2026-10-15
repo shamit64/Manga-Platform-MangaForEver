@@ -9,7 +9,7 @@ import {
   PUBLICATION_STATUSES,
   PUBLICATION_STATUS_LABELS,
   type CatalogSort,
-} from "@mangaverse/shared";
+} from "@mangaforever/shared";
 import { SlidersHorizontal, X } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import * as React from "react";

@@ -1,6 +1,6 @@
 "use client";
 
-import { CONTENT_TYPE_LABELS, type SeriesCard } from "@mangaverse/shared";
+import { CONTENT_TYPE_LABELS, type SeriesCard } from "@mangaforever/shared";
 import { Clock, Loader2, Search, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import * as React from "react";
