@@ -64,6 +64,7 @@ export async function getPublicProfile(username: string, viewerId?: string) {
       joinedAt: user.createdAt.toISOString(),
     },
     favoriteGenres: pref.favoriteGenres,
+    favoriteTypes: pref.favoriteTypes,
     visibility: { library: libraryPublic, favorites: favoritesPublic, stats: !!stats },
     stats: stats ? { ...stats, recentActivity: undefined } : null,
     favorites: favorites ? favorites.map((f) => toCard(f.series)) : null,

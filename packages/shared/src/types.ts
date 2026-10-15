@@ -52,6 +52,8 @@ export interface SeriesCard {
   externalRatingSource: string | null;
   externalPopularity: number | null;
   chapterCount: number | null;
+  latestChapter: number | null;
+  lastChapterAt: string | null;
   source: DataSource;
   synopsis: string | null;
   metadataUpdatedAt: string;
@@ -76,7 +78,8 @@ export interface SeriesDetail extends SeriesCard {
   tags: GenreRef[];
   creators: CreatorRef[];
   communityRank: number | null;
-  chapters: { number: number; title: string | null; releasedAt: string | null; source: string; externalUrl: string | null }[];
+  chapters: ChapterDTO[];
+  followerCount: number;
   updatedAt: string;
   /** Present when the request is authenticated. */
   viewer?: ViewerSeriesState;
@@ -87,6 +90,58 @@ export interface ViewerSeriesState {
   isFavorite: boolean;
   rating: number | null;
   reviewId: string | null;
+  isFollowing: boolean;
+}
+
+export interface ChapterDTO {
+  id: string;
+  number: number;
+  title: string | null;
+  releasedAt: string | null;
+  source: string;
+  externalUrl: string | null;
+  publisher: string | null;
+  readable: boolean;
+  language: string | null;
+}
+
+/** A series in the Latest Updates grid with its newest chapters. */
+export interface LatestUpdate {
+  series: SeriesCard;
+  chapters: Pick<ChapterDTO, "number" | "title" | "releasedAt" | "readable" | "externalUrl" | "publisher">[];
+}
+
+export interface NotificationDTO {
+  id: string;
+  type: "NEW_CHAPTER" | "REVIEW_HELPFUL" | "SYSTEM";
+  readAt: string | null;
+  createdAt: string;
+  data: Record<string, unknown> | null;
+  series: { id: string; slug: string; title: string; coverUrl: string | null; type: ContentType } | null;
+  chapter: { number: number; title: string | null; externalUrl: string | null; publisher: string | null; readable: boolean } | null;
+}
+
+export interface ChapterCommentDTO {
+  id: string;
+  body: string;
+  containsSpoilers: boolean;
+  isHidden: boolean;
+  hiddenReason: string | null;
+  createdAt: string;
+  author: PublicUser;
+  isOwn: boolean;
+}
+
+export interface ReaderChapter {
+  series: { id: string; slug: string; title: string; type: ContentType; coverUrl: string | null; officialLinks: { label: string; url: string }[] };
+  chapter: ChapterDTO;
+  pages: { index: number; imageUrl: string; width: number | null; height: number | null }[];
+  prev: number | null;
+  next: number | null;
+  chapterNumbers: number[];
+  reactions: Record<"LOVED" | "HYPE" | "SAD" | "FUNNY" | "SHOCKED", number>;
+  viewerReaction: "LOVED" | "HYPE" | "SAD" | "FUNNY" | "SHOCKED" | null;
+  commentCount: number;
 }
 
 export interface PublicUser {
@@ -100,6 +155,7 @@ export interface PublicUser {
 
 export interface Me extends PublicUser {
   email: string;
+  emailVerified: boolean;
   bio: string | null;
   createdAt: string;
   preferences: Preferences;
@@ -108,6 +164,9 @@ export interface Me extends PublicUser {
 export interface Preferences {
   theme: "dark" | "light" | "system";
   favoriteGenres: string[];
+  favoriteTypes: ContentType[];
+  readerMode: "strip" | "paged" | null;
+  emailDigest: boolean;
   libraryVisibility: "PUBLIC" | "PRIVATE";
   favoritesVisibility: "PUBLIC" | "PRIVATE";
   showStats: boolean;

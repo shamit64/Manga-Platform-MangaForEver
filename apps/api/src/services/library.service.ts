@@ -83,6 +83,10 @@ export async function addToLibrary(userId: string, input: LibraryCreateInput) {
     await tx.readingActivity.create({
       data: { userId, seriesId: series.id, type: "ADDED_TO_LIBRARY", data: { status: input.status } },
     });
+    // Readers of an ongoing series get new-chapter alerts automatically (they can unfollow any time).
+    if (input.status === "READING" || input.status === "PLAN_TO_READ") {
+      await tx.seriesFollow.upsert({ where: { userId_seriesId: { userId, seriesId: series.id } }, update: {}, create: { userId, seriesId: series.id } });
+    }
     return e;
   });
   await recomputeSeriesStats(series.id);

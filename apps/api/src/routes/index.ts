@@ -1,8 +1,9 @@
 import { Router } from "express";
-import { forgotPasswordSchema, changePasswordSchema, loginSchema, registerSchema, resetPasswordSchema } from "@mangaforever/shared";
+import { forgotPasswordSchema, changePasswordSchema, loginSchema, registerSchema, resendVerificationSchema, resetPasswordSchema, verifyEmailSchema } from "@mangaforever/shared";
 import * as admin from "../controllers/admin.controller.js";
 import * as auth from "../controllers/auth.controller.js";
 import * as catalog from "../controllers/catalog.controller.js";
+import * as live from "../controllers/live.controller.js";
 import * as me from "../controllers/user-data.controller.js";
 import { requireAuth, requireRole } from "../middleware/auth.js";
 import { loginLimiter, passwordResetLimiter, registerLimiter, reviewLimiter, searchLimiter, writeLimiter } from "../middleware/security.js";
@@ -18,6 +19,8 @@ api.post("/auth/forgot-password", passwordResetLimiter, validateBody(forgotPassw
 api.post("/auth/reset-password", passwordResetLimiter, validateBody(resetPasswordSchema), auth.resetPassword);
 api.post("/auth/change-password", requireAuth, loginLimiter, validateBody(changePasswordSchema), auth.changePassword);
 api.get("/auth/me", requireAuth, auth.me);
+api.post("/auth/verify-email", passwordResetLimiter, validateBody(verifyEmailSchema), auth.verifyEmail);
+api.post("/auth/resend-verification", passwordResetLimiter, validateBody(resendVerificationSchema), auth.resendVerification);
 
 // ───────── Catalog (public) ─────────
 api.get("/meta", catalog.meta);
@@ -38,6 +41,29 @@ api.get("/seasonal", catalog.seasonal);
 api.get("/latest", catalog.latest);
 api.get("/new-releases", catalog.newReleases);
 api.get("/reviews/recent", catalog.recentReviews);
+api.get("/latest-updates", live.latestUpdates);
+
+// ───────── Chapters, reader & follows ─────────
+api.get("/manga/:id/chapters", live.chapterList);
+api.get("/manga/:id/chapters/:number", live.chapterGet);
+api.put("/manga/:id/follow", requireAuth, writeLimiter, live.follow);
+api.delete("/manga/:id/follow", requireAuth, writeLimiter, live.unfollow);
+api.get("/follows", requireAuth, live.followsList);
+api.post("/chapters/:chapterId/read", requireAuth, writeLimiter, live.chapterRead);
+api.put("/chapters/:chapterId/reaction", requireAuth, writeLimiter, live.chapterReact);
+api.get("/chapters/:chapterId/comments", live.commentsList);
+api.post("/chapters/:chapterId/comments", requireAuth, reviewLimiter, live.commentCreate);
+api.delete("/chapter-comments/:id", requireAuth, writeLimiter, live.commentDelete);
+
+// ───────── Notifications & live updates ─────────
+api.get("/notifications", requireAuth, live.notificationsList);
+api.get("/notifications/unread-count", requireAuth, live.notificationsUnread);
+api.post("/notifications/read-all", requireAuth, writeLimiter, live.notificationsReadAll);
+api.post("/notifications/:id/read", requireAuth, writeLimiter, live.notificationRead);
+api.get("/push/public-key", live.pushKey);
+api.post("/push/subscriptions", requireAuth, writeLimiter, live.pushSubscribe);
+api.delete("/push/subscriptions", requireAuth, writeLimiter, live.pushUnsubscribe);
+api.get("/events", live.events);
 
 // ───────── Library ─────────
 api.get("/library", requireAuth, me.libraryList);
@@ -87,6 +113,8 @@ mod.use(requireRole("MODERATOR"));
 mod.get("/reports", admin.reports);
 mod.post("/reports/:id/resolve", admin.resolveReport);
 mod.patch("/reviews/:id/visibility", admin.reviewVisibility);
+mod.get("/chapter-comments/held", live.adminHeldComments);
+mod.patch("/chapter-comments/:id/visibility", live.adminCommentVisibility);
 api.use("/admin", mod);
 
 // ───────── Administration (admin only) ─────────
@@ -112,4 +140,9 @@ adm.delete("/collections/:id", admin.collectionDelete);
 adm.get("/users", admin.usersList);
 adm.patch("/users/:id", admin.userUpdate);
 adm.get("/audit-log", admin.auditLog);
+adm.get("/jobs", live.adminJobs);
+adm.post("/jobs/:job/run", live.adminJobRun);
+adm.post("/manga/:id/chapters", live.adminHostChapter);
+adm.get("/source-links/unmatched", live.adminUnlinked);
+adm.put("/manga/:id/source-link", live.adminSetSourceLink);
 api.use("/admin", adm);
