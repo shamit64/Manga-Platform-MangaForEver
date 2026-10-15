@@ -77,7 +77,7 @@ function App() {
     return () => { window.removeEventListener("popstate", on); window.removeEventListener("hashchange", on); };
   }, []);
   useEffect(() => {
-    const base = "MangaVerse";
+    const base = "MangaForEver";
     const s = route.page === "series" ? BY_ID.get(route.id) : null;
     document.title = s ? `${s.title} · ${base}` : route.page === "home" ? base : `${NAV.find((n) => n[0] === route.page)?.[1] || ""} · ${base}`;
   }, [route]);

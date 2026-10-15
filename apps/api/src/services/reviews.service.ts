@@ -1,4 +1,4 @@
-import type { ReviewDTO } from "@mangaverse/shared";
+import type { ReviewDTO } from "@mangaforever/shared";
 import type { Prisma } from "../generated/prisma/client.js";
 import { badRequest, conflict, forbidden, notFound } from "../lib/errors.js";
 import { prisma } from "../lib/prisma.js";

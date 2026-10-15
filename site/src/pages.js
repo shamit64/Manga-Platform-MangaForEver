@@ -46,9 +46,9 @@ function Header() {
   return html`<header className="hdr">
     <div className="wrap">
       <div className="hdr-in">
-        <a className="logo" href="#" onClick=${(e) => { e.preventDefault(); go("home"); }} aria-label="MangaVerse home">
+        <a className="logo" href="#" onClick=${(e) => { e.preventDefault(); go("home"); }} aria-label="MangaForEver home">
           <span className="logo-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
-          <span className="word">Manga<span className="text-brand">Verse</span></span>
+          <span className="word">Manga<span className="text-brand">For</span>Ever</span>
         </a>
         <nav className="nav" aria-label="Main"><${NavLinks} /></nav>
         <div className="hdr-tools">
@@ -92,9 +92,9 @@ function Footer() {
     <div className="wrap foot">
       <div>
         <a className="logo" href="#" style=${{ fontSize: "18px" }} onClick=${(e) => e.preventDefault()}>
-          <span className="logo-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span>Manga<span className="text-brand">Verse</span></span>
+          <span className="logo-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span>Manga<span className="text-brand">For</span>Ever</span>
         </a>
-        <p style=${{ marginTop: "10px" }}>Discover. Track. Review. Explore. MangaVerse is a database and tracker. It hosts no chapters and links to AniList for official sources.</p>
+        <p style=${{ marginTop: "10px" }}>Discover. Track. Review. Explore. MangaForEver is a database and tracker. It hosts no chapters and links to AniList for official sources.</p>
       </div>
       <p>Series facts (titles, creators, dates, chapter counts, scores and popularity) come from <a href="https://anilist.co" target="_blank" rel="noopener">AniList</a>, synced ${fmtDate(SYNCED)}.
       Covers here are generated from each series' genres; official cover art belongs to its publishers and is shown on each title's AniList page.
@@ -124,7 +124,7 @@ function Hero() {
           <span className=${"pill" + (s.status === "ONGOING" ? " ongoing" : "")}>${STATUS[s.status]}</span>
           <span>${[s.year, s.demo && DEMO[s.demo], s.authors.slice(0, 2).join(", ") || s.artists[0]].filter(Boolean).join(" · ")}</span>
         </div>
-        <blockquote className="hero-quote" style=${{ margin: "18px 0 0" }}>${f.reason}<cite>Why we picked it · MangaVerse editors</cite></blockquote>
+        <blockquote className="hero-quote" style=${{ margin: "18px 0 0" }}>${f.reason}<cite>Why we picked it · MangaForEver editors</cite></blockquote>
         <div className="hero-genres">${s.genres.map((g) => html`<${GenreChip} key=${g} g=${g} />`)}</div>
         <div className="hero-actions">
           <a className="btn" href=${"#series-" + s.id} onClick=${(e) => { e.preventDefault(); go("series", { id: s.id }); }}>View series</a>
@@ -235,7 +235,7 @@ function Home() {
       ${reading.length > 0 && html`<${Section} title="Continue reading" desc="Series on your shelf marked Reading." action=${html`<button className="link" onClick=${() => go("shelf")}>Open shelf</button>`}>
         <${Row} items=${reading} render=${(s) => html`<${Card} s=${s} sub=${`Chapter ${shelf.entries[s.id].ch}${s.ch ? " of " + s.ch : ""}`} />`} />
       <//>`}
-      <${Section} title="Three traditions, one shelf" desc="Pick where a story comes from. Each origin has its own colour across MangaVerse.">
+      <${Section} title="Three traditions, one shelf" desc="Pick where a story comes from. Each origin has its own colour across MangaForEver.">
         <${Origins} />
       <//>
       <${TopTen} />
@@ -253,7 +253,7 @@ function Home() {
         <${Row} items=${fall.items.map((it) => ({ ...it, s: BY_ID.get(it.id) })).filter((x) => x.s)} render=${(x) => html`<${Card} s=${x.s} sub=${x.note} />`} />
         <${Note}>Editor-curated for ${fall.season.toLowerCase()} ${fall.year}. Not an official release schedule.<//>
       <//>`}
-      <${Section} title="From readers" desc="The latest reviews written on MangaVerse.">
+      <${Section} title="From readers" desc="The latest reviews written on MangaForEver.">
         <${LatestReviews} />
       <//>
     </div>
@@ -329,7 +329,7 @@ function Explore() {
   return html`<main>
     <div className="wrap page-head"><div className="aurora" aria-hidden="true"></div>
       <h1>Explore</h1>
-      <p>Every manga, manhwa and manhua in the MangaVerse catalog. Filter by origin, genre, status and era, or search titles in English, romaji or the original script.</p>
+      <p>Every manga, manhwa and manhua in the MangaForEver catalog. Filter by origin, genre, status and era, or search titles in English, romaji or the original script.</p>
     </div>
     <div className="wrap explore">
       <div>

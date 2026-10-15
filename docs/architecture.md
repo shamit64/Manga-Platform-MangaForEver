@@ -1,4 +1,4 @@
-# MangaVerse architecture
+# MangaForEver architecture
 
 ## System overview
 
@@ -7,7 +7,7 @@ flowchart TB
   B[Browser] -->|"HTML / RSC"| W[Next.js web app<br/>apps/web]
   B -->|"fetch /api/v1/* (same origin)"| W
   W -->|"rewrite proxy /api/v1/*"| A
-  W -->|"server components: serverApi()<br/>forwards mv_session cookie + client IP"| A[Express API<br/>apps/api]
+  W -->|"server components: serverApi()<br/>forwards mf_session cookie + client IP"| A[Express API<br/>apps/api]
   A -->|Prisma + pg driver adapter| D[(PostgreSQL)]
   A -->|"MetadataProvider (AniList)<br/>timeout · retry · cache · 429 back-off"| X[(AniList GraphQL)]
   S[packages/shared<br/>Zod schemas · enums · DTO types] -.-> W
@@ -15,8 +15,8 @@ flowchart TB
 ```
 
 - **One origin for the browser.** All client-side calls go to `/api/v1` on the web origin and Next.js proxies them to the API. The session cookie is therefore first-party (`HttpOnly; SameSite=Lax; Secure` in production) even when the web app runs on Vercel and the API on Render.
-- **Server rendering with the user's session.** Server components call the API directly through `serverApi()`, forwarding only the `mv_session` cookie, the visitor's IP (so per-IP limits apply to them) and an optional `INTERNAL_API_TOKEN`.
-- **Shared contracts.** `@mangaverse/shared` holds every request schema (Zod) and response type. The API validates with the same schemas the forms use, so client and server rules can't drift.
+- **Server rendering with the user's session.** Server components call the API directly through `serverApi()`, forwarding only the `mf_session` cookie, the visitor's IP (so per-IP limits apply to them) and an optional `INTERNAL_API_TOKEN`.
+- **Shared contracts.** `@mangaforever/shared` holds every request schema (Zod) and response type. The API validates with the same schemas the forms use, so client and server rules can't drift.
 
 ## API layering
 
@@ -108,7 +108,7 @@ Every ranking response includes its explanation, its source (`community`/`extern
    `3.0·genre + 1.5·tag + 0.8·type + 1.2·creator + 0.9·quality + 0.4·popularity + 0.15·jitter`
    Affinities are normalised (genre/tag sums divided by √n so long genre lists don't win); quality is the Bayesian-shrunk member rating; popularity is log-scaled; jitter is a deterministic hash of user + day + refresh token, so "Refresh" reshuffles near-ties without randomising everything.
 3. **Diversity re-rank** — greedy selection that subtracts `0.35 ×` the number of already-picked series sharing the candidate's primary genre.
-4. **Reasons** come from the strongest contributions: "From *creator*, who also made *title*", "Because you like *genre*", "Features *tag*…", "You read a lot of manhwa", "Highly rated by MangaVerse members".
+4. **Reasons** come from the strongest contributions: "From *creator*, who also made *title*", "Because you like *genre*", "Features *tag*…", "You read a lot of manhwa", "Highly rated by MangaForEver members".
 
 Extra shelves: **Because you read X** (Jaccard similarity on genres 0.5 / tags 0.3 + shared creator 0.25 + same type 0.1 to the latest highly-rated or active series), **Similar to your favorites**, **Popular in your top genre**. Users below a minimum signal strength (and signed-out visitors) get **Popular**, **Highly rated** and **Editor's picks** instead.
 

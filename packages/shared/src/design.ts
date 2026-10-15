@@ -1,34 +1,34 @@
 /**
- * MangaVerse colour system shared by the web app and the website edition.
+ * MangaForEver colour system shared by the web app and the website edition.
  * Content gets colour from what it is: each content type and genre owns a hue,
  * and generated covers take their palette from the series' primary genre.
  */
 import type { ContentType } from "./constants.js";
 
-/** Hue per content type: manga violet, manhwa cyan, manhua coral. */
+/** Desaturated label colours per content type: manga paper, manhwa steel blue, manhua terracotta. */
 export const TYPE_COLORS: Record<ContentType, { solid: string; soft: string }> = {
-  MANGA: { solid: "#8b5cf6", soft: "#c4b5fd" },
-  MANHWA: { solid: "#06b6d4", soft: "#67e8f9" },
-  MANHUA: { solid: "#f43f5e", soft: "#fda4af" },
+  MANGA: { solid: "#8c877e", soft: "#e5e1da" },
+  MANHWA: { solid: "#4f8aa1", soft: "#7fb4c9" },
+  MANHUA: { solid: "#b5684a", soft: "#d98c6a" },
 };
 
-/** Hue per genre slug (used for chips, cover accents and charts). */
+/** Muted, editorial hue per genre slug (used for chips, cover accents and charts). */
 export const GENRE_COLORS: Record<string, string> = {
-  action: "#f43f5e",
-  adventure: "#f59e0b",
-  comedy: "#eab308",
-  drama: "#a855f7",
-  fantasy: "#8b5cf6",
-  historical: "#d97706",
-  horror: "#dc2626",
-  mystery: "#3b82f6",
-  psychological: "#d946ef",
-  romance: "#ec4899",
-  "sci-fi": "#06b6d4",
-  "slice-of-life": "#10b981",
-  sports: "#f97316",
-  supernatural: "#6366f1",
-  thriller: "#64748b",
+  action: "#c0564f",
+  adventure: "#b98a3e",
+  comedy: "#b8a046",
+  drama: "#8f6e9e",
+  fantasy: "#7c78a8",
+  historical: "#a27a4f",
+  horror: "#9e3b3b",
+  mystery: "#5b7fa6",
+  psychological: "#9c6a8c",
+  romance: "#c06a7d",
+  "sci-fi": "#4f8aa1",
+  "slice-of-life": "#6a9a7e",
+  sports: "#c27a4a",
+  supernatural: "#6f72a3",
+  thriller: "#7d8187",
 };
 
 export function genreColor(slug: string) {
@@ -36,7 +36,7 @@ export function genreColor(slug: string) {
   // Stable fallback hue for genres imported from providers.
   let h = 0;
   for (let i = 0; i < slug.length; i++) h = (h * 31 + slug.charCodeAt(i)) | 0;
-  return `hsl(${Math.abs(h) % 360} 70% 58%)`;
+  return `hsl(${Math.abs(h) % 360} 28% 55%)`;
 }
 
 /** Deep background + bright accent per genre, for generated covers. */

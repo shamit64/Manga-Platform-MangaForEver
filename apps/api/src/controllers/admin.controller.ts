@@ -8,7 +8,7 @@ import {
   mergeSchema,
   paginationSchema,
   reportResolveSchema,
-} from "@mangaverse/shared";
+} from "@mangaforever/shared";
 import { z } from "zod";
 import { parse } from "../middleware/validate.js";
 import * as admin from "../services/admin.service.js";

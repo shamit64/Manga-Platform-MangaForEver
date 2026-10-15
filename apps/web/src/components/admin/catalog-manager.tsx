@@ -10,7 +10,7 @@ import {
   PUBLICATION_STATUS_LABELS,
   type SeriesDetail,
   type SeriesCard,
-} from "@mangaverse/shared";
+} from "@mangaforever/shared";
 import { Archive, ArchiveRestore, GitMerge, Pencil, Plus, RefreshCw } from "lucide-react";
 import Link from "next/link";
 import * as React from "react";
@@ -210,7 +210,7 @@ export function CatalogManager() {
       )}
 
       {!data ? <Skeleton className="h-96" /> : (
-        <div className="overflow-x-auto rounded-2xl border border-line">
+        <div className="overflow-x-auto rounded-lg border border-line">
           <table className="w-full text-sm">
             <thead className="bg-surface text-left text-xs text-muted">
               <tr>

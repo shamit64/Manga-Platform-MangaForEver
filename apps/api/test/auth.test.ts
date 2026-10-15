@@ -14,7 +14,7 @@ describe("registration and login", () => {
     expect(res.body.user).toMatchObject({ email: creds.email, username: creds.username, role: "USER" });
     expect(res.body.user.passwordHash).toBeUndefined();
     const cookie = res.headers["set-cookie"][0];
-    expect(cookie).toMatch(/mv_session=/);
+    expect(cookie).toMatch(/mf_session=/);
     expect(cookie).toMatch(/HttpOnly/i);
     expect(cookie).toMatch(/SameSite=Lax/i);
   });
@@ -77,7 +77,7 @@ describe("protected routes", () => {
   });
 
   it("rejects forged session tokens", async () => {
-    const res = await request(app).get("/api/v1/auth/me").set("Cookie", "mv_session=forged-token-that-is-long-enough-123");
+    const res = await request(app).get("/api/v1/auth/me").set("Cookie", "mf_session=forged-token-that-is-long-enough-123");
     expect(res.status).toBe(401);
   });
 

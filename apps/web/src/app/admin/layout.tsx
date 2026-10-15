@@ -13,7 +13,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     <div className="pt-8">
       <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-3xl font-extrabold">{me.role === "ADMIN" ? "Admin" : "Moderation"}</h1>
+          <h1 className="text-3xl font-medium">{me.role === "ADMIN" ? "Admin" : "Moderation"}</h1>
           <p className="text-sm text-muted">Signed in as @{me.username} · {me.role.toLowerCase()}</p>
         </div>
       </div>

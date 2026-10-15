@@ -1,6 +1,6 @@
 "use client";
 
-import { CONTENT_TYPES, CONTENT_TYPE_LABELS, PUBLICATION_STATUS_LABELS, type Paginated, type SeriesCard as Card } from "@mangaverse/shared";
+import { CONTENT_TYPES, CONTENT_TYPE_LABELS, PUBLICATION_STATUS_LABELS, type Paginated, type SeriesCard as Card } from "@mangaforever/shared";
 import { Heart } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -61,7 +61,7 @@ export function FavoritesView({ initial, genres }: { initial: Paginated<Fav>; ge
           description="Tap the heart on any series to keep it here."
           action={
             <Button asChild>
-              <Link href="/explore">Explore the catalog</Link>
+              <Link href="/browse">Explore the catalog</Link>
             </Button>
           }
         />

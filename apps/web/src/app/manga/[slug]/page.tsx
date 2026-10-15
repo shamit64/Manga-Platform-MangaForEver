@@ -5,22 +5,27 @@ import {
   PUBLICATION_STATUS_LABELS,
   type Paginated,
   type Recommendation,
+  type ChapterDTO,
   type ReviewDTO,
   type SeriesDetail,
-} from "@mangaverse/shared";
-import { ExternalLink, Info, Star } from "lucide-react";
+} from "@mangaforever/shared";
+import { BookOpen, ExternalLink, Info, Star } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { EmptyState } from "@/components/layout/section";
 import { GenreChip, SampleBadge, StatusBadge, TypeBadge } from "@/components/manga/badges";
 import { Cover } from "@/components/manga/cover";
+import { ChapterList } from "@/components/manga/chapter-list";
 import { DetailTabs, ViewTracker } from "@/components/manga/detail-tabs";
+import { FollowButton } from "@/components/manga/follow-button";
+import { Button } from "@/components/ui/button";
 import { SeriesActions } from "@/components/manga/series-actions";
 import { SeriesCard } from "@/components/manga/series-card";
 import { ReviewsPanel } from "@/components/reviews/reviews-panel";
 import { ServerApiError, getMe, serverApi, tryServerApi } from "@/lib/server-api";
-import { formatCount, formatDate, formatScore } from "@/lib/utils";
+import { SITE_URL } from "@/lib/site";
+import { chapterLabel, formatCount, formatDate, formatScore } from "@/lib/utils";
 
 type Params = { params: Promise<{ slug: string }> };
 
@@ -37,10 +42,14 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { slug } = await params;
   const s = await tryServerApi<SeriesDetail>(`/manga/${encodeURIComponent(slug)}`);
   if (!s) return { title: "Series not found" };
+  const type = { MANGA: "manga", MANHWA: "manhwa", MANHUA: "manhua" }[s.type];
+  const latest = s.latestChapter !== null ? ` Latest: chapter ${s.latestChapter}.` : "";
+  const description = `${s.title} ${type}: ${(s.synopsis ?? "").slice(0, 140)}${latest}`.trim();
   return {
-    title: s.title,
-    description: s.synopsis ?? undefined,
-    openGraph: { title: s.title, description: s.synopsis ?? undefined, images: s.coverUrl ? [s.coverUrl] : undefined },
+    title: `${s.title} (${type[0]!.toUpperCase()}${type.slice(1)})${s.latestChapter !== null ? ` · ${chapterLabel(s.latestChapter)}` : ""}`,
+    description,
+    alternates: { canonical: `/manga/${s.slug}` },
+    openGraph: { title: s.title, description, images: s.coverUrl ? [s.coverUrl] : undefined },
   };
 }
 
@@ -55,13 +64,35 @@ function Fact({ label, children }: { label: string; children: React.ReactNode })
 
 const Unknown = () => <span className="text-muted">Unknown</span>;
 
+const authors0 = (s: SeriesDetail) => s.creators.filter((c) => c.role !== "ART").map((c) => c.name);
+
 export default async function SeriesPage({ params }: Params) {
   const { slug } = await params;
   const [s, me] = await Promise.all([load(slug), getMe()]);
-  const [related, reviews] = await Promise.all([
+  const [related, reviews, chapterPage] = await Promise.all([
     tryServerApi<{ items: Recommendation[] }>(`/manga/${s.id}/recommendations`, { limit: 12 }),
     tryServerApi<Paginated<ReviewDTO>>(`/manga/${s.id}/reviews`, { sort: "helpful", pageSize: 10 }),
+    tryServerApi<Paginated<ChapterDTO> & { first: number | null; latest: number | null }>(`/manga/${s.slug}/chapters`, { pageSize: 50 }),
   ]);
+  const firstChapter = chapterPage?.first ?? null;
+  const latestChapter = chapterPage?.latest ?? null;
+  const progress = s.viewer?.libraryEntry?.progressChapter ?? null;
+  const resume = progress && chapterPage?.items.some((c) => c.number === progress + 1) ? progress + 1 : null;
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Book",
+    name: s.title,
+    alternateName: s.altTitles.slice(0, 5),
+    url: `${SITE_URL}/manga/${s.slug}`,
+    image: s.coverUrl ?? undefined,
+    genre: s.genres.map((g) => g.name),
+    author: authors0(s).map((name) => ({ "@type": "Person", name })),
+    bookFormat: "GraphicNovel",
+    description: s.synopsis ?? undefined,
+    ...(s.ratingCount >= 3 && s.ratingAvg !== null
+      ? { aggregateRating: { "@type": "AggregateRating", ratingValue: s.ratingAvg, ratingCount: s.ratingCount, bestRating: 10, worstRating: 1 } }
+      : {}),
+  };
   const native = s.altTitles.find((t) => /[^\x00-\x7F]/.test(t));
   const authors = s.creators.filter((c) => c.role !== "ART");
   const artists = s.creators.filter((c) => c.role !== "STORY");
@@ -84,7 +115,7 @@ export default async function SeriesPage({ params }: Params) {
             <ul className="flex flex-wrap gap-1.5">
               {s.tags.map((t) => (
                 <li key={t.slug}>
-                  <Link href={`/explore?tags=${t.slug}`} className="rounded-full border border-line px-2.5 py-1 text-xs text-muted hover:border-violet hover:text-text">
+                  <Link href={`/browse?tags=${t.slug}`} className="rounded-full border border-line px-2.5 py-1 text-xs text-muted hover:border-violet hover:text-text">
                     {t.name}
                   </Link>
                 </li>
@@ -113,24 +144,24 @@ export default async function SeriesPage({ params }: Params) {
             </dl>
           </>
         )}
-        <div className="mt-8 flex gap-3 rounded-2xl border border-line bg-surface p-4 text-sm text-muted">
+        <div className="mt-8 flex gap-3 rounded-lg border border-line bg-surface p-4 text-sm text-muted">
           <Info className="mt-0.5 size-4 shrink-0" aria-hidden />
           <p>
-            MangaVerse is a catalog and tracker. This page lists metadata only — chapters are not hosted or linked here. Read through the
-            series’ official publisher{s.publisher ? ` (${s.publisher})` : ""}.
+            Chapters marked “Read here” open in the MangaForEver reader. Others open on the official publisher
+            {s.publisher ? ` (${s.publisher})` : ""}, which supports the creators, and still count toward your list.
           </p>
         </div>
       </div>
 
       <aside className="space-y-5">
-        <div className="rounded-2xl border border-line bg-surface p-5">
+        <div className="rounded-lg border border-line bg-surface p-5">
           <h2 className="font-display font-semibold">Ratings</h2>
           <div className="mt-3 flex items-end gap-2">
             <Star className="mb-1 size-6 fill-gold text-gold" aria-hidden />
-            <span className="font-display text-4xl font-extrabold tabular-nums">{formatScore(s.ratingAvg)}</span>
+            <span className="font-display text-4xl font-medium tabular-nums">{formatScore(s.ratingAvg)}</span>
             <span className="mb-1 text-sm text-muted">/ 10</span>
           </div>
-          <p className="text-sm text-muted">MangaVerse members · {s.ratingCount ? `${s.ratingCount} ratings` : "no ratings yet"}</p>
+          <p className="text-sm text-muted">MangaForEver members · {s.ratingCount ? `${s.ratingCount} ratings` : "no ratings yet"}</p>
           <div className="mt-4 border-t border-line pt-3 text-sm">
             {s.externalRating !== null ? (
               <p>
@@ -163,27 +194,16 @@ export default async function SeriesPage({ params }: Params) {
     </div>
   );
 
-  const chapters = s.chapters.length ? (
-    <ul className="divide-y divide-line rounded-2xl border border-line bg-surface">
-      {s.chapters.map((c) => (
-        <li key={`${c.source}-${c.number}`} className="flex items-center justify-between px-4 py-3 text-sm">
-          <span>
-            Chapter {c.number}
-            {c.title ? ` — ${c.title}` : ""}
-          </span>
-          <span className="text-muted">
-            {formatDate(c.releasedAt)} · {c.source}
-          </span>
-        </li>
-      ))}
-    </ul>
+  const chapters = chapterPage?.total ? (
+    <ChapterList slug={s.slug} initial={chapterPage} progress={progress} />
   ) : (
     <EmptyState
-      title="No chapter list for this series"
+      title="No chapters listed yet"
       description={
         <>
-          Chapter release data comes only from metadata providers that publish it, and none is available for this entry.
-          {s.chapterCount ? ` The series has ${s.chapterCount} chapters in total.` : " The total chapter count is unknown."} You can still track progress from your library.
+          New chapters appear here automatically once this series is matched to a chapter source.
+          {s.chapterCount ? ` The series has ${s.chapterCount} chapters in total.` : ""} You can still track progress from your list
+          {s.externalUrls.length ? ", and read on the official sites linked above." : "."}
         </>
       }
     />
@@ -201,7 +221,7 @@ export default async function SeriesPage({ params }: Params) {
             <ul className="space-y-2">
               {(list as typeof authors).map((c) => (
                 <li key={c.slug}>
-                  <Link href={`/explore?creator=${encodeURIComponent(c.name)}`} className="flex items-center justify-between rounded-xl border border-line bg-surface px-4 py-3 hover:border-violet/60">
+                  <Link href={`/browse?creator=${encodeURIComponent(c.name)}`} className="flex items-center justify-between rounded-xl border border-line bg-surface px-4 py-3 hover:border-violet/60">
                     <span className="font-medium">{c.name}</span>
                     <span className="text-xs text-muted">See their series</span>
                   </Link>
@@ -229,6 +249,7 @@ export default async function SeriesPage({ params }: Params) {
 
   return (
     <div>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }} />
       <ViewTracker seriesId={s.id} enabled={!!me} />
       {/* Banner */}
       <div className="relative -mx-4 h-44 overflow-hidden sm:-mx-6 sm:h-56">
@@ -261,18 +282,33 @@ export default async function SeriesPage({ params }: Params) {
             <StatusBadge status={s.status} />
             <SampleBadge source={s.source} />
           </div>
-          <h1 className="mt-3 text-3xl leading-tight font-extrabold sm:text-5xl" style={{ fontVariationSettings: '"wdth" 85' }}>
+          <h1 className="mt-3 text-3xl leading-tight font-medium sm:text-5xl">
             {s.title}
           </h1>
           {s.altTitles.length > 0 && <p className="mt-1.5 text-muted">{s.altTitles.slice(0, 3).join(" · ")}</p>}
           <ul className="mt-4 flex flex-wrap gap-1.5">
             {s.genres.map((g) => (
               <li key={g.slug}>
-                <GenreChip slug={g.slug} name={g.name} href={`/explore?genres=${g.slug}`} size="md" />
+                <GenreChip slug={g.slug} name={g.name} href={`/browse?genres=${g.slug}`} size="md" />
               </li>
             ))}
           </ul>
-          <div className="mt-6">
+          <div className="mt-6 flex flex-wrap gap-2">
+            {firstChapter !== null && (
+              <Button asChild size="lg">
+                <Link href={`/manga/${s.slug}/chapter/${resume ?? firstChapter}`}>
+                  <BookOpen /> {resume ? `Continue ${chapterLabel(resume)}` : "Read first"}
+                </Link>
+              </Button>
+            )}
+            {latestChapter !== null && latestChapter !== firstChapter && (
+              <Button asChild size="lg" variant="outline">
+                <Link href={`/manga/${s.slug}/chapter/${latestChapter}`}>Read latest · {chapterLabel(latestChapter)}</Link>
+              </Button>
+            )}
+            <FollowButton seriesId={s.id} initial={s.viewer?.isFollowing ?? false} followers={s.followerCount} size="lg" />
+          </div>
+          <div className="mt-3">
             <SeriesActions series={s} viewer={s.viewer} />
           </div>
 
@@ -307,8 +343,15 @@ export default async function SeriesPage({ params }: Params) {
       <div className="mt-10">
         <DetailTabs
           tabs={[
-            { value: "overview", label: "Overview", content: overview },
-            { value: "chapters", label: "Chapters", content: chapters },
+            ...(chapterPage?.total
+              ? [
+                  { value: "chapters", label: `Chapters (${chapterPage.total})`, content: chapters },
+                  { value: "overview", label: "Overview", content: overview },
+                ]
+              : [
+                  { value: "overview", label: "Overview", content: overview },
+                  { value: "chapters", label: "Chapters", content: chapters },
+                ]),
             { value: "reviews", label: `Reviews (${s.reviewCount})`, content: reviews ? (
               <ReviewsPanel seriesId={s.id} initial={reviews} viewerRating={s.viewer?.rating ?? null} viewerReviewId={s.viewer?.reviewId ?? null} />
             ) : <EmptyState title="Reviews couldn't load" /> },

@@ -1,16 +1,20 @@
 "use client";
 
 import {
+  Bell,
   BookMarked,
   Clock,
   Compass,
+  Gauge,
   Heart,
   History,
+  Home,
   LayoutDashboard,
   LogOut,
   Menu,
   MessageSquareText,
   Moon,
+  Search,
   Settings,
   Sparkles,
   Sun,
@@ -22,7 +26,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import * as React from "react";
 import { toast } from "sonner";
-import { useAuth } from "@/components/providers";
+import { useAuth, useLive } from "@/components/providers";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Dropdown, DropdownContent, DropdownItem, DropdownLabel, DropdownSeparator, DropdownTrigger } from "@/components/ui/dropdown";
@@ -32,20 +36,77 @@ import { GlobalSearch } from "./global-search";
 import { Logo } from "./logo";
 
 const DISCOVER = [
-  { href: "/explore", label: "Explore" },
+  { href: "/browse", label: "Browse" },
+  { href: "/latest", label: "Latest" },
   { href: "/rankings", label: "Rankings" },
+  { href: "/manga", label: "Manga" },
+  { href: "/manhwa", label: "Manhwa" },
+  { href: "/manhua", label: "Manhua" },
   { href: "/seasonal", label: "Seasonal" },
-  { href: "/latest", label: "Latest updates" },
   { href: "/new", label: "New releases" },
   { href: "/recommendations", label: "For you" },
   { href: "/reviews", label: "Reviews" },
 ];
 
 const MINE = [
-  { href: "/library", label: "My library", icon: BookMarked },
+  { href: "/dashboard", label: "Dashboard", icon: Gauge },
+  { href: "/my-list", label: "My List", icon: BookMarked },
   { href: "/favorites", label: "Favorites", icon: Heart },
+  { href: "/notifications", label: "Notifications", icon: Bell },
   { href: "/history", label: "Reading history", icon: History },
 ];
+
+const isActive = (pathname: string, href: string) => pathname === href || pathname.startsWith(`${href}/`) || (href === "/manga" && pathname === "/manga");
+
+/** Bell with the live unread count. */
+function NotificationBell() {
+  const { unread } = useLive();
+  return (
+    <Link
+      href="/notifications"
+      className="relative grid size-11 place-items-center rounded-md text-text hover:bg-raised"
+      aria-label={unread ? `Notifications, ${unread} unread` : "Notifications"}
+    >
+      <Bell className="size-[18px]" />
+      {unread > 0 && (
+        <span className="tabular absolute top-1.5 right-1.5 grid min-w-4 place-items-center rounded-full bg-violet px-1 text-[0.62rem] leading-4 font-semibold text-on-accent">
+          {unread > 99 ? "99+" : unread}
+        </span>
+      )}
+    </Link>
+  );
+}
+
+/** Phones: a bottom tab bar replaces the header navigation. */
+export function BottomTabs() {
+  const pathname = usePathname();
+  const { user } = useAuth();
+  if (/^\/manga\/[^/]+\/chapter\//.test(pathname)) return null; // the reader has its own controls
+  const tabs = [
+    { href: "/", label: "Home", icon: Home },
+    { href: "/browse", label: "Browse", icon: Compass },
+    { href: "/search", label: "Search", icon: Search },
+    { href: "/my-list", label: "My List", icon: BookMarked },
+    { href: user ? `/u/${user.username}` : "/login", label: user ? "Profile" : "Sign in", icon: User },
+  ];
+  return (
+    <nav aria-label="Tabs" className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-ink/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl md:hidden">
+      <ul className="grid grid-cols-5">
+        {tabs.map((t) => {
+          const active = t.href === "/" ? pathname === "/" : pathname.startsWith(t.href);
+          return (
+            <li key={t.label}>
+              <Link href={t.href} aria-current={active ? "page" : undefined} className={cn("flex h-14 flex-col items-center justify-center gap-0.5 text-[0.68rem]", active ? "text-text" : "text-muted")}>
+                <t.icon className={cn("size-5", active && "text-lilac")} />
+                {t.label}
+              </Link>
+            </li>
+          );
+        })}
+      </ul>
+    </nav>
+  );
+}
 
 function ThemeToggle() {
   const { resolvedTheme, setTheme } = useTheme();
@@ -96,12 +157,19 @@ function UserMenu() {
       </DropdownTrigger>
       <DropdownContent>
         <DropdownLabel>Signed in as @{user.username}</DropdownLabel>
+        {MINE.slice(0, 3).map((m) => (
+          <DropdownItem key={m.href} asChild>
+            <Link href={m.href}>
+              <m.icon /> {m.label}
+            </Link>
+          </DropdownItem>
+        ))}
         <DropdownItem asChild>
           <Link href={`/u/${user.username}`}>
             <User /> Profile
           </Link>
         </DropdownItem>
-        {MINE.map((m) => (
+        {MINE.slice(3).map((m) => (
           <DropdownItem key={m.href} asChild>
             <Link href={m.href}>
               <m.icon /> {m.label}
@@ -140,7 +208,7 @@ export function Avatar({ name, url, size = 32 }: { name: string; url: string | n
   return (
     <span
       aria-hidden
-      className="grid place-items-center rounded-full bg-gradient-to-br from-violet to-indigo font-display font-bold text-white"
+      className="grid place-items-center rounded-full bg-raised font-display font-medium text-text ring-1 ring-line"
       style={{ width: size, height: size, fontSize: size * 0.42 }}
     >
       {name.slice(0, 1).toUpperCase()}
@@ -154,7 +222,7 @@ function MobileNav() {
   const pathname = usePathname();
   React.useEffect(() => setOpen(false), [pathname]);
   const icons: Record<string, React.ComponentType<{ className?: string }>> = {
-    "/explore": Compass, "/rankings": Trophy, "/seasonal": Sparkles, "/latest": Clock, "/new": Sparkles, "/recommendations": Sparkles, "/reviews": MessageSquareText,
+    "/browse": Compass, "/rankings": Trophy, "/seasonal": Sparkles, "/latest": Clock, "/new": Sparkles, "/recommendations": Sparkles, "/reviews": MessageSquareText,
   };
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -211,27 +279,30 @@ export function Header() {
   const { user } = useAuth();
   const pathname = usePathname();
   return (
-    <header className="sticky top-0 z-40 border-b border-line bg-ink/85 backdrop-blur-xl">
+    <header data-site-chrome className="sticky top-0 z-40 border-b border-line bg-ink/90 backdrop-blur-xl">
       <div className="mx-auto flex h-16 max-w-7xl items-center gap-3 px-4 sm:px-6">
         <Logo />
-        <nav aria-label="Primary" className="ml-3 hidden items-center gap-0.5 xl:flex">
-          {DISCOVER.slice(0, 6).map((d) => (
-            <Link
-              key={d.href}
-              href={d.href}
-              aria-current={pathname.startsWith(d.href) ? "page" : undefined}
-              className={cn(
-                "rounded-lg px-2.5 py-1.5 text-sm whitespace-nowrap text-muted transition-colors hover:text-text",
-                pathname.startsWith(d.href) && "bg-raised text-text",
-              )}
-            >
-              {d.label}
-            </Link>
-          ))}
+        <nav aria-label="Primary" className="ml-4 hidden items-center gap-0.5 xl:flex">
+          {[{ href: "/", label: "Home" }, ...DISCOVER.slice(0, 6)].map((d) => {
+            const active = d.href === "/" ? pathname === "/" : isActive(pathname, d.href) && !(d.href === "/manga" && pathname !== "/manga");
+            return (
+              <Link
+                key={d.href}
+                href={d.href}
+                aria-current={active ? "page" : undefined}
+                className={cn(
+                  "relative px-2.5 py-1.5 text-sm whitespace-nowrap text-muted transition-colors hover:text-text",
+                  active && "text-text after:absolute after:inset-x-2.5 after:-bottom-[17px] after:h-0.5 after:bg-violet",
+                )}
+              >
+                {d.label}
+              </Link>
+            );
+          })}
         </nav>
         <nav aria-label="Primary" className="ml-2 hidden items-center gap-0.5 md:flex xl:hidden">
           {DISCOVER.slice(0, 3).map((d) => (
-            <Link key={d.href} href={d.href} className={cn("rounded-lg px-2.5 py-1.5 text-sm text-muted hover:text-text", pathname.startsWith(d.href) && "bg-raised text-text")}>
+            <Link key={d.href} href={d.href} className={cn("px-2.5 py-1.5 text-sm text-muted hover:text-text", isActive(pathname, d.href) && "text-text")}>
               {d.label}
             </Link>
           ))}
@@ -241,9 +312,7 @@ export function Header() {
           <ThemeToggle />
           {user ? (
             <>
-              <Link href="/library" className="hidden rounded-lg px-2.5 py-1.5 text-sm text-muted hover:text-text lg:block">
-                Library
-              </Link>
+              <NotificationBell />
               <UserMenu />
             </>
           ) : (

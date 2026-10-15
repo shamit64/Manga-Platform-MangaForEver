@@ -9,7 +9,7 @@ import {
   reportCreateSchema,
   reviewUpdateSchema,
   updateProfileSchema,
-} from "@mangaverse/shared";
+} from "@mangaforever/shared";
 import { z } from "zod";
 import { parse } from "../middleware/validate.js";
 import * as favorites from "../services/favorites.service.js";

@@ -1,6 +1,6 @@
 "use client";
 
-import { reviewCreateSchema, type Paginated, type ReviewDTO } from "@mangaverse/shared";
+import { reviewCreateSchema, type Paginated, type ReviewDTO } from "@mangaforever/shared";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { MessageSquarePlus } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -121,7 +121,7 @@ function ReviewForm({
   }
 
   return (
-    <form onSubmit={handleSubmit(submit)} className="space-y-4 rounded-2xl border border-violet/40 bg-surface p-5" noValidate>
+    <form onSubmit={handleSubmit(submit)} className="space-y-4 rounded-lg border border-violet/40 bg-surface p-5" noValidate>
       <h3 className="font-display text-lg font-semibold">{existing ? "Edit your review" : "Write a review"}</h3>
       <div>
         <Label htmlFor="rv-title">Title</Label>
@@ -201,7 +201,7 @@ export function ReviewsPanel({
 
   return (
     <div className="space-y-6">
-      <div className="rounded-2xl border border-line bg-surface p-5">
+      <div className="rounded-lg border border-line bg-surface p-5">
         <h3 className="mb-3 font-display text-lg font-semibold">Your rating</h3>
         <RatingControl seriesId={seriesId} initial={viewerRating} />
       </div>
@@ -248,7 +248,7 @@ export function ReviewsPanel({
       )}
 
       {data.items.length === 0 ? (
-        <EmptyState title="No reviews yet" description="Be the first MangaVerse member to review this series." />
+        <EmptyState title="No reviews yet" description="Be the first MangaForEver member to review this series." />
       ) : (
         <div className={cn("space-y-4", loading && "opacity-60")}>
           {data.items.map((r) => (
