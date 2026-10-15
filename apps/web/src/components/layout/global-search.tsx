@@ -1,6 +1,6 @@
 "use client";
 
-import { CONTENT_TYPE_LABELS, type SeriesCard } from "@mangaverse/shared";
+import { CONTENT_TYPE_LABELS, type SeriesCard } from "@mangaforever/shared";
 import { Clock, Loader2, Search, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import * as React from "react";
@@ -99,7 +99,7 @@ export function GlobalSearch({ className, onNavigate }: { className?: string; on
   function submit(term = q) {
     const t = term.trim();
     if (!t) return;
-    go(`/explore?q=${encodeURIComponent(t)}`);
+    go(`/browse?q=${encodeURIComponent(t)}`);
   }
 
   function choose(i: number) {
@@ -178,7 +178,7 @@ export function GlobalSearch({ className, onNavigate }: { className?: string; on
       </form>
 
       {expanded && (
-        <div className="absolute inset-x-0 top-12 z-50 overflow-hidden rounded-2xl border border-line bg-surface shadow-2xl">
+        <div className="absolute inset-x-0 top-12 z-50 overflow-hidden rounded-lg border border-line bg-surface shadow-2xl">
           {showRecent && (
             <div className="flex items-center justify-between px-4 pt-3 pb-1 text-xs text-muted">
               <span>Recent searches</span>

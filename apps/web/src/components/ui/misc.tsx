@@ -21,5 +21,5 @@ export function Badge({
 }
 
 export function Card({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
-  return <div className={cn("rounded-2xl border border-line bg-surface", className)} {...props} />;
+  return <div className={cn("rounded-lg border border-line bg-surface", className)} {...props} />;
 }

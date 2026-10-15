@@ -1,4 +1,4 @@
-import type { Paginated } from "@mangaverse/shared";
+import type { Paginated } from "@mangaforever/shared";
 import type { Metadata } from "next";
 import { HistoryView } from "@/components/library/history-view";
 import { ErrorNotice, PageHeader } from "@/components/layout/section";
@@ -14,7 +14,7 @@ export default async function HistoryPage({ searchParams }: { searchParams: Prom
   const data = await tryServerApi<Paginated<Parameters<typeof HistoryView>[0]["initial"]["items"][number]>>("/history", { page: sp.page, pageSize: 40 });
   return (
     <div>
-      <PageHeader title="Reading history" description="Series you’ve opened on MangaVerse, most recent first." />
+      <PageHeader title="Reading history" description="Series you’ve opened on MangaForEver, most recent first." />
       {data ? (
         <>
           <HistoryView initial={data} prefs={me.preferences} />

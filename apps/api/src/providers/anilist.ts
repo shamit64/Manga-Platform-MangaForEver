@@ -17,6 +17,7 @@ const MEDIA_FIELDS = `
   tags { name rank isMediaSpoiler isAdult category }
   staff(perPage: 8, sort: RELEVANCE) { edges { role node { name { full } } } }
   rankings { rank type allTime context }
+  externalLinks { url site type language isDisabled }
 `;
 
 const SEARCH_QUERY = `query ($search: String, $page: Int, $perPage: Int) {
@@ -71,6 +72,8 @@ export interface AniListMedia {
   tags: { name: string; rank: number; isMediaSpoiler: boolean; isAdult: boolean; category: string }[] | null;
   staff: { edges: { role: string; node: { name: { full: string } } }[] } | null;
   rankings: { rank: number; type: string; allTime: boolean; context: string }[] | null;
+  /** Official reading sites are listed with type "STREAMING" (e.g. MANGA Plus, WEBTOON, Tapas). */
+  externalLinks?: { url: string; site: string; type: string | null; language: string | null; isDisabled: boolean | null }[] | null;
 }
 
 const STATUS: Record<string, ProviderSeries["status"]> = {
@@ -161,7 +164,13 @@ export function mapAniList(m: AniListMedia): ProviderSeries {
     externalRatingSource: m.averageScore !== null ? "AniList average score" : null,
     externalPopularity: m.popularity,
     externalPopularityRank: popularRank,
-    externalUrls: [{ label: "AniList", url: m.siteUrl }],
+    externalUrls: [
+      { label: "AniList", url: m.siteUrl },
+      ...(m.externalLinks ?? [])
+        .filter((l) => l.type === "STREAMING" && !l.isDisabled && /^https:\/\//.test(l.url) && (!l.language || l.language === "English"))
+        .slice(0, 6)
+        .map((l) => ({ label: l.site, url: l.url })),
+    ],
     source: "ANILIST",
     externalProvider: "anilist",
     externalId: String(m.id),

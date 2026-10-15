@@ -40,7 +40,7 @@ export async function api<T = unknown>(
     });
   } catch (err) {
     if ((err as Error).name === "AbortError") throw err;
-    throw new ApiError(0, "NETWORK", "Can't reach MangaVerse. Check your connection and try again.");
+    throw new ApiError(0, "NETWORK", "Can't reach MangaForEver. Check your connection and try again.");
   }
   if (res.status === 204) return undefined as T;
   const data = await res.json().catch(() => null);

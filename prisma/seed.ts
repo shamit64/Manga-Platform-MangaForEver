@@ -1,5 +1,5 @@
 /**
- * MangaVerse seed script.
+ * MangaForEver seed script.
  *
  *   npm run db:seed
  *
@@ -53,7 +53,7 @@ const DEMO_MEMBERS: { username: string; displayName: string; bio: string; likes:
 ];
 
 async function main() {
-  console.log("Seeding MangaVerse sample data…");
+  console.log("Seeding MangaForEver sample data…");
 
   // ── Genres (fixed list so filters always show them)
   for (const name of SEED_GENRES) {
@@ -94,30 +94,63 @@ async function main() {
   }
   console.log(`  catalog: ${SEED_CATALOG.length} sample series (${created} new)`);
 
+  // ── An original demo series with hosted pages, so the reader works on a fresh install.
+  // Written and drawn for MangaForEver (simple SVG pages in apps/web/public/sample); no third-party work.
+  const lanternExisting = await prisma.mangaSeries.findFirst({ where: { title: "The Lantern Keeper", source: "SEED_SAMPLE" }, select: { id: true } });
+  const lantern = await writeSeries(
+    {
+      title: "The Lantern Keeper", altTitles: [], localizedTitles: { en: "The Lantern Keeper" },
+      synopsis: "On a harbour island where the lighthouse went dark years ago, a girl who can't sleep takes over the night lanterns, and finds that each one remembers a different ship. A short original strip made to demo the MangaForEver reader.",
+      description: null, type: "MANHWA", countryOfOrigin: "South Korea", publisher: "MangaForEver Originals", demographic: null,
+      status: "ONGOING", releaseYear: 2026, startDate: null, endDate: null, chapterCount: null, volumeCount: null, source: "SEED_SAMPLE",
+      genres: ["Fantasy", "Slice of Life", "Mystery"], tags: ["Original", "Short"], authors: ["MangaForEver"], artists: ["MangaForEver"],
+    },
+    { id: lanternExisting?.id, db: prisma },
+  );
+  const LANTERN_CHAPTERS = [
+    { number: 1, title: "The dark lighthouse", pages: [1, 2, 3, 4] },
+    { number: 2, title: "Ships that remember", pages: [3, 5, 2, 6] },
+    { number: 3, title: "Low tide", pages: [5, 1, 6, 4] },
+  ];
+  for (const [i, ch] of LANTERN_CHAPTERS.entries()) {
+    const releasedAt = new Date(Date.now() - (LANTERN_CHAPTERS.length - i) * 3 * 86_400_000);
+    const row = await prisma.chapterMetadata.upsert({
+      where: { seriesId_number_source: { seriesId: lantern.id, number: ch.number, source: "hosted" } },
+      update: { title: ch.title },
+      create: { seriesId: lantern.id, number: ch.number, title: ch.title, source: "hosted", readable: true, publisher: "MangaForEver", language: "en", releasedAt },
+    });
+    await prisma.hostedPage.deleteMany({ where: { chapterId: row.id } });
+    await prisma.hostedPage.createMany({ data: ch.pages.map((n, index) => ({ chapterId: row.id, index, imageUrl: `/sample/page-${n}.svg`, width: 800, height: 1200 })) });
+  }
+  const lastLantern = LANTERN_CHAPTERS.at(-1)!;
+  await prisma.mangaSeries.update({ where: { id: lantern.id }, data: { latestChapter: lastLantern.number, lastChapterAt: new Date(Date.now() - 3 * 86_400_000) } });
+  console.log("  reader demo: The Lantern Keeper (3 hosted chapters)");
+
   // ── Staff + demo accounts
-  const adminEmail = (process.env.SEED_ADMIN_EMAIL ?? "admin@mangaverse.local").toLowerCase();
+  const adminEmail = (process.env.SEED_ADMIN_EMAIL ?? "admin@mangaforever.local").toLowerCase();
   const adminPassword = process.env.SEED_ADMIN_PASSWORD ?? "ChangeMe-Admin-1";
-  const modEmail = (process.env.SEED_MODERATOR_EMAIL ?? "moderator@mangaverse.local").toLowerCase();
+  const modEmail = (process.env.SEED_MODERATOR_EMAIL ?? "moderator@mangaforever.local").toLowerCase();
   const modPassword = process.env.SEED_MODERATOR_PASSWORD ?? "ChangeMe-Mod-1";
   const demoPassword = process.env.SEED_DEMO_PASSWORD ?? "DemoReader-1";
 
   const admin = await prisma.user.upsert({
     where: { email: adminEmail },
     update: { role: "ADMIN" },
-    create: { email: adminEmail, username: "mv_admin", displayName: "MangaVerse Admin", role: "ADMIN", passwordHash: await bcrypt.hash(adminPassword, 12), preference: { create: {} } },
+    create: { email: adminEmail, username: "mf_admin", displayName: "MangaForEver Admin", role: "ADMIN", passwordHash: await bcrypt.hash(adminPassword, 12), emailVerifiedAt: new Date(), preference: { create: {} } },
   });
   await prisma.user.upsert({
     where: { email: modEmail },
     update: { role: "MODERATOR" },
-    create: { email: modEmail, username: "mv_moderator", displayName: "MangaVerse Moderator", role: "MODERATOR", passwordHash: await bcrypt.hash(modPassword, 12), preference: { create: {} } },
+    create: { email: modEmail, username: "mf_moderator", displayName: "MangaForEver Moderator", role: "MODERATOR", passwordHash: await bcrypt.hash(modPassword, 12), emailVerifiedAt: new Date(), preference: { create: {} } },
   });
   await prisma.user.upsert({
-    where: { email: "reader@mangaverse.local" },
+    where: { email: "reader@mangaforever.local" },
     update: {},
     create: {
-      email: "reader@mangaverse.local", username: "demo_reader", displayName: "Demo Reader", isDemo: true,
-      bio: "A demo account for trying MangaVerse. Everything here can be edited or deleted.",
+      email: "reader@mangaforever.local", username: "demo_reader", displayName: "Demo Reader", isDemo: true,
+      bio: "A demo account for trying MangaForEver. Everything here can be edited or deleted.",
       passwordHash: await bcrypt.hash(demoPassword, 12),
+      emailVerifiedAt: new Date(),
       preference: { create: { favoriteGenres: ["fantasy", "adventure"] } },
     },
   });
@@ -134,8 +167,8 @@ async function main() {
       where: { username: m.username },
       update: {},
       create: {
-        email: `${m.username}@demo.mangaverse.local`, username: m.username, displayName: m.displayName, bio: m.bio,
-        isDemo: true, passwordHash: demoHash,
+        email: `${m.username}@demo.mangaforever.local`, username: m.username, displayName: m.displayName, bio: m.bio,
+        isDemo: true, passwordHash: demoHash, emailVerifiedAt: new Date(),
         preference: { create: { favoriteGenres: m.likes.map((g) => g.toLowerCase().replace(/[^a-z0-9]+/g, "-")) } },
       },
     });
@@ -238,7 +271,7 @@ async function main() {
     });
   }
 
-  console.log(`  accounts: admin ${adminEmail}, moderator ${modEmail}, demo reader reader@mangaverse.local`);
+  console.log(`  accounts: admin ${adminEmail}, moderator ${modEmail}, demo reader reader@mangaforever.local`);
   if (!process.env.SEED_ADMIN_PASSWORD) console.log(`  ⚠ Using default local admin password "${adminPassword}" — set SEED_ADMIN_PASSWORD before seeding anything public.`);
   console.log(`  demo reader password: ${demoPassword}`);
   console.log("Done.");

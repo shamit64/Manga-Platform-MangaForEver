@@ -1,10 +1,11 @@
 "use client";
 
-import { changePasswordSchema, type Me, type Preferences } from "@mangaverse/shared";
+import { CONTENT_TYPE_LABELS, CONTENT_TYPES, changePasswordSchema, type Me, type Preferences } from "@mangaforever/shared";
 import { useTheme } from "next-themes";
 import { useRouter } from "next/navigation";
 import * as React from "react";
 import { toast } from "sonner";
+import { enablePush } from "@/components/layout/service-worker";
 import { useAuth } from "@/components/providers";
 import { Button } from "@/components/ui/button";
 import { FieldError, Input, Label, Select, Switch, Textarea } from "@/components/ui/form";
@@ -28,6 +29,9 @@ export function SettingsForm({ me, genres, welcome }: { me: Me; genres: { name: 
       ...p,
       favoriteGenres: p.favoriteGenres.includes(slug) ? p.favoriteGenres.filter((g) => g !== slug) : [...p.favoriteGenres, slug].slice(0, 15),
     }));
+
+  const toggleType = (t: (typeof CONTENT_TYPES)[number]) =>
+    setPrefs((p) => ({ ...p, favoriteTypes: p.favoriteTypes.includes(t) ? p.favoriteTypes.filter((x) => x !== t) : [...p.favoriteTypes, t] }));
 
   async function save(e: React.FormEvent) {
     e.preventDefault();
@@ -92,6 +96,45 @@ export function SettingsForm({ me, genres, welcome }: { me: Me; genres: { name: 
               </button>
             );
           })}
+        </div>
+      </Card>
+
+      <Card className="p-6">
+        <h2 className="font-display text-xl font-semibold">Favorite types</h2>
+        <p className="mt-1 text-sm text-muted">Shown on your profile and dashboard, and used to order your home page.</p>
+        <div className="mt-4 flex flex-wrap gap-1.5">
+          {CONTENT_TYPES.map((t) => {
+            const on = prefs.favoriteTypes.includes(t);
+            return (
+              <button key={t} type="button" aria-pressed={on} onClick={() => toggleType(t)}
+                className={cn("cursor-pointer rounded-full border px-3 py-1.5 text-sm", on ? "border-violet bg-violet/15" : "border-line text-muted hover:text-text")}>
+                {CONTENT_TYPE_LABELS[t]}
+              </button>
+            );
+          })}
+        </div>
+      </Card>
+
+      <Card className="p-6">
+        <h2 className="font-display text-xl font-semibold">Reading and notifications</h2>
+        <div className="mt-4 max-w-xs">
+          <Label htmlFor="s-reader">Default reader mode</Label>
+          <Select id="s-reader" value={prefs.readerMode ?? ""} onChange={(e) => setPrefs({ ...prefs, readerMode: (e.target.value || null) as Preferences["readerMode"] })}>
+            <option value="">Automatic (long strip for manhwa and manhua, pages for manga)</option>
+            <option value="strip">Long strip</option>
+            <option value="paged">Page by page</option>
+          </Select>
+        </div>
+        <div className="mt-2 divide-y divide-line">
+          <Switch checked={prefs.emailDigest} onCheckedChange={(v) => setPrefs({ ...prefs, emailDigest: v })} label="Daily email digest" description="One email a day listing new chapters of series you follow. Off by default." />
+        </div>
+        <div className="mt-4 flex flex-wrap items-center gap-3 border-t border-line pt-4">
+          <Button type="button" variant="outline" onClick={async () => {
+            const r = await enablePush().catch(() => "unavailable" as const);
+            const msg = { enabled: "Notifications turned on for this device", unsupported: "This browser doesn't support notifications. On iPhone, add MangaForEver to your Home Screen first.", denied: "Notifications are blocked in your browser settings", unavailable: "Notifications aren't set up on this site yet" }[r];
+            (r === "enabled" ? toast.success : toast.error)(msg);
+          }}>Turn on notifications on this device</Button>
+          <p className="text-xs text-muted">Get a ping when a series you follow has a new chapter.</p>
         </div>
       </Card>
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { READING_STATUSES, READING_STATUS_LABELS, type LibraryEntryDTO, type ReadingStatus } from "@mangaverse/shared";
+import { READING_STATUSES, READING_STATUS_LABELS, type LibraryEntryDTO, type ReadingStatus } from "@mangaforever/shared";
 import { Minus, Plus, Trash2 } from "lucide-react";
 import * as React from "react";
 import { toast } from "sonner";
@@ -77,7 +77,7 @@ export function LibraryEditor({
         ? await api<LibraryEntryDTO>(`/library/${entry.id}`, { method: "PATCH", body })
         : await api<LibraryEntryDTO>("/library", { method: "POST", body: { ...body, seriesId } });
       onSaved(saved);
-      toast.success(entry ? "Library updated" : `Added ${title} to your library`);
+      toast.success(entry ? "List updated" : `Added ${title} to your list`);
       onOpenChange(false);
     } catch (err) {
       if (err instanceof ApiError && err.details) {
@@ -94,7 +94,7 @@ export function LibraryEditor({
     try {
       await api(`/library/${entry.id}`, { method: "DELETE" });
       onSaved(null);
-      toast.success(`Removed ${title} from your library`);
+      toast.success(`Removed ${title} from your list`);
       onOpenChange(false);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Couldn't remove");
@@ -105,7 +105,7 @@ export function LibraryEditor({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent title={entry ? "Update progress" : "Add to library"} description={title}>
+      <DialogContent title={entry ? "Update progress" : "Add to List"} description={title}>
         <form onSubmit={save} className="space-y-4">
           <div>
             <Label htmlFor="le-status">Status</Label>
@@ -200,7 +200,7 @@ export function LibraryEditor({
               </Button>
             )}
             <Button type="submit" className="ml-auto" disabled={saving}>
-              {saving ? "Saving…" : entry ? "Save changes" : "Add to library"}
+              {saving ? "Saving…" : entry ? "Save changes" : "Add to List"}
             </Button>
           </div>
         </form>

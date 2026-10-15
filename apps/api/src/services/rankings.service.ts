@@ -1,4 +1,4 @@
-import { RANKING_EXPLANATIONS, type RankingKind, type RankingResponse, type Season } from "@mangaverse/shared";
+import { RANKING_EXPLANATIONS, type RankingKind, type RankingResponse, type Season } from "@mangaforever/shared";
 import type { Prisma } from "../generated/prisma/client.js";
 import { prisma } from "../lib/prisma.js";
 import { cardInclude, toCard } from "./series-mapper.js";

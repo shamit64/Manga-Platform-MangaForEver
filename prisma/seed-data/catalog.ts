@@ -4,7 +4,7 @@
  * Titles, creators, publishers, years and statuses describe real, published works and were
  * compiled by hand as a static snapshot. Publication status can change after the snapshot was
  * taken, so every record is marked as sample data in the UI. Synopses are original one-paragraph
- * summaries written for MangaVerse. Chapter/volume counts are only filled in for finished series
+ * summaries written for MangaForEver. Chapter/volume counts are only filled in for finished series
  * where the totals are settled; everything else is left unknown (null) rather than guessed.
  *
  * No cover images are bundled: the UI renders a generated typographic cover for sample titles.

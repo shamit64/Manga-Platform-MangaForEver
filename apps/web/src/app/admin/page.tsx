@@ -1,4 +1,4 @@
-import { CONTENT_TYPE_LABELS, DATA_SOURCE_LABELS, type ContentType, type DataSource, type SeriesCard } from "@mangaverse/shared";
+import { CONTENT_TYPE_LABELS, DATA_SOURCE_LABELS, type ContentType, type DataSource, type SeriesCard } from "@mangaforever/shared";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { ErrorNotice } from "@/components/layout/section";
@@ -41,7 +41,7 @@ export default async function AdminDashboard() {
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         {tiles.map(([label, n, hint]) => (
           <Card key={label} className="p-4">
-            <p className="font-display text-3xl font-extrabold tabular-nums">{n.toLocaleString()}</p>
+            <p className="font-display text-3xl font-medium tabular-nums">{n.toLocaleString()}</p>
             <p className="text-sm">{label}</p>
             {hint && <p className="mt-0.5 text-xs text-muted">{hint}</p>}
           </Card>

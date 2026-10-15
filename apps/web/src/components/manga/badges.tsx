@@ -5,7 +5,7 @@ import {
   PUBLICATION_STATUS_LABELS,
   type ContentType,
   type PublicationStatus,
-} from "@mangaverse/shared";
+} from "@mangaforever/shared";
 import { Star } from "lucide-react";
 import { Badge } from "@/components/ui/misc";
 import { cn, formatScore } from "@/lib/utils";
@@ -13,7 +13,7 @@ import { cn, formatScore } from "@/lib/utils";
 export function TypeBadge({ type, className }: { type: ContentType; className?: string }) {
   return (
     <span
-      className={cn("chip-tint inline-flex items-center rounded-md px-2 py-0.5 text-xs font-semibold", className)}
+      className={cn("chip-tint inline-flex items-center rounded-sm px-1.5 py-0.5 text-[0.66rem] font-semibold uppercase tracking-[0.08em]", className)}
       style={{ ["--chip" as string]: TYPE_COLORS[type].solid }}
     >
       {CONTENT_TYPE_LABELS[type]}
@@ -50,10 +50,10 @@ export function SampleBadge({ source }: { source: string }) {
   );
 }
 
-/** Community score (MangaVerse members). External scores are shown separately with their source. */
+/** Community score (MangaForEver members). External scores are shown separately with their source. */
 export function CommunityScore({ avg, count, className }: { avg: number | null; count: number; className?: string }) {
   return (
-    <span className={cn("inline-flex items-center gap-1 text-sm tabular-nums", className)} title={count ? `${count} MangaVerse ratings` : "No member ratings yet"}>
+    <span className={cn("inline-flex items-center gap-1 text-sm tabular-nums", className)} title={count ? `${count} MangaForEver ratings` : "No member ratings yet"}>
       <Star className="size-3.5 fill-gold text-gold" aria-hidden />
       <span className="font-semibold">{avg !== null ? formatScore(avg) : "—"}</span>
       <span className="sr-only">out of 10 from {count} ratings</span>

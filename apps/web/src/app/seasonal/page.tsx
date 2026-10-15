@@ -1,4 +1,4 @@
-import { SEASONS, SEASON_LABELS, type Season, type SeasonalCollectionDTO, type SeriesCard } from "@mangaverse/shared";
+import { SEASONS, SEASON_LABELS, type Season, type SeasonalCollectionDTO, type SeriesCard } from "@mangaforever/shared";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { EmptyState, ErrorNotice, PageHeader, Section } from "@/components/layout/section";

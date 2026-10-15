@@ -1,6 +1,6 @@
 "use client";
 
-import { CONTENT_TYPE_LABELS, type SeriesCard } from "@mangaverse/shared";
+import { CONTENT_TYPE_LABELS, type SeriesCard } from "@mangaforever/shared";
 import * as React from "react";
 import { Input } from "@/components/ui/form";
 import { api } from "@/lib/api";

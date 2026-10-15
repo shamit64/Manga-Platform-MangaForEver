@@ -1,79 +1,50 @@
-import { CONTENT_TYPES, CONTENT_TYPE_LABELS, DATA_SOURCE_LABELS, type DataSource, type SeriesCard } from "@mangaverse/shared";
+import type { LatestUpdate, Paginated } from "@mangaforever/shared";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { EmptyState, ErrorNotice, PageHeader, Section } from "@/components/layout/section";
-import { TypeBadge } from "@/components/manga/badges";
-import { Cover } from "@/components/manga/cover";
+import { PageHeader } from "@/components/layout/section";
+import { LatestUpdatesGrid } from "@/components/live/latest-updates";
+import { Pagination } from "@/components/manga/pagination";
 import { tryServerApi } from "@/lib/server-api";
-import { cn, formatDate, timeAgo } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 
-export const metadata: Metadata = { title: "Latest updates" };
-
-type Latest = {
-  catalogUpdates: { series: SeriesCard; updatedAt: string; source: DataSource; lastSyncedAt: string | null }[];
-  chapterReleases: { series: SeriesCard; chapter: number; title: string | null; releasedAt: string; source: string; externalUrl: string | null }[];
+export const dynamic = "force-dynamic";
+export const metadata: Metadata = {
+  title: "Latest chapter updates",
+  description: "Every new manga, manhwa and manhua chapter in release order, updated live.",
 };
+
+const TYPES = [
+  ["", "All"],
+  ["MANGA", "Manga"],
+  ["MANHWA", "Manhwa"],
+  ["MANHUA", "Manhua"],
+] as const;
 
 export default async function LatestPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   const sp = await searchParams;
-  const type = CONTENT_TYPES.find((t) => t === sp.type);
-  const data = await tryServerApi<Latest>("/latest", { limit: 50, type });
+  const type = TYPES.some(([t]) => t && t === sp.type) ? sp.type : undefined;
+  const page = Math.max(1, Number(sp.page) || 1);
+  const data = await tryServerApi<Paginated<LatestUpdate>>("/latest-updates", { page, pageSize: 30, type });
   return (
     <div>
-      <PageHeader title="Latest updates" description="What changed in the catalog recently. Chapter releases only appear when a metadata provider supplies real dates." />
-      <nav className="flex flex-wrap gap-1.5" aria-label="Content type">
-        {[undefined, ...CONTENT_TYPES].map((t) => (
-          <Link key={t ?? "all"} href={t ? `/latest?type=${t}` : "/latest"} className={cn("rounded-full border px-3.5 py-1.5 text-sm", t === type ? "border-violet bg-violet/15" : "border-line text-muted hover:text-text")}>
-            {t ? CONTENT_TYPE_LABELS[t] : "All"}
+      <PageHeader title="Latest updates" description="New chapters in release order. This page refreshes itself the moment a chapter comes out." />
+      <nav aria-label="Filter by type" className="mt-6 mb-5 flex gap-1.5">
+        {TYPES.map(([t, label]) => (
+          <Link
+            key={label}
+            href={t ? `/latest?type=${t}` : "/latest"}
+            aria-current={(type ?? "") === t ? "page" : undefined}
+            className={cn("rounded-full border px-3.5 py-1.5 text-sm", (type ?? "") === t ? "border-text text-text" : "border-line text-muted hover:text-text")}
+          >
+            {label}
           </Link>
         ))}
       </nav>
-      {!data ? (
-        <div className="mt-6"><ErrorNotice title="Updates couldn't load" /></div>
-      ) : (
-        <>
-          <Section title="Chapter releases" description="From providers that publish chapter dates.">
-            {data.chapterReleases.length ? (
-              <ul className="divide-y divide-line rounded-2xl border border-line bg-surface">
-                {data.chapterReleases.map((c) => (
-                  <li key={`${c.series.id}-${c.chapter}`} className="flex items-center gap-3 px-4 py-3">
-                    <Cover title={c.series.title} coverUrl={c.series.coverUrl} genres={c.series.genres.map((g) => g.slug)} compact className="w-10 rounded-md" sizes="40px" />
-                    <div className="min-w-0 flex-1">
-                      <Link href={`/manga/${c.series.slug}`} className="font-medium hover:text-lilac">{c.series.title}</Link>
-                      <p className="text-xs text-muted">Chapter {c.chapter}{c.title ? ` — ${c.title}` : ""} · {formatDate(c.releasedAt)} · {c.source}</p>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <EmptyState title="No chapter release data" description="None of the configured metadata sources publish chapter release dates, so MangaVerse doesn't show any rather than guess." />
-            )}
-          </Section>
-          <Section title="Catalog updates" description="Entries whose metadata (titles, synopsis, status, creators…) changed most recently — not the series' publication dates.">
-            {data.catalogUpdates.length ? (
-              <ul className="divide-y divide-line rounded-2xl border border-line bg-surface">
-                {data.catalogUpdates.map((u) => (
-                  <li key={u.series.id}>
-                    <Link href={`/manga/${u.series.slug}`} className="flex items-center gap-3 px-4 py-3 hover:bg-raised/40">
-                      <Cover title={u.series.title} coverUrl={u.series.coverUrl} genres={u.series.genres.map((g) => g.slug)} compact className="w-10 shrink-0 rounded-md" sizes="40px" />
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate font-medium">{u.series.title}</p>
-                        <p className="text-xs text-muted">
-                          Updated {timeAgo(u.updatedAt)} · Source: {DATA_SOURCE_LABELS[u.source]}
-                          {u.lastSyncedAt ? ` · last synced ${formatDate(u.lastSyncedAt)}` : ""}
-                        </p>
-                      </div>
-                      <TypeBadge type={u.series.type} />
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <EmptyState title="No catalog updates yet" />
-            )}
-          </Section>
-        </>
-      )}
+      <LatestUpdatesGrid key={`${type}-${page}`} initial={data} pageSize={30} type={type} />
+      {data && <Pagination page={data.page} totalPages={data.totalPages} basePath="/latest" params={sp} />}
+      <p className="mt-6 text-xs text-muted">
+        Chapter data from MangaDex and official publishers. Chapters open on MangaForEver when we have the right to host them, and on the publisher’s site otherwise.
+      </p>
     </div>
   );
 }

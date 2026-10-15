@@ -13,6 +13,7 @@ import { loadSession } from "./middleware/auth.js";
 import { errorHandler, notFoundHandler } from "./middleware/error.js";
 import { globalLimiter, originCheck } from "./middleware/security.js";
 import { api } from "./routes/index.js";
+import { jobRun, requireJobsToken } from "./controllers/live.controller.js";
 
 export function createApp() {
   const app = express();
@@ -39,7 +40,8 @@ export function createApp() {
       methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     }),
   );
-  app.use(compression());
+  // Never compress the live event stream: compression buffers it.
+  app.use(compression({ filter: (req, res) => !req.path.endsWith("/events") && compression.filter(req, res) }));
   app.use(express.json({ limit: "100kb" }));
   app.use(cookieParser());
   app.use(globalLimiter);
@@ -54,7 +56,10 @@ export function createApp() {
   });
 
   app.get("/openapi.json", (_req, res) => res.json(openApiDocument));
-  app.use("/docs", swaggerUi.serve, swaggerUi.setup(openApiDocument, { customSiteTitle: "MangaVerse API" }));
+  app.use("/docs", swaggerUi.serve, swaggerUi.setup(openApiDocument, { customSiteTitle: "MangaForEver API" }));
+
+  // Scheduled jobs: called by the scheduler with JOBS_TOKEN, never by browsers.
+  app.post("/internal/jobs/:job", requireJobsToken, jobRun);
 
   app.use("/api/v1", originCheck, loadSession, api);
 

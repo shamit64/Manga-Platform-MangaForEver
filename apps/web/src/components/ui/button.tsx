@@ -8,7 +8,7 @@ export const buttonVariants = cva(
   {
     variants: {
       variant: {
-        primary: "bg-brand text-white shadow-[0_8px_24px_-10px_var(--pink)] hover:brightness-110",
+        primary: "bg-violet text-on-accent hover:bg-violet-strong",
         secondary: "bg-raised text-text hover:bg-line",
         outline: "border border-line bg-transparent text-text hover:bg-raised",
         ghost: "bg-transparent text-text hover:bg-raised",
@@ -16,11 +16,11 @@ export const buttonVariants = cva(
         link: "text-lilac underline-offset-4 hover:underline px-0",
       },
       size: {
-        sm: "h-8 rounded-lg px-3 text-sm",
-        md: "h-10 rounded-xl px-4 text-sm",
-        lg: "h-12 rounded-xl px-5 text-base",
-        icon: "size-10 rounded-xl",
-        "icon-sm": "size-8 rounded-lg",
+        sm: "h-9 rounded-md px-3 text-sm",
+        md: "h-11 rounded-md px-4 text-sm",
+        lg: "h-12 rounded-md px-5 text-base",
+        icon: "size-11 rounded-md",
+        "icon-sm": "size-9 rounded-md",
       },
     },
     defaultVariants: { variant: "primary", size: "md" },

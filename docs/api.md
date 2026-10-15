@@ -1,11 +1,11 @@
-# MangaVerse REST API (v1)
+# MangaForEver REST API (v1)
 
 Base URL: `http://localhost:4000/api/v1` (through the web app: `http://localhost:3000/api/v1`).
 Interactive docs: `http://localhost:4000/docs` · OpenAPI JSON: `/openapi.json`.
 
 **Conventions**
 
-- Auth: httpOnly `mv_session` cookie set by `/auth/register` or `/auth/login`. 🔒 = sign-in required, 🛡 = moderator+, 👑 = admin.
+- Auth: httpOnly `mf_session` cookie set by `/auth/register` or `/auth/login`. 🔒 = sign-in required, 🛡 = moderator+, 👑 = admin.
 - Writes must send `Content-Type: application/json` and, from browsers, an allowed `Origin`.
 - Errors: `{ "error": { "code": "VALIDATION_ERROR", "message": "Some fields need attention.", "details": [{ "path": "password", "message": "Use at least 8 characters" }] } }`
 - Status codes: `200/201/204` success · `400` bad request · `401` not signed in · `403` not allowed · `404` not found (also used for other users' private records) · `409` duplicate · `415` non-JSON body · `422` validation · `429` rate limited · `503` external provider unavailable.
@@ -27,13 +27,13 @@ Interactive docs: `http://localhost:4000/docs` · OpenAPI JSON: `/openapi.json`.
 POST /api/v1/auth/login
 Content-Type: application/json
 
-{ "identifier": "reader@mangaverse.local", "password": "DemoReader-1" }
+{ "identifier": "reader@mangaforever.local", "password": "DemoReader-1" }
 ```
 
 ```json
 {
   "user": {
-    "id": "cmv8…", "username": "demo_reader", "email": "reader@mangaverse.local", "displayName": "Demo Reader",
+    "id": "cmv8…", "username": "demo_reader", "email": "reader@mangaforever.local", "displayName": "Demo Reader",
     "role": "USER", "isDemo": true, "avatarUrl": null, "bio": "…", "createdAt": "2026-10-14T17:12:00.000Z",
     "preferences": { "theme": "dark", "favoriteGenres": ["fantasy", "adventure"], "libraryVisibility": "PUBLIC",
       "favoritesVisibility": "PUBLIC", "showStats": true, "showRecentlyCompleted": true,
@@ -90,7 +90,7 @@ GET /api/v1/rankings?kind=top-rated&limit=3
 ```json
 {
   "kind": "top-rated",
-  "explanation": "Bayesian average of MangaVerse member ratings (1–10). Series need at least 3 ratings; small samples are pulled toward the site-wide mean.",
+  "explanation": "Bayesian average of MangaForEver member ratings (1–10). Series need at least 3 ratings; small samples are pulled toward the site-wide mean.",
   "source": "community",
   "includesDemoActivity": true,
   "items": [{ "rank": 1, "metric": 8.93, "title": "Vinland Saga", "…": "…" }]

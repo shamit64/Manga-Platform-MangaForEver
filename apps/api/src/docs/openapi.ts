@@ -1,5 +1,5 @@
 /**
- * OpenAPI 3.1 description of the MangaVerse REST API, served at /openapi.json and rendered at /docs.
+ * OpenAPI 3.1 description of the MangaForEver REST API, served at /openapi.json and rendered at /docs.
  * Kept next to the routes so it's updated in the same change as the code.
  */
 
@@ -46,15 +46,15 @@ const seriesExample = {
 export const openApiDocument = {
   openapi: "3.1.0",
   info: {
-    title: "MangaVerse API",
+    title: "MangaForEver API",
     version: "1.0.0",
     description:
-      "REST API for MangaVerse — Discover. Track. Review. Explore.\n\n" +
-      "Authentication uses an httpOnly session cookie (`mv_session`) set by `/auth/login` or `/auth/register`. " +
+      "REST API for MangaForEver — Discover. Track. Review. Explore.\n\n" +
+      "Authentication uses an httpOnly session cookie (`mf_session`) set by `/auth/login` or `/auth/register`. " +
       "State-changing requests must send JSON and come from an allowed Origin. Errors share one shape: " +
       "`{ error: { code, message, details? } }`. Lists are paginated with `page` & `pageSize` and return " +
       "`{ items, page, pageSize, total, totalPages }`.\n\n" +
-      "Community numbers (ratings, favorites, popularity) are computed from stored MangaVerse activity. " +
+      "Community numbers (ratings, favorites, popularity) are computed from stored MangaForEver activity. " +
       "External numbers (`externalRating`, `externalPopularity`) come from the metadata provider and are labelled with their source.",
   },
   servers: [{ url: "/api/v1" }],
@@ -63,7 +63,7 @@ export const openApiDocument = {
     { name: "Reviews" }, { name: "History" }, { name: "Recommendations" }, { name: "Profiles" }, { name: "Moderation" }, { name: "Admin" },
   ],
   components: {
-    securitySchemes: { session: { type: "apiKey", in: "cookie", name: "mv_session" } },
+    securitySchemes: { session: { type: "apiKey", in: "cookie", name: "mf_session" } },
     responses: {
       E400: { description: "Bad request", content: json(ref("Error"), { error: { code: "BAD_REQUEST", message: "…" } }) },
       E401: { description: "Not signed in", content: json(ref("Error"), { error: { code: "UNAUTHORIZED", message: "Sign in to continue." } }) },
@@ -90,7 +90,7 @@ export const openApiDocument = {
           coverUrl: { type: ["string", "null"] }, type: { enum: ["MANGA", "MANHWA", "MANHUA"] },
           status: { enum: ["ONGOING", "COMPLETED", "HIATUS", "CANCELLED", "UPCOMING", "UNKNOWN"] },
           releaseYear: { type: ["integer", "null"] }, genres: { type: "array", items: ref("Genre") },
-          ratingAvg: { type: ["number", "null"], description: "MangaVerse community average (1–10)" },
+          ratingAvg: { type: ["number", "null"], description: "MangaForEver community average (1–10)" },
           ratingCount: { type: "integer" }, favoriteCount: { type: "integer" }, reviewCount: { type: "integer" }, libraryCount: { type: "integer" },
           popularityScore: { type: "number", description: "library×1 + favorites×2 + ratings×1.5 + reviews×2" },
           externalRating: { type: ["number", "null"], description: "Provider rating normalised to 0–10" },
@@ -167,14 +167,14 @@ export const openApiDocument = {
       post: {
         tags: ["Auth"], summary: "Create an account and start a session",
         requestBody: body({ type: "object", required: ["email", "username", "password"], properties: { email: { type: "string" }, username: { type: "string" }, password: { type: "string" } } }, { email: "reader@example.com", username: "panel_reader", password: "s3cure-pass" }),
-        responses: { 201: ok("Created; sets mv_session cookie", { type: "object", properties: { user: ref("User") } }), ...errors(409, 422, 429) },
+        responses: { 201: ok("Created; sets mf_session cookie", { type: "object", properties: { user: ref("User") } }), ...errors(409, 422, 429) },
       },
     },
     "/auth/login": {
       post: {
         tags: ["Auth"], summary: "Sign in with email or username",
         requestBody: body({ type: "object", properties: { identifier: { type: "string" }, password: { type: "string" } } }, { identifier: "reader@example.com", password: "s3cure-pass" }),
-        responses: { 200: ok("Signed in; sets mv_session cookie", { type: "object", properties: { user: ref("User") } }), ...errors(401, 422, 429) },
+        responses: { 200: ok("Signed in; sets mf_session cookie", { type: "object", properties: { user: ref("User") } }), ...errors(401, 422, 429) },
       },
     },
     "/auth/logout": { post: { tags: ["Auth"], summary: "End the current session", responses: { 204: ok("Signed out") } } },
@@ -203,7 +203,7 @@ export const openApiDocument = {
           q("demographic", { type: "string" }),
           q("yearFrom", { type: "integer" }), q("yearTo", { type: "integer" }),
           q("creator", { type: "string" }, "Author/artist name (partial) or slug"),
-          q("minRating", { type: "number" }, "Minimum MangaVerse member rating"),
+          q("minRating", { type: "number" }, "Minimum MangaForEver member rating"),
           q("minPopularity", { type: "number" }),
           q("updatedWithinDays", { type: "integer" }, "Catalog metadata changed within N days"),
           q("sort", { enum: ["relevance", "popularity", "rating", "reviews", "newest", "added", "updated", "title"] }),
@@ -254,7 +254,7 @@ export const openApiDocument = {
       },
     },
     "/latest": { get: { tags: ["Discovery"], summary: "Recent catalog metadata updates, and provider-supplied chapter releases (if any)", parameters: [q("limit", { type: "integer" }), q("type", { type: "string" })], responses: { 200: ok("Latest") } } },
-    "/new-releases": { get: { tags: ["Discovery"], summary: "Newest by original publication year (`by=published`) or newly added to MangaVerse (`by=added`)", parameters: [q("by", { enum: ["published", "added"] }), q("type", { type: "string" }), q("year", { type: "integer" }), q("limit", { type: "integer" })], responses: { 200: ok("Series") } } },
+    "/new-releases": { get: { tags: ["Discovery"], summary: "Newest by original publication year (`by=published`) or newly added to MangaForEver (`by=added`)", parameters: [q("by", { enum: ["published", "added"] }), q("type", { type: "string" }), q("year", { type: "integer" }), q("limit", { type: "integer" })], responses: { 200: ok("Series") } } },
     "/reviews/recent": { get: { tags: ["Reviews"], summary: "Recent reviews feed", responses: { 200: ok("Reviews") } } },
 
     // ── Library

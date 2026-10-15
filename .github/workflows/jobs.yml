@@ -1,0 +1,85 @@
+# Free scheduler for MangaForEver's automatic updates. Each job is an authenticated POST to the API.
+# Needs two repository settings (Settings → Secrets and variables → Actions):
+#   variable API_URL   e.g. https://mangaforever-api.onrender.com
+#   secret   JOBS_TOKEN  the same value as JOBS_TOKEN on the API
+# Until both are set, every run skips quietly.
+name: Scheduled jobs
+
+on:
+  schedule:
+    - cron: "*/15 * * * *" # sync-chapters
+    - cron: "7 * * * *" # rankings
+    - cron: "20 3 * * *" # daily: link-sources, refresh-metadata, curate, cleanup
+    - cron: "0 9 * * *" # digest
+    - cron: "40 4 * * 1" # weekly: import-series
+  workflow_dispatch:
+    inputs:
+      job:
+        description: Job to run
+        required: true
+        type: choice
+        options: [sync-chapters, rankings, link-sources, refresh-metadata, curate, cleanup, digest, import-series]
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: jobs-${{ github.event.schedule || inputs.job }}
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      API_URL: ${{ vars.API_URL }}
+      JOBS_TOKEN: ${{ secrets.JOBS_TOKEN }}
+    steps:
+      - name: Pick jobs
+        id: pick
+        run: |
+          case "${{ github.event.schedule }}" in
+            "*/15 * * * *") jobs="sync-chapters" ;;
+            "7 * * * *")    jobs="rankings" ;;
+            "20 3 * * *")   jobs="link-sources refresh-metadata curate cleanup" ;;
+            "0 9 * * *")    jobs="digest" ;;
+            "40 4 * * 1")   jobs="import-series" ;;
+            *)              jobs="${{ inputs.job }}" ;;
+          esac
+          echo "jobs=$jobs" >> "$GITHUB_OUTPUT"
+
+      - name: Run
+        if: env.API_URL != '' && env.JOBS_TOKEN != ''
+        run: |
+          set -u
+          # Render's free plan sleeps; wake it first (up to ~2 minutes).
+          for i in $(seq 1 12); do
+            curl -fsS --max-time 10 "$API_URL/health" >/dev/null && break
+            sleep 10
+          done
+          failed=""
+          for job in ${{ steps.pick.outputs.jobs }}; do
+            echo "::group::$job"
+            if ! curl -fsS --retry 2 --retry-delay 15 --max-time 600 -X POST \
+                 -H "Authorization: Bearer $JOBS_TOKEN" "$API_URL/internal/jobs/$job"; then
+              failed="$failed $job"
+            fi
+            echo; echo "::endgroup::"
+          done
+          if [ -n "$failed" ]; then echo "FAILED=$failed" >> "$GITHUB_ENV"; exit 1; fi
+
+      - name: Not configured
+        if: env.API_URL == '' || env.JOBS_TOKEN == ''
+        run: echo "API_URL variable or JOBS_TOKEN secret not set yet; skipping."
+
+      - name: Report failure
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = "Scheduled job failing";
+            const body = `\`${process.env.FAILED?.trim() || "a job"}\` failed in [this run](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}).`;
+            const { data } = await github.rest.issues.listForRepo({ ...context.repo, state: "open", labels: "jobs" });
+            if (data[0]) await github.rest.issues.createComment({ ...context.repo, issue_number: data[0].number, body });
+            else await github.rest.issues.create({ ...context.repo, title, body, labels: ["jobs"] });

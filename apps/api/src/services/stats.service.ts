@@ -3,7 +3,7 @@ import { prisma as defaultPrisma } from "../lib/prisma.js";
 
 type Db = Pick<PrismaClient, "mangaSeries" | "libraryEntry" | "favorite" | "rating" | "review">;
 
-/** Weights of the documented MangaVerse popularity score. */
+/** Weights of the documented MangaForEver popularity score. */
 export const POPULARITY_WEIGHTS = { library: 1, favorite: 2, rating: 1.5, review: 2 } as const;
 
 export function popularityScore(c: { library: number; favorites: number; ratings: number; reviews: number }) {

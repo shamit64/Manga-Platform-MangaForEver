@@ -1,14 +1,14 @@
 /**
- * Build the MangaVerse website edition: one self-contained HTML page (React from a CDN, catalog
+ * Build the MangaForEver website edition: one self-contained HTML page (React from a CDN, catalog
  * embedded as JSON) that can be published anywhere static, e.g. as a Claude artifact.
  *
- *   npm run site:build              # reads the catalog from DATABASE_URL → site/dist/mangaverse.html
+ *   npm run site:build              # reads the catalog from DATABASE_URL → site/dist/mangaforever.html
  *   npm run site:build -- --offline # skip refreshing curated entries' facts from AniList
  *
  * What goes into the page, and what deliberately doesn't:
  *  - Facts only: titles (English, romaji, original script), type, status, dates, chapter/volume
  *    counts, genres, tags, creators, AniList score and popularity, and a link to the AniList page.
- *  - Summaries only where MangaVerse wrote its own (the curated sample entries). AniList's
+ *  - Summaries only where MangaForEver wrote its own (the curated sample entries). AniList's
  *    description text is not copied into the page; each series links to AniList instead.
  *  - No cover images: the page can't hotlink AniList's CDN and we don't re-host publishers' art,
  *    so it draws generated covers from each series' genres (the same palette as the app).
@@ -88,7 +88,7 @@ async function main() {
         ch: facts.chapterCount, vol: facts.volumeCount, demo: facts.demographic ?? r.demographic,
         score: facts.externalRating != null ? Number(facts.externalRating) : null, pop: facts.externalPopularity, popRank: facts.externalPopularityRank,
         al: r.externalId ? Number(r.externalId) : null,
-        summary: r.source !== "ANILIST" ? r.synopsis : null, // MangaVerse's own text only
+        summary: r.source !== "ANILIST" ? r.synopsis : null, // MangaForEver's own text only
         curated: r.source !== "ANILIST",
       }),
       genres: facts.genres?.length ? facts.genres : r.genres,
@@ -109,7 +109,7 @@ async function main() {
   const js = ["core.js", "ui.js", "pages.js", "pages2.js", "app.js"].map(src).join("\n");
   const json = JSON.stringify(data).replace(/<\//g, "<\\/");
   const html = `${src("head.html")}
-<div id="root"><div class="boot">Loading MangaVerse…</div></div>
+<div id="root"><div class="boot">Loading MangaForEver…</div></div>
 <script type="application/json" id="catalog">${json}</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
@@ -120,13 +120,13 @@ ${js}
 `;
   const outDir = path.join(ROOT, "site/dist");
   fs.mkdirSync(outDir, { recursive: true });
-  fs.writeFileSync(path.join(outDir, "mangaverse.html"), html);
+  fs.writeFileSync(path.join(outDir, "mangaforever.html"), html);
   // A standalone copy with its own document skeleton, for opening straight from disk.
   fs.writeFileSync(
     path.join(outDir, "index.html"),
     `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"></head><body>${html}</body></html>`,
   );
-  console.log(`Built site/dist/mangaverse.html: ${series.length} series, ${(Buffer.byteLength(html) / 1024).toFixed(0)} KB${OFFLINE ? " (offline)" : ""}.`);
+  console.log(`Built site/dist/mangaforever.html: ${series.length} series, ${(Buffer.byteLength(html) / 1024).toFixed(0)} KB${OFFLINE ? " (offline)" : ""}.`);
 }
 
 main().catch((e) => {

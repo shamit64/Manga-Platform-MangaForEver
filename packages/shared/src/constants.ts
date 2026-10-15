@@ -66,7 +66,7 @@ export type DataSource = (typeof DATA_SOURCES)[number];
 export const DATA_SOURCE_LABELS: Record<DataSource, string> = {
   SEED_SAMPLE: "Sample data",
   ANILIST: "AniList",
-  MANUAL: "Added by MangaVerse editors",
+  MANUAL: "Added by MangaForEver editors",
 };
 
 export const CATALOG_SORTS = [
@@ -111,13 +111,13 @@ export type RankingKind = (typeof RANKING_KINDS)[number];
  */
 export const RANKING_EXPLANATIONS: Record<RankingKind, string> = {
   popular:
-    "MangaVerse popularity score = library adds × 1 + favorites × 2 + ratings × 1.5 + reviews × 2, computed from stored member activity.",
+    "MangaForEver popularity score = library adds × 1 + favorites × 2 + ratings × 1.5 + reviews × 2, computed from stored member activity.",
   "top-rated":
-    "Bayesian average of MangaVerse member ratings (1–10). Series need at least 3 ratings; small samples are pulled toward the site-wide mean.",
-  "most-reviewed": "Count of visible MangaVerse member reviews.",
-  "most-favorited": "Count of MangaVerse members who favorited the series.",
+    "Bayesian average of MangaForEver member ratings (1–10). Series need at least 3 ratings; small samples are pulled toward the site-wide mean.",
+  "most-reviewed": "Count of visible MangaForEver member reviews.",
+  "most-favorited": "Count of MangaForEver members who favorited the series.",
   trending:
-    "Library adds, favorites, ratings and reviews from MangaVerse members in the last 30 days, weighted like the popularity score.",
+    "Library adds, favorites, ratings and reviews from MangaForEver members in the last 30 days, weighted like the popularity score.",
   external:
     "Popularity reported by the external metadata provider (for AniList: number of AniList users tracking the series). Only shown for imported titles.",
 };

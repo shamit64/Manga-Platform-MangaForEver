@@ -1,6 +1,6 @@
 "use client";
 
-import { CONTENT_TYPE_LABELS, PUBLICATION_STATUS_LABELS, type RankingResponse } from "@mangaverse/shared";
+import { CONTENT_TYPE_LABELS, PUBLICATION_STATUS_LABELS, type RankingResponse } from "@mangaforever/shared";
 import { Info, TrendingUp } from "lucide-react";
 import Link from "next/link";
 import * as React from "react";
@@ -50,7 +50,7 @@ export function TopTen({ data }: { data: Record<string, RankingResponse | null> 
               <Link
                 href={`/manga/${s.slug}`}
                 className={cn(
-                  "group flex items-center gap-4 rounded-2xl px-2 py-2.5 hover:bg-surface",
+                  "group flex items-center gap-4 rounded-lg px-2 py-2.5 hover:bg-surface",
                   s.rank <= 3 && "bg-[linear-gradient(90deg,color-mix(in_oklab,var(--violet)_14%,transparent),transparent)]",
                 )}
               >
@@ -83,7 +83,7 @@ export function TopTen({ data }: { data: Record<string, RankingResponse | null> 
         <p className="mt-4 flex items-start gap-2 text-xs text-muted">
           <Info className="mt-px size-3.5 shrink-0" aria-hidden />
           <span>
-            MangaVerse community ranking. {r.explanation}
+            MangaForEver community ranking. {r.explanation}
             {r.includesDemoActivity && " Includes activity from the seeded demo accounts in this installation."}
           </span>
         </p>

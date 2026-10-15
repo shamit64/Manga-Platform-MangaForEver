@@ -1,5 +1,5 @@
 /**
- * MangaVerse content-based recommendation scoring.
+ * MangaForEver content-based recommendation scoring.
  *
  * This is a transparent, rules-based weighted scoring model — not machine learning.
  * Every number that contributes to a recommendation can be traced back to the user's own
@@ -188,8 +188,8 @@ export function scoreCandidate(
   if (genre.top && genre.value > 0.15) reasons.push(`Because you like ${p.names.get(genre.top) ?? genre.top}`);
   if (tag.top && tag.value > 0.25) reasons.push(`Features ${p.names.get(`tag:${tag.top}`) ?? tag.top}, which shows up in what you read`);
   if (type > 0.6 && c.type !== "MANGA") reasons.push(`You read a lot of ${c.type.toLowerCase()}`);
-  if (quality > 0.6 && c.ratingCount >= 3) reasons.push("Highly rated by MangaVerse members");
-  if (!reasons.length) reasons.push("Popular with MangaVerse members");
+  if (quality > 0.6 && c.ratingCount >= 3) reasons.push("Highly rated by MangaForEver members");
+  if (!reasons.length) reasons.push("Popular with MangaForEver members");
 
   return { series: c, score, reasons: reasons.slice(0, 2), primaryGenre: genre.top };
 }

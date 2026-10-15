@@ -1,4 +1,4 @@
-// MangaVerse data model
+// MangaForEver data model
 // Global catalog data (MangaSeries, Creator, Genre, Tag, collections) is kept separate
 // from private, user-owned data (LibraryEntry, Favorite, Rating, ReadingHistory, SearchHistory...).
 
@@ -93,6 +93,20 @@ enum Visibility {
   PRIVATE
 }
 
+enum NotificationType {
+  NEW_CHAPTER
+  REVIEW_HELPFUL
+  SYSTEM
+}
+
+enum ChapterReactionKind {
+  LOVED
+  HYPE
+  SAD
+  FUNNY
+  SHOCKED
+}
+
 // ───────────────────────────── Accounts ─────────────────────────────
 
 model User {
@@ -131,6 +145,12 @@ model User {
   featuredCreated   FeaturedSeries[]
   collectionsMade   SeasonalCollection[]
   auditLogs         AdminAuditLog[]
+  verifyTokens      EmailVerificationToken[]
+  seriesFollows     SeriesFollow[]
+  notifications     Notification[]
+  pushSubscriptions PushSubscription[]
+  chapterReactions  ChapterReaction[]
+  chapterComments   ChapterComment[]
 
   @@index([role])
 }
@@ -163,11 +183,30 @@ model PasswordResetToken {
   @@index([userId])
 }
 
+/// Single-use sign-up confirmation link. Only a SHA-256 hash of the emailed token is stored.
+model EmailVerificationToken {
+  id        String    @id @default(cuid())
+  tokenHash String    @unique
+  userId    String
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
 model UserPreference {
   userId                String     @id
   theme                 String     @default("dark")
   /// Genre slugs the user picked as favorites (used as a recommendation signal).
   favoriteGenres        String[]   @default([])
+  /// Content types the member likes most (MANGA, MANHWA, MANHUA); shown on the profile.
+  favoriteTypes         ContentType[] @default([])
+  /// Reader defaults: "strip" (long strip) or "paged"; null = choose by type.
+  readerMode            String?
+  /// Opt-in daily email digest of new chapters for followed series.
+  emailDigest           Boolean    @default(false)
   libraryVisibility     Visibility @default(PUBLIC)
   favoritesVisibility   Visibility @default(PUBLIC)
   showStats             Boolean    @default(true)
@@ -231,10 +270,18 @@ model MangaSeries {
   isArchived         Boolean           @default(false)
   /// Date this record's metadata last changed (not counters) — powers "Latest updates".
   metadataUpdatedAt  DateTime          @default(now())
+  /// Highest known chapter number and when it was released (filled by the chapter sync job).
+  latestChapter      Float?
+  lastChapterAt      DateTime?
+  /// When the source-linking job last tried to match this series to a chapter source.
+  sourceLinkCheckedAt DateTime?
   createdAt          DateTime          @default(now())
   updatedAt          DateTime          @updatedAt
 
   creators       SeriesCreator[]
+  sourceLinks    SeriesSourceLink[]
+  follows        SeriesFollow[]
+  notifications  Notification[]
   genres         SeriesGenre[]
   tags           SeriesTag[]
   chapters       ChapterMetadata[]
@@ -256,6 +303,7 @@ model MangaSeries {
   @@index([ratingAvg(sort: Desc)])
   @@index([metadataUpdatedAt(sort: Desc)])
   @@index([createdAt(sort: Desc)])
+  @@index([lastChapterAt(sort: Desc)])
   @@index([searchText(ops: raw("gin_trgm_ops"))], type: Gin, map: "MangaSeries_searchText_trgm_idx")
   @@index([title(ops: raw("gin_trgm_ops"))], type: Gin, map: "MangaSeries_title_trgm_idx")
 }
@@ -325,13 +373,144 @@ model ChapterMetadata {
   number      Float
   title       String?
   releasedAt  DateTime?
+  /// "mangadex", "official" or "hosted".
   source      String
+  /// Official publisher page for this chapter (MANGA Plus, Webtoon...). Never a scan site.
   externalUrl String?
+  /// Publisher name for the Read button, e.g. "MANGA Plus".
+  publisher   String?
+  language    String?
+  /// True when MangaForEver has the right to show this chapter's pages (HostedPage rows).
+  readable    Boolean     @default(false)
   createdAt   DateTime    @default(now())
   series      MangaSeries @relation(fields: [seriesId], references: [id], onDelete: Cascade)
+  pages         HostedPage[]
+  reactions     ChapterReaction[]
+  comments      ChapterComment[]
+  notifications Notification[]
 
   @@unique([seriesId, number, source])
+  @@index([seriesId, number])
   @@index([releasedAt(sort: Desc)])
+}
+
+/// Links a series to the record that feeds its chapter list (e.g. a MangaDex manga ID).
+model SeriesSourceLink {
+  id            String      @id @default(cuid())
+  seriesId      String
+  provider      String
+  externalId    String
+  lastCheckedAt DateTime?
+  lastChapterAt DateTime?
+  createdAt     DateTime    @default(now())
+  series        MangaSeries @relation(fields: [seriesId], references: [id], onDelete: Cascade)
+
+  @@unique([seriesId, provider])
+  @@unique([provider, externalId])
+  @@index([provider, lastCheckedAt])
+}
+
+/// Pages of a chapter MangaForEver has the rights to host (creator-submitted, public domain, CC).
+model HostedPage {
+  id        String          @id @default(cuid())
+  chapterId String
+  index     Int
+  imageUrl  String
+  width     Int?
+  height    Int?
+  chapter   ChapterMetadata @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+
+  @@unique([chapterId, index])
+}
+
+/// A member asking to be told about new chapters of a series.
+model SeriesFollow {
+  userId      String
+  seriesId    String
+  notifyEmail Boolean     @default(true)
+  notifyPush  Boolean     @default(true)
+  createdAt   DateTime    @default(now())
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  series      MangaSeries @relation(fields: [seriesId], references: [id], onDelete: Cascade)
+
+  @@id([userId, seriesId])
+  @@index([seriesId])
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  type      NotificationType
+  seriesId  String?
+  chapterId String?
+  /// Small payload for rendering, e.g. {"title":"...","chapter":120}.
+  data      Json?
+  readAt    DateTime?
+  emailedAt DateTime?
+  createdAt DateTime         @default(now())
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  series    MangaSeries?     @relation(fields: [seriesId], references: [id], onDelete: Cascade)
+  chapter   ChapterMetadata? @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, chapterId])
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([userId, readAt])
+}
+
+/// Browser push endpoint (Web Push / VAPID).
+model PushSubscription {
+  id        String   @id @default(cuid())
+  userId    String
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model ChapterReaction {
+  userId    String
+  chapterId String
+  kind      ChapterReactionKind
+  createdAt DateTime            @default(now())
+  user      User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  chapter   ChapterMetadata     @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+
+  @@id([userId, chapterId])
+  @@index([chapterId, kind])
+}
+
+/// Chapter reviews and discussion. Spoiler-masked by default.
+model ChapterComment {
+  id               String          @id @default(cuid())
+  userId           String
+  chapterId        String
+  body             String
+  containsSpoilers Boolean         @default(true)
+  isHidden         Boolean         @default(false)
+  hiddenReason     String?
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+  user             User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  chapter          ChapterMetadata @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+
+  @@index([chapterId, isHidden, createdAt(sort: Desc)])
+  @@index([userId, createdAt(sort: Desc)])
+}
+
+/// History of every automatic job run (shown on the admin dashboard).
+model JobRun {
+  id         String    @id @default(cuid())
+  job        String
+  startedAt  DateTime  @default(now())
+  finishedAt DateTime?
+  ok         Boolean?
+  stats      Json?
+  error      String?
+
+  @@index([job, startedAt(sort: Desc)])
 }
 
 // ───────────────────────────── Private user data ─────────────────────────────
@@ -440,7 +619,7 @@ model ReviewReport {
   @@index([status, createdAt(sort: Desc)])
 }
 
-/// One row per (user, series) the user has opened on MangaVerse.
+/// One row per (user, series) the user has opened on MangaForEver.
 model ReadingHistory {
   id           String      @id @default(cuid())
   userId       String
@@ -512,6 +691,8 @@ model FeaturedSeries {
   reason      String
   position    Int         @default(0)
   isActive    Boolean     @default(true)
+  /// Picked by the daily auto-curation job (replaced on every run); false = pinned by an admin.
+  isAuto      Boolean     @default(false)
   createdById String?
   createdAt   DateTime    @default(now())
   series      MangaSeries @relation(fields: [seriesId], references: [id], onDelete: Cascade)

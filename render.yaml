@@ -1,13 +1,13 @@
-# Render Blueprint for the MangaVerse API. Database: Neon or Supabase (set DATABASE_URL).
+# Render Blueprint for the MangaForEver API. Database: Neon or Supabase (set DATABASE_URL).
 # The web app deploys separately to Vercel (see README → Deployment).
 services:
   - type: web
-    name: mangaverse-api
+    name: mangaforever-api
     runtime: node
     plan: free
     rootDir: .
-    buildCommand: npm ci --include=dev && npm run build -w @mangaverse/api && npx prisma migrate deploy
-    startCommand: npm run start -w @mangaverse/api
+    buildCommand: npm ci --include=dev && npm run build -w @mangaforever/api && npx prisma migrate deploy
+    startCommand: npm run start -w @mangaforever/api
     healthCheckPath: /health
     envVars:
       - key: NODE_ENV
@@ -17,12 +17,30 @@ services:
       - key: DATABASE_URL
         sync: false
       - key: WEB_ORIGIN
-        sync: false # e.g. https://mangaverse.vercel.app
+        sync: false # e.g. https://mangaforever.vercel.app
       - key: APP_URL
-        sync: false # e.g. https://mangaverse.vercel.app
+        sync: false # e.g. https://mangaforever.vercel.app
       - key: INTERNAL_API_TOKEN
         generateValue: true # copy the generated value to the Vercel project too
       - key: TRUST_PROXY
         value: "2"
       - key: METADATA_PROVIDER
         value: anilist
+      - key: CHAPTER_PROVIDER
+        value: mangadex
+      - key: REQUIRE_EMAIL_VERIFICATION
+        value: "true"
+      - key: ADMIN_EMAILS
+        sync: false # your email; that account becomes admin
+      - key: RESEND_API_KEY
+        sync: false
+      - key: MAIL_FROM
+        value: "MangaForEver <onboarding@resend.dev>"
+      - key: JOBS_TOKEN
+        generateValue: true # copy to GitHub → Settings → Secrets → Actions → JOBS_TOKEN
+      - key: VAPID_PUBLIC_KEY
+        sync: false # optional: npx web-push generate-vapid-keys
+      - key: VAPID_PRIVATE_KEY
+        sync: false
+      - key: VAPID_SUBJECT
+        sync: false # e.g. mailto:you@example.com

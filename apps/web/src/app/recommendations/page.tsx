@@ -1,4 +1,4 @@
-import type { RecommendationShelf } from "@mangaverse/shared";
+import type { RecommendationShelf } from "@mangaforever/shared";
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { ErrorNotice, PageHeader } from "@/components/layout/section";

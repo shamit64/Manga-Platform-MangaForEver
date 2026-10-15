@@ -40,3 +40,13 @@ export function formatDate(iso: string | null | undefined) {
 export function plural(n: number, word: string, pluralWord = `${word}s`) {
   return `${n.toLocaleString()} ${n === 1 ? word : pluralWord}`;
 }
+
+/** "Ch. 12" / "Ch. 12.5" — chapter numbers without trailing zeros. */
+export function chapterLabel(n: number) {
+  return `Ch. ${Number.isInteger(n) ? n : n.toFixed(1).replace(/\.0$/, "")}`;
+}
+
+/** Released in the last 24 hours (drives the red NEW tag). */
+export function isNew(iso: string | null | undefined) {
+  return !!iso && Date.now() - new Date(iso).getTime() < 86_400_000;
+}

@@ -1,4 +1,4 @@
-import { CONTENT_TYPES, CONTENT_TYPE_LABELS, type SeriesCard } from "@mangaverse/shared";
+import { CONTENT_TYPES, CONTENT_TYPE_LABELS, type SeriesCard } from "@mangaforever/shared";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { EmptyState, ErrorNotice, PageHeader } from "@/components/layout/section";
@@ -27,12 +27,12 @@ export default async function NewPage({ searchParams }: { searchParams: Promise<
         description={
           by === "published"
             ? "Series ordered by their original publication year, newest first."
-            : "Series most recently added to the MangaVerse catalog — an import date, not a publication date."
+            : "Series most recently added to the MangaForEver catalog — an import date, not a publication date."
         }
       />
       <div className="flex flex-wrap items-center gap-4">
         <nav className="flex rounded-xl border border-line p-1" aria-label="Order by">
-          {[["published", "Newly published"], ["added", "Newly added to MangaVerse"]].map(([k, label]) => (
+          {[["published", "Newly published"], ["added", "Newly added to MangaForEver"]].map(([k, label]) => (
             <Link key={k} href={href({ by: k, year: k === "added" ? undefined : year })} aria-current={by === k ? "page" : undefined}
               className={cn("rounded-lg px-3 py-1.5 text-sm", by === k ? "bg-violet text-white" : "text-muted hover:text-text")}>
               {label}

@@ -8,7 +8,7 @@ import {
   reviewQuerySchema,
   seasonalQuerySchema,
   suggestQuerySchema,
-} from "@mangaverse/shared";
+} from "@mangaforever/shared";
 import { z } from "zod";
 import { parse } from "../middleware/validate.js";
 import * as catalog from "../services/catalog.service.js";

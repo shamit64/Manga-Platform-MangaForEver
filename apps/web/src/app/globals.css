@@ -1,63 +1,69 @@
 @import "tailwindcss";
-@import "@fontsource-variable/bricolage-grotesque";
-@import "@fontsource-variable/figtree";
+@import "@fontsource-variable/geist";
+@import "@fontsource-variable/geist-mono";
+@import "@fontsource-variable/newsreader";
+@import "@fontsource-variable/newsreader/wght-italic.css";
 
 @custom-variant dark (&:where(.dark, .dark *));
 
 /*
- * MangaVerse palette — deep indigo night with a violet → pink → amber brand gradient.
- *   ink / surface / raised / line   page, panels, inputs, hairlines (indigo-biased neutrals)
- *   violet, pink, amber, cyan       brand + content hues (types and genres add their own)
- *   lilac                           links and highlights
+ * MangaForEver — premium editorial dark.
+ * A black canvas, off-white type, one muted red accent and gold reserved for scores.
+ *   ink / surface / raised / line   page, panels, inputs, hairlines (warm neutrals)
+ *   violet (= accent)               primary buttons, active states, NEW badges
+ *   lilac                           links and highlights (accent tuned for text contrast)
  *   gold                            ratings only
+ * The legacy token names (violet, pink, lilac...) are kept so every component picks up the retheme.
  */
 :root {
-  --ink: #f8f6ff;
+  --ink: #faf8f5;
   --surface: #ffffff;
-  --raised: #f0ecfd;
-  --line: #e2dcf5;
-  --text: #17132b;
-  --muted: #5f5a7d;
-  --violet: #6d28d9;
-  --violet-strong: #5b21b6;
-  --indigo: #4f46e5;
-  --pink: #db2777;
-  --amber: #d97706;
-  --cyan: #0891b2;
-  --lilac: #6d28d9;
-  --gold: #b45309;
-  --danger: #c62f4a;
-  --ok: #047857;
-  --tone: rgba(23, 19, 43, 0.12);
-  --aurora-a: rgba(124, 58, 237, 0.22);
-  --aurora-b: rgba(236, 72, 153, 0.16);
-  --aurora-c: rgba(6, 182, 212, 0.14);
-  --brand: linear-gradient(100deg, #7c3aed, #db2777 55%, #ea8a0c);
+  --raised: #f1eee9;
+  --line: #e3ded6;
+  --text: #151515;
+  --muted: #615d57;
+  --violet: #a11f33;
+  --violet-strong: #861a2a;
+  --indigo: #5e1420;
+  --pink: #c2364a;
+  --amber: #9a6f18;
+  --cyan: #2e7089;
+  --lilac: #a11f33;
+  --gold: #9a6f18;
+  --danger: #b42318;
+  --ok: #2f7a55;
+  --on-accent: #fffaf5;
+  --tone: rgba(21, 21, 21, 0.07);
+  --aurora-a: rgba(161, 31, 51, 0.1);
+  --aurora-b: rgba(154, 111, 24, 0.06);
+  --aurora-c: rgba(21, 21, 21, 0.04);
+  --brand: linear-gradient(100deg, #a11f33, #c2364a);
   color-scheme: light;
 }
 
 .dark {
-  --ink: #0b0918;
-  --surface: #141127;
-  --raised: #1d1937;
-  --line: #2a2550;
-  --text: #f1eeff;
-  --muted: #a5a0c8;
-  --violet: #8b5cf6;
-  --violet-strong: #7c3aed;
-  --indigo: #6366f1;
-  --pink: #ec4899;
-  --amber: #f59e0b;
-  --cyan: #22d3ee;
-  --lilac: #c4b5fd;
-  --gold: #fbbf24;
-  --danger: #f0647d;
-  --ok: #34d399;
-  --tone: rgba(196, 181, 253, 0.12);
-  --aurora-a: rgba(124, 58, 237, 0.5);
-  --aurora-b: rgba(236, 72, 153, 0.38);
-  --aurora-c: rgba(6, 182, 212, 0.3);
-  --brand: linear-gradient(100deg, #8b5cf6, #ec4899 55%, #f59e0b);
+  --ink: #0b0b0c;
+  --surface: #141416;
+  --raised: #1c1c1f;
+  --line: #2a2a2e;
+  --text: #f2efea;
+  --muted: #9c9890;
+  --violet: #b3263a;
+  --violet-strong: #9a1f31;
+  --indigo: #6e1724;
+  --pink: #d9485a;
+  --amber: #d4a94f;
+  --cyan: #7fb4c9;
+  --lilac: #e8798a;
+  --gold: #d4a94f;
+  --danger: #ef6a6a;
+  --ok: #5fbf8f;
+  --on-accent: #f7f4ef;
+  --tone: rgba(242, 239, 234, 0.06);
+  --aurora-a: rgba(179, 38, 58, 0.22);
+  --aurora-b: rgba(212, 169, 79, 0.07);
+  --aurora-c: rgba(242, 239, 234, 0.03);
+  --brand: linear-gradient(100deg, #b3263a, #c8354a);
   color-scheme: dark;
 }
 
@@ -70,6 +76,7 @@
   --color-muted: var(--muted);
   --color-violet: var(--violet);
   --color-violet-strong: var(--violet-strong);
+  --color-accent: var(--violet);
   --color-indigo: var(--indigo);
   --color-pink: var(--pink);
   --color-amber: var(--amber);
@@ -78,8 +85,10 @@
   --color-gold: var(--gold);
   --color-danger: var(--danger);
   --color-ok: var(--ok);
-  --font-display: "Bricolage Grotesque Variable", ui-sans-serif, system-ui, sans-serif;
-  --font-sans: "Figtree Variable", ui-sans-serif, system-ui, sans-serif;
+  --color-on-accent: var(--on-accent);
+  --font-display: "Newsreader Variable", ui-serif, Georgia, serif;
+  --font-sans: "Geist Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Geist Mono Variable", ui-monospace, SFMono-Regular, monospace;
 }
 
 @layer base {
@@ -92,12 +101,13 @@
     background: var(--ink);
     color: var(--text);
     font-family: var(--font-sans);
-    font-feature-settings: "ss01";
+    font-feature-settings: "ss01", "cv11";
     text-rendering: optimizeLegibility;
   }
   h1, h2, h3, h4 {
     font-family: var(--font-display);
-    letter-spacing: -0.02em;
+    font-optical-sizing: auto;
+    letter-spacing: -0.015em;
     text-wrap: balance;
   }
   p {
@@ -131,22 +141,29 @@
   }
   .rank-numeral {
     font-family: var(--font-display);
-    font-weight: 800;
-    font-variation-settings: "wdth" 72;
-    background: var(--brand);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
+    font-weight: 500;
+    font-style: italic;
+    color: var(--lilac);
     line-height: 0.85;
+  }
+  /* Small capitals with tracking for section labels (LATEST UPDATES, TOP RATED). */
+  .eyebrow {
+    font-family: var(--font-sans);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .tabular {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
   }
   .bg-brand {
     background-image: var(--brand);
   }
   .text-brand {
-    background-image: var(--brand);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
+    color: var(--lilac);
   }
   /* Soft colour field behind heroes and page headers. */
   .aurora {
@@ -154,7 +171,7 @@
       radial-gradient(40% 50% at 18% 30%, var(--aurora-a), transparent 70%),
       radial-gradient(35% 45% at 62% 20%, var(--aurora-b), transparent 70%),
       radial-gradient(30% 40% at 90% 55%, var(--aurora-c), transparent 70%);
-    filter: blur(60px);
+    filter: blur(70px);
   }
   /* Tinted chip in the element's own hue (set --chip). */
   .chip-tint {
@@ -182,4 +199,20 @@
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* The reader brings its own controls; hide the site header and footer while reading. */
+body.reading [data-site-chrome] {
+  display: none;
 }

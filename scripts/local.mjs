@@ -23,7 +23,7 @@ import { fileURLToPath } from "node:url";
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const DEV = process.argv.includes("--dev");
 const NO_OPEN = process.argv.includes("--no-open");
-const PG_PORT = Number(process.env.MV_PG_PORT ?? 5433);
+const PG_PORT = Number(process.env.MF_PG_PORT ?? 5433);
 const LOG_DIR = path.join(ROOT, "logs");
 fs.mkdirSync(LOG_DIR, { recursive: true });
 const mainLog = fs.createWriteStream(path.join(LOG_DIR, "local.log"), { flags: "w" });
@@ -86,8 +86,8 @@ function ensureEnv() {
       const re = new RegExp(`^#?\\s*${key}=.*$`, "m");
       text = re.test(text) ? text.replace(re, line) : `${text.trimEnd()}\n${line}\n`;
     };
-    set("DATABASE_URL", `postgresql://postgres:postgres@127.0.0.1:${PG_PORT}/mangaverse`);
-    set("TEST_DATABASE_URL", `postgresql://postgres:postgres@127.0.0.1:${PG_PORT}/mangaverse_test`);
+    set("DATABASE_URL", `postgresql://postgres:postgres@127.0.0.1:${PG_PORT}/mangaforever`);
+    set("TEST_DATABASE_URL", `postgresql://postgres:postgres@127.0.0.1:${PG_PORT}/mangaforever_test`);
     set("HOST", "127.0.0.1");
     set("API_URL", "http://127.0.0.1:4000");
     set("NEXT_PUBLIC_API_URL", "http://localhost:4000");
@@ -136,7 +136,7 @@ async function startPostgres() {
       say(`Reusing the PostgreSQL server already running on port ${PG_PORT}`);
       pg.reused = true;
     } catch (e) {
-      fail(`Port ${PG_PORT} is used by another program. Set MV_PG_PORT to a free port and try again.`, e);
+      fail(`Port ${PG_PORT} is used by another program. Set MF_PG_PORT to a free port and try again.`, e);
     }
   }
   if (!pg.reused) say(`Starting PostgreSQL on 127.0.0.1:${PG_PORT}`);
@@ -144,11 +144,11 @@ async function startPostgres() {
     if (!pg.reused) await pg.start();
   } catch (e) {
     fail(
-      `PostgreSQL didn't start. Is another server already using port ${PG_PORT}, or is MangaVerse already running in another window? See logs/postgres.log.`,
+      `PostgreSQL didn't start. Is another server already using port ${PG_PORT}, or is MangaForEver already running in another window? See logs/postgres.log.`,
       e,
     );
   }
-  for (const db of ["mangaverse", "mangaverse_test"]) {
+  for (const db of ["mangaforever", "mangaforever_test"]) {
     const client = pg.getPgClient("postgres", "127.0.0.1");
     await client.connect();
     const { rowCount } = await client.query("SELECT 1 FROM pg_database WHERE datname = $1", [db]);
@@ -167,7 +167,7 @@ function portInUse(port) {
 }
 
 async function importedCount() {
-  const client = pg.getPgClient("mangaverse", "127.0.0.1");
+  const client = pg.getPgClient("mangaforever", "127.0.0.1");
   await client.connect();
   try {
     const r = await client.query(`SELECT COUNT(*)::int AS n FROM "MangaSeries" WHERE source = 'ANILIST'`);
@@ -178,7 +178,7 @@ async function importedCount() {
 }
 
 async function unlinkedCount() {
-  const client = pg.getPgClient("mangaverse", "127.0.0.1");
+  const client = pg.getPgClient("mangaforever", "127.0.0.1");
   await client.connect();
   try {
     const r = await client.query(`SELECT COUNT(*)::int AS n FROM "MangaSeries" WHERE "externalId" IS NULL AND "isArchived" = false`);
@@ -189,7 +189,7 @@ async function unlinkedCount() {
 }
 
 async function catalogCount() {
-  const client = pg.getPgClient("mangaverse", "127.0.0.1");
+  const client = pg.getPgClient("mangaforever", "127.0.0.1");
   await client.connect();
   try {
     const r = await client.query(`SELECT COUNT(*)::int AS n FROM "MangaSeries"`);
@@ -257,7 +257,7 @@ let shuttingDown = false;
 async function shutdown(code = 0) {
   if (shuttingDown) return;
   shuttingDown = true;
-  console.log(dim("\nStopping MangaVerse…"));
+  console.log(dim("\nStopping MangaForEver…"));
   for (const ch of children) {
     try {
       if (process.platform === "win32") spawnSync("taskkill", ["/pid", String(ch.pid), "/f", "/t"]);
@@ -280,12 +280,12 @@ process.on("SIGHUP", () => shutdown(0));
 
 // ───────────────────────── main ─────────────────────────
 async function main() {
-  console.log(`\n  ${violet("MangaVerse")} — Discover. Track. Review. Explore.\n`);
+  console.log(`\n  ${violet("MangaForEver")} — Discover. Track. Review. Explore.\n`);
   ensureEnv();
   if ((await portInUse(3000)) || (await portInUse(4000))) {
     const alive = await waitFor("http://127.0.0.1:3000/", 3000);
     if (alive) {
-      say("MangaVerse already seems to be running — opening http://localhost:3000");
+      say("MangaForEver already seems to be running — opening http://localhost:3000");
       openBrowser("http://localhost:3000");
       return shutdown(0);
     }
@@ -341,10 +341,10 @@ async function main() {
   if (!apiUp || !webUp) fail(`${!apiUp ? "API" : "Web app"} didn't start in time. See the logs folder.`);
 
   console.log(`
-  ${green("MangaVerse is running")}  →  ${violet("http://localhost:3000")}
+  ${green("MangaForEver is running")}  →  ${violet("http://localhost:3000")}
 
-  Sign in with:   admin@mangaverse.local / ${process.env.SEED_ADMIN_PASSWORD ?? "ChangeMe-Admin-1"}
-                  reader@mangaverse.local / ${process.env.SEED_DEMO_PASSWORD ?? "DemoReader-1"}
+  Sign in with:   admin@mangaforever.local / ${process.env.SEED_ADMIN_PASSWORD ?? "ChangeMe-Admin-1"}
+                  reader@mangaforever.local / ${process.env.SEED_DEMO_PASSWORD ?? "DemoReader-1"}
   API docs:       http://localhost:4000/docs
 
   ${dim("Keep this window open while you use the app. Press Ctrl+C or close it to stop.")}

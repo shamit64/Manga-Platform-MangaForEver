@@ -1,11 +1,11 @@
 import type { NextFunction, Request, Response } from "express";
-import type { Role } from "@mangaverse/shared";
+import type { Role } from "@mangaforever/shared";
 import { env } from "../config/env.js";
 import { forbidden, unauthorized } from "../lib/errors.js";
 import { prisma } from "../lib/prisma.js";
 import { sha256 } from "../lib/util.js";
 
-export const SESSION_COOKIE = "mv_session";
+export const SESSION_COOKIE = "mf_session";
 
 export interface AuthUser {
   id: string;
