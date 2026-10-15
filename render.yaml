@@ -5,6 +5,7 @@ services:
     name: mangaforever-api
     runtime: node
     plan: free
+    region: ohio
     rootDir: .
     buildCommand: npm ci --include=dev && npm run build -w @mangaforever/api && npx prisma migrate deploy
     startCommand: npm run start -w @mangaforever/api
