@@ -166,6 +166,28 @@ function portInUse(port) {
   });
 }
 
+async function importedCount() {
+  const client = pg.getPgClient("mangaverse", "127.0.0.1");
+  await client.connect();
+  try {
+    const r = await client.query(`SELECT COUNT(*)::int AS n FROM "MangaSeries" WHERE source = 'ANILIST'`);
+    return r.rows[0].n;
+  } finally {
+    await client.end();
+  }
+}
+
+async function unlinkedCount() {
+  const client = pg.getPgClient("mangaverse", "127.0.0.1");
+  await client.connect();
+  try {
+    const r = await client.query(`SELECT COUNT(*)::int AS n FROM "MangaSeries" WHERE "externalId" IS NULL AND "isArchived" = false`);
+    return r.rows[0].n;
+  } finally {
+    await client.end();
+  }
+}
+
 async function catalogCount() {
   const client = pg.getPgClient("mangaverse", "127.0.0.1");
   await client.connect();
@@ -274,6 +296,25 @@ async function main() {
   runNode("Applying database migrations", bin.prisma, ["migrate", "deploy"], { echo: false });
   if ((await catalogCount()) === 0) {
     runNode("Loading the sample catalog and demo accounts (first run only)", bin.tsx, ["prisma/seed.ts"], { echo: true });
+  }
+
+  if (process.env.METADATA_PROVIDER !== "none" && (await unlinkedCount()) > 0) {
+    say("Fetching official cover art and scores from AniList (first run only)…");
+    try {
+      const { linkAniList } = await import("./link-anilist.mjs");
+      const r = await linkAniList({ log: () => {} });
+      say(`Linked ${r.linked} of ${r.total} series to AniList${r.missed.length ? ` (not found: ${r.missed.join(", ")})` : ""}`);
+    } catch (e) {
+      say(`Couldn't reach AniList (${e.message}) — using generated covers for now. Run \`npm run db:link-anilist\` later.`);
+    }
+  }
+
+  if (process.env.METADATA_PROVIDER !== "none" && (await importedCount()) === 0) {
+    say("Importing the most popular manga, manhwa and manhua from the AniList database (first run only, about a minute)…");
+    const r = spawnSync(process.execPath, [bin.tsx, "prisma/import-anilist.ts"], { cwd: ROOT, env: process.env, encoding: "utf8" });
+    mainLog.write(`${r.stdout ?? ""}${r.stderr ?? ""}`);
+    const last = `${r.stdout ?? ""}`.trim().split(/\r?\n/).pop();
+    say(r.status === 0 ? last : "AniList import didn't finish — the sample catalog still works. Run `npm run db:import-anilist` later.");
   }
 
   const webDir = path.join(ROOT, "apps", "web");

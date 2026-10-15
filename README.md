@@ -2,7 +2,7 @@
 
 **Discover. Track. Review. Explore.**
 
-MangaVerse is a full-stack discovery, tracking and review platform for Japanese manga, Korean manhwa and Chinese manhua. Browse and search a real PostgreSQL-backed catalog, keep a reading library with chapter progress, favorite and rate series, write reviews, and get recommendations that explain why each pick is there.
+MangaVerse is a full-stack discovery, tracking and review platform for Japanese manga, Korean manhwa and Chinese manhua. Browse and search a real PostgreSQL-backed catalog of popular series imported from [AniList](https://anilist.co) (with their real cover art), keep a reading library with chapter progress, favorite and rate series, write reviews, and get recommendations that explain why each pick is there.
 
 MangaVerse is a **metadata catalog and tracker only**. It does not host, scrape or link to chapters.
 
@@ -16,6 +16,8 @@ MangaVerse is a **metadata catalog and tracker only**. It does not host, scrape 
 - [Getting started](#getting-started)
 - [Environment variables](#environment-variables)
 - [Database, migrations and seed data](#database-migrations-and-seed-data)
+- [Real catalog from AniList](#real-catalog-from-anilist)
+- [Website edition](#website-edition)
 - [Testing](#testing)
 - [API documentation](#api-documentation)
 - [Deployment](#deployment)
@@ -125,6 +127,8 @@ npm install
 npm run local        # production build + start   (npm run local:dev for hot reload)
 ```
 
+On the first run the launcher also links the sample titles to AniList and imports the most popular manga, manhwa and manhua from the AniList database (about a minute; skipped if you're offline, and the app works without it).
+
 `scripts/local.mjs` uses the [`embedded-postgres`](https://github.com/leinelissen/embedded-postgres) package (real PostgreSQL 18 binaries from npm) on port 5433, binds the API and web app to 127.0.0.1, writes logs to `./logs`, and creates `.env` for you on first run. Delete `.local-db` to start over with a fresh database.
 
 ### Manual setup
@@ -206,7 +210,7 @@ The Prisma schema (`prisma/schema.prisma`) separates **global catalog data** (`M
 
 Integrity is enforced in the database, not just the app: unique constraints on `(userId, seriesId)` for library entries, favorites, ratings, reviews and history; unique `(externalProvider, externalId)` to stop duplicate imports; foreign keys with cascade/restrict/set-null chosen per relation; and GIN trigram indexes for search. Authors and artists share one `Creator` table — their role on each series lives on `SeriesCreator` (`STORY`, `ART`).
 
-The **seed** loads 71 real series as a clearly labelled *sample catalog* (`source = SEED_SAMPLE`, shown as “Sample data” in the UI), staff accounts, a demo reader, 12 flagged demo members whose library/rating/favorite activity gives the rankings something to rank, 10 demo reviews, 5 editor's picks and 4 editor-curated seasonal collections. Synopses are original summaries; publication status is a snapshot and may be outdated. Sample titles have no bundled cover art — the UI renders a generated typographic cover instead.
+The **seed** loads 71 real series as a clearly labelled *sample catalog* (`source = SEED_SAMPLE`, shown as “Sample data” in the UI), staff accounts, a demo reader, 12 flagged demo members whose library/rating/favorite activity gives the rankings something to rank, 10 demo reviews, 5 editor's picks and 4 editor-curated seasonal collections. Synopses are original summaries; publication status is a snapshot and may be outdated. Sample titles are linked to their AniList entries (next section) so they show AniList's cover art; any series without a cover gets a generated one, coloured by its genres.
 
 Example queries the API runs (see `apps/api/src/services/catalog.service.ts`):
 
@@ -228,6 +232,32 @@ FROM "MangaSeries" a JOIN "MangaSeries" b
   ON a.id < b.id AND a.type = b.type AND lower(a.title) % lower(b.title);
 ```
 
+## Real catalog from AniList
+
+The seed is only a starting point. Two scripts fill the database from the [AniList](https://anilist.co) GraphQL API (free for non-commercial use, about 90 requests a minute, attribution required):
+
+```bash
+npm run db:link-anilist     # attach AniList ids, covers, banners, scores and popularity to the sample titles
+npm run db:import-anilist   # import the most popular titles: 200 manga, 120 manhwa, 100 manhua
+npm run db:import-anilist -- --manga 500 --manhwa 200 --manhua 150   # or choose the counts
+```
+
+Manga are Japanese-origin titles, manhwa Korean and manhua Chinese (AniList's `countryOfOrigin`). Imports store titles in English, romaji and the original script, synopses, genres, non-spoiler tags, story and art credits, start/end dates, chapter and volume counts when AniList has them, the demographic, AniList's average score and popularity, and a link back to AniList. Existing rows are never overwritten by a bulk import, community data is never touched, and re-running adds the next most popular titles. Admins can do the same from **Admin → Import** ("Import next 50 popular manga/manhwa/manhua") or refresh one series from its admin page.
+
+Cover and banner images are **not downloaded**: the app shows them from AniList's CDN with attribution, as the API intends.
+
+## Website edition
+
+`site/` holds a single-page edition of MangaVerse that needs no server: one HTML file with the catalog embedded, React loaded from a CDN, and the same colour system as the app.
+
+```bash
+npm run site:build   # reads the catalog from DATABASE_URL → site/dist/mangaverse.html (+ index.html to open from disk)
+```
+
+It has the home page (editor's picks, Top 10, origin and genre browsing, seasonal lists), Explore with search and filters, series pages, rankings, a personal shelf with chapter progress, favorites and history, recommendations that say why, and reader ratings and reviews. Hosted as a Claude artifact, shelves are saved privately per signed-in viewer and reviews are shared between viewers; opened anywhere else, the shelf is kept in the browser.
+
+It deliberately carries **facts only**: no AniList description text (each series links to AniList instead; summaries appear only where MangaVerse wrote its own) and no cover images. Static hosts like artifacts can't load AniList's CDN and publishers' art shouldn't be re-hosted, so the page draws generated covers that use each series' original-script title and genre palette.
+
 ## Testing
 
 ```bash
@@ -236,7 +266,7 @@ npm run db:test:prepare       # apply migrations to TEST_DATABASE_URL
 npm test
 ```
 
-89 integration and unit tests (Vitest + Supertest) run against a real PostgreSQL database:
+92 integration and unit tests (Vitest + Supertest) run against a real PostgreSQL database:
 
 | Suite | Covers |
 | --- | --- |
@@ -246,7 +276,7 @@ npm test
 | `reviews.test.ts` | rating aggregation and updates, score validation, one review per member, author-only edits, helpful-vote integrity, sorting, reports and moderator hiding with audit log |
 | `history-privacy.test.ts` | view tracking, tracking switches, history isolation between users, search history, private libraries/entries/notes, no email leakage |
 | `recommendations.test.ts` | profile building, genre/creator scoring and reasons, dropped-series penalty, diversity, similarity, new-user fallback, personalisation from stored data, dismissals |
-| `admin-provider.test.ts` | role enforcement (user/moderator/admin/anonymous), catalog CRUD + archive + audit, statistics from stored data, merges, AniList mapping, retry/timeout/429 handling, duplicate-free imports, graceful 503 when the provider is down |
+| `admin-provider.test.ts` | role enforcement (user/moderator/admin/anonymous), catalog CRUD + archive + audit, statistics from stored data, merges, AniList mapping, retry/timeout/429 handling, duplicate-free imports, graceful 503 when the provider is down, bulk import by type that keeps existing rows, demographic mapping, local JP filtering |
 
 ## API documentation
 
@@ -286,14 +316,16 @@ These are enforced in code, not just in copy:
 
 ## Screenshots
 
-Captured from a local run with the seeded sample data (sample titles use generated covers; AniList imports show real cover art).
+Captured from a local run with the sample catalog plus about 410 series imported from AniList. Covers are AniList's, shown from its CDN with attribution.
 
 | | |
 | --- | --- |
 | ![Home — editor's-pick hero and Top 10](docs/screenshots/home.png) | ![Explore with genre filter](docs/screenshots/explore.png) |
-| **Home** — editor's-pick “panel spread” and member Top 10 | **Explore** — filters, sorting and results |
+| **Home** — editor's-pick “panel spread” and member Top 10 | **Explore** — manhwa from the AniList import, filters and sorting |
 | ![Series page](docs/screenshots/series.png) | ![Reviews tab](docs/screenshots/reviews.png) |
-| **Series page** — metadata, sources and actions | **Reviews** — rating control, helpful votes, reporting |
+| **Series page** — AniList banner and cover, metadata, sources and actions | **Reviews** — rating control, helpful votes, reporting |
+| ![Manhua](docs/screenshots/manhua.png) | ![Website edition](docs/screenshots/website.png) |
+| **Manhua** — most popular Chinese titles | **Website edition** — generated covers, same catalog |
 | ![Rankings](docs/screenshots/rankings.png) | ![Seasonal](docs/screenshots/seasonal.png) |
 | **Rankings** — every list explains its formula | **Seasonal** — clearly labelled editor-curated lists |
 | ![Admin dashboard](docs/screenshots/admin.png) | ![Light theme](docs/screenshots/light.png) |
@@ -310,7 +342,8 @@ Captured from a local run with the seeded sample data (sample titles use generat
 - **Recommendations** are content-based. Collaborative filtering should only be added once there is enough genuine rating data.
 - **Chapter release feeds** need a provider that legitimately publishes them; AniList does not.
 - **Notifications and discussion threads** are not built; the schema leaves room for them (`Follow` and `ReadingActivity` already exist).
-- The sample catalog is a static snapshot — some ongoing series may have finished since it was compiled. Import from AniList for current data.
+- The sample catalog is a static snapshot — some ongoing series may have finished since it was compiled. Import or re-sync from AniList for current data.
+- AniList's API is free for non-commercial use only; a commercial deployment needs a different metadata licence.
 
 ---
 

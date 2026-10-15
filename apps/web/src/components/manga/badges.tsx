@@ -1,4 +1,6 @@
 import {
+  TYPE_COLORS,
+  genreColor,
   CONTENT_TYPE_LABELS,
   PUBLICATION_STATUS_LABELS,
   type ContentType,
@@ -10,9 +12,27 @@ import { cn, formatScore } from "@/lib/utils";
 
 export function TypeBadge({ type, className }: { type: ContentType; className?: string }) {
   return (
-    <Badge tone="violet" className={className}>
+    <span
+      className={cn("chip-tint inline-flex items-center rounded-md px-2 py-0.5 text-xs font-semibold", className)}
+      style={{ ["--chip" as string]: TYPE_COLORS[type].solid }}
+    >
       {CONTENT_TYPE_LABELS[type]}
-    </Badge>
+    </span>
+  );
+}
+
+/** Genre / tag chip in the genre's own hue. */
+export function GenreChip({ slug, name, href, size = "sm" }: { slug: string; name: string; href?: string; size?: "sm" | "md" }) {
+  const cls = cn("chip-tint inline-flex items-center rounded-full transition-[filter] hover:brightness-125", size === "md" ? "px-3 py-1 text-sm" : "px-2.5 py-0.5 text-xs");
+  const style = { ["--chip" as string]: genreColor(slug) };
+  return href ? (
+    <a href={href} className={cls} style={style}>
+      {name}
+    </a>
+  ) : (
+    <span className={cls} style={style}>
+      {name}
+    </span>
   );
 }
 

@@ -70,7 +70,7 @@ export default async function HomePage() {
           <div className="-mx-4 flex gap-4 overflow-x-auto px-4 pb-2 scrollbar-none sm:-mx-6 sm:px-6">
             {cont.items.map((e) => (
               <Link key={e.id} href={`/manga/${e.series!.slug}`} className="group flex w-72 shrink-0 gap-3 rounded-2xl border border-line bg-surface p-3 hover:border-violet/60">
-                <Cover title={e.series!.title} coverUrl={e.series!.coverUrl} compact className="w-14 shrink-0 rounded-md" sizes="56px" />
+                <Cover title={e.series!.title} coverUrl={e.series!.coverUrl} genres={e.series!.genres.map((g) => g.slug)} compact className="w-14 shrink-0 rounded-md" sizes="56px" />
                 <div className="min-w-0 flex-1">
                   <p className="truncate font-semibold group-hover:text-lilac">{e.series!.title}</p>
                   <p className="mt-0.5 text-sm text-muted">
@@ -110,7 +110,7 @@ export default async function HomePage() {
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {featured.items.slice(0, 3).map(({ series: s, reason }) => (
               <Link key={s.id} href={`/manga/${s.slug}`} className="group flex gap-4 rounded-2xl border border-line bg-surface p-4 hover:border-violet/60">
-                <Cover title={s.title} coverUrl={s.coverUrl} type={s.type} className="w-24 shrink-0" sizes="96px" />
+                <Cover title={s.title} coverUrl={s.coverUrl} genres={s.genres.map((g) => g.slug)} type={s.type} className="w-24 shrink-0" sizes="96px" />
                 <div className="min-w-0">
                   <TypeBadge type={s.type} />
                   <p className="mt-1.5 font-display text-lg leading-tight font-bold group-hover:text-lilac">{s.title}</p>
@@ -122,14 +122,14 @@ export default async function HomePage() {
         </Section>
       ) : null}
 
-      <div className="grid gap-x-10 lg:grid-cols-[1.4fr_1fr]">
+      <div className="grid grid-cols-[minmax(0,1fr)] gap-x-10 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
         <Section title="Latest updates" description="Catalog entries whose metadata changed most recently." href="/latest">
           {latest?.catalogUpdates.length ? (
             <ul className="divide-y divide-line rounded-2xl border border-line bg-surface">
               {latest.catalogUpdates.slice(0, 6).map((u) => (
                 <li key={u.series.id}>
                   <Link href={`/manga/${u.series.slug}`} className="flex items-center gap-3 px-4 py-3 hover:bg-raised/50">
-                    <Cover title={u.series.title} coverUrl={u.series.coverUrl} compact className="w-10 shrink-0 rounded-md" sizes="40px" />
+                    <Cover title={u.series.title} coverUrl={u.series.coverUrl} genres={u.series.genres.map((g) => g.slug)} compact className="w-10 shrink-0 rounded-md" sizes="40px" />
                     <div className="min-w-0 flex-1">
                       <p className="truncate font-medium">{u.series.title}</p>
                       <p className="text-xs text-muted">
@@ -191,7 +191,7 @@ export default async function HomePage() {
         </Section>
       ) : null}
 
-      <div className="grid gap-x-8 md:grid-cols-3">
+      <div className="grid grid-cols-[minmax(0,1fr)] gap-x-8 md:grid-cols-[repeat(3,minmax(0,1fr))]">
         {[
           ["Highest rated", topRated, "top-rated"],
           ["Most reviewed", mostReviewed, "most-reviewed"],
@@ -205,7 +205,7 @@ export default async function HomePage() {
                   <li key={s.id}>
                     <Link href={`/manga/${s.slug}`} className="flex items-center gap-3 rounded-xl p-1.5 hover:bg-surface">
                       <span className="w-5 text-right font-display font-bold text-muted tabular-nums">{s.rank}</span>
-                      <Cover title={s.title} coverUrl={s.coverUrl} compact className="w-9 shrink-0 rounded-md" sizes="36px" />
+                      <Cover title={s.title} coverUrl={s.coverUrl} genres={s.genres.map((g) => g.slug)} compact className="w-9 shrink-0 rounded-md" sizes="36px" />
                       <span className="min-w-0 flex-1 truncate text-sm font-medium">{s.title}</span>
                       {kind === "top-rated" ? (
                         <CommunityScore avg={s.ratingAvg} count={s.ratingCount} className="text-xs" />

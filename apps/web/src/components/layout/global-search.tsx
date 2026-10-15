@@ -203,7 +203,7 @@ export function GlobalSearch({ className, onNavigate }: { className?: string; on
               >
                 {o.kind === "series" && (
                   <>
-                    <Cover title={o.s.title} coverUrl={o.s.coverUrl} compact className="w-9 shrink-0 rounded-md" sizes="36px" />
+                    <Cover title={o.s.title} coverUrl={o.s.coverUrl} genres={o.s.genres.map((g) => g.slug)} compact className="w-9 shrink-0 rounded-md" sizes="36px" />
                     <div className="min-w-0">
                       <p className="truncate text-sm font-medium">{o.s.title}</p>
                       <p className="truncate text-xs text-muted">

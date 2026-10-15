@@ -54,7 +54,21 @@ export async function previewSearch(provider: string, query: string, limit: numb
   }));
 }
 
-export async function importSeries(actorId: string, input: { provider: string; externalId?: string; search?: string; limit: number }) {
+const COUNTRY_FOR_TYPE = { MANGA: "JP", MANHWA: "KR", MANHUA: "CN" } as const;
+
+export async function importSeries(
+  actorId: string | null,
+  input: {
+    provider: string;
+    externalId?: string;
+    search?: string;
+    limit: number;
+    page?: number;
+    contentType?: keyof typeof COUNTRY_FOR_TYPE;
+    /** Bulk imports keep existing rows (e.g. curated sample entries) instead of overwriting them. */
+    skipExisting?: boolean;
+  },
+) {
   const p = providerOrThrow(input.provider);
   let items: ProviderSeries[];
   if (input.externalId) {
@@ -64,17 +78,37 @@ export async function importSeries(actorId: string, input: { provider: string; e
   } else if (input.search) {
     items = (await guard(() => p.search(input.search!, 1, input.limit))).items;
   } else {
-    items = (await guard(() => p.popular(1, input.limit))).items;
+    const country = input.contentType ? COUNTRY_FOR_TYPE[input.contentType] : undefined;
+    items = (await guard(() => p.popular(input.page ?? 1, input.limit, country))).items;
   }
   const results = [];
-  for (const item of items) results.push(await upsertFromProvider(item));
+  for (const item of items) {
+    if (input.skipExisting) {
+      const exists = await prisma.mangaSeries.findUnique({
+        where: { externalProvider_externalId: { externalProvider: item.externalProvider, externalId: item.externalId } },
+        select: { id: true, slug: true, title: true },
+      });
+      if (exists) {
+        results.push({ ...exists, created: false, skipped: true });
+        continue;
+      }
+    }
+    results.push(await upsertFromProvider(item));
+  }
   await audit(actorId, "catalog.import", "MangaSeries", null, {
     provider: input.provider,
     externalId: input.externalId,
     search: input.search,
+    contentType: input.contentType,
+    page: input.page,
     count: results.length,
   });
-  return { imported: results.filter((r) => r.created).length, refreshed: results.filter((r) => !r.created).length, items: results };
+  return {
+    imported: results.filter((r) => r.created).length,
+    refreshed: results.filter((r) => !r.created && !("skipped" in r)).length,
+    skipped: results.filter((r) => "skipped" in r).length,
+    items: results,
+  };
 }
 
 export async function refreshSeries(actorId: string, seriesId: string) {

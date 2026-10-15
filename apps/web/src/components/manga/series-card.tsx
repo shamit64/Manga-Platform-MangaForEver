@@ -26,8 +26,10 @@ export function SeriesCard({
           nativeTitle={native}
           coverUrl={series.coverUrl}
           type={series.type}
+          year={series.releaseYear}
+          genres={series.genres.map((g) => g.slug)}
           priority={priority}
-          className="ring-1 ring-line transition duration-300 group-hover:-translate-y-1 group-hover:ring-violet/60 group-hover:shadow-[0_18px_40px_-18px_var(--violet)]"
+          className="shadow-[0_16px_34px_-24px_var(--glow)] ring-1 ring-white/5 transition duration-300 group-hover:-translate-y-1 group-hover:shadow-[0_22px_44px_-18px_var(--glow)] group-hover:ring-white/20"
         />
         <h3 className="mt-2.5 line-clamp-2 font-sans text-sm leading-snug font-semibold tracking-normal group-hover:text-lilac">
           {series.title}

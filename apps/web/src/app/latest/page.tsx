@@ -37,7 +37,7 @@ export default async function LatestPage({ searchParams }: { searchParams: Promi
               <ul className="divide-y divide-line rounded-2xl border border-line bg-surface">
                 {data.chapterReleases.map((c) => (
                   <li key={`${c.series.id}-${c.chapter}`} className="flex items-center gap-3 px-4 py-3">
-                    <Cover title={c.series.title} coverUrl={c.series.coverUrl} compact className="w-10 rounded-md" sizes="40px" />
+                    <Cover title={c.series.title} coverUrl={c.series.coverUrl} genres={c.series.genres.map((g) => g.slug)} compact className="w-10 rounded-md" sizes="40px" />
                     <div className="min-w-0 flex-1">
                       <Link href={`/manga/${c.series.slug}`} className="font-medium hover:text-lilac">{c.series.title}</Link>
                       <p className="text-xs text-muted">Chapter {c.chapter}{c.title ? ` — ${c.title}` : ""} · {formatDate(c.releasedAt)} · {c.source}</p>
@@ -55,7 +55,7 @@ export default async function LatestPage({ searchParams }: { searchParams: Promi
                 {data.catalogUpdates.map((u) => (
                   <li key={u.series.id}>
                     <Link href={`/manga/${u.series.slug}`} className="flex items-center gap-3 px-4 py-3 hover:bg-raised/40">
-                      <Cover title={u.series.title} coverUrl={u.series.coverUrl} compact className="w-10 shrink-0 rounded-md" sizes="40px" />
+                      <Cover title={u.series.title} coverUrl={u.series.coverUrl} genres={u.series.genres.map((g) => g.slug)} compact className="w-10 shrink-0 rounded-md" sizes="40px" />
                       <div className="min-w-0 flex-1">
                         <p className="truncate font-medium">{u.series.title}</p>
                         <p className="text-xs text-muted">

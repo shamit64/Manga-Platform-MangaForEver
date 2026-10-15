@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  genreColor,
   CONTENT_TYPES,
   CONTENT_TYPE_LABELS,
   READING_STATUSES,
@@ -9,7 +10,7 @@ import {
   type Paginated,
   type ReadingStatus,
 } from "@mangaverse/shared";
-import { BookMarked, Lock, Pencil, Plus, Star } from "lucide-react";
+import { BookMarked, BookOpen, CheckCircle2, Heart, Lock, Pencil, Plus, Star } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import * as React from "react";
@@ -59,15 +60,22 @@ export function LibraryDashboard({ stats }: { stats: LibraryStats }) {
   return (
     <div className="grid gap-4 lg:grid-cols-[1.2fr_1fr_1fr]">
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-2">
-        {[
-          ["Series tracked", stats.total],
-          ["Completed", stats.completed],
-          ["Chapters tracked", stats.chaptersTracked],
-          ["Favorites", stats.favorites],
-        ].map(([label, n]) => (
-          <div key={label} className="rounded-2xl border border-line bg-surface p-4">
-            <p className="font-display text-3xl font-extrabold tabular-nums">{Number(n).toLocaleString()}</p>
-            <p className="text-sm text-muted">{label}</p>
+        {(
+          [
+            ["Series tracked", stats.total, BookMarked, "#8b5cf6"],
+            ["Completed", stats.completed, CheckCircle2, "#10b981"],
+            ["Chapters tracked", stats.chaptersTracked, BookOpen, "#06b6d4"],
+            ["Favorites", stats.favorites, Heart, "#ec4899"],
+          ] as const
+        ).map(([label, n, Icon, color]) => (
+          <div key={label} className="flex items-center gap-3 rounded-2xl border border-line bg-surface p-4">
+            <span className="chip-tint grid size-10 shrink-0 place-items-center rounded-xl" style={{ ["--chip" as string]: color }}>
+              <Icon className="size-5" aria-hidden />
+            </span>
+            <div>
+              <p className="font-display text-2xl leading-none font-extrabold tabular-nums">{Number(n).toLocaleString()}</p>
+              <p className="mt-1 text-sm text-muted">{label}</p>
+            </div>
           </div>
         ))}
       </div>
@@ -79,7 +87,7 @@ export function LibraryDashboard({ stats }: { stats: LibraryStats }) {
               <li key={g.slug} className="grid grid-cols-[6.5rem_1fr_2rem] items-center gap-2 text-sm">
                 <span className="truncate">{g.name}</span>
                 <span className="h-2 overflow-hidden rounded-full bg-line">
-                  <span className="block h-full rounded-full bg-gradient-to-r from-indigo to-violet" style={{ width: `${(g.count / maxGenre) * 100}%` }} />
+                  <span className="block h-full rounded-full" style={{ width: `${(g.count / maxGenre) * 100}%`, background: genreColor(g.slug) }} />
                 </span>
                 <span className="text-right text-muted tabular-nums">{g.count}</span>
               </li>
@@ -212,7 +220,7 @@ export function LibraryList({ initial, stats }: { initial: Paginated<LibraryEntr
             return (
               <li key={e.id} className="flex items-center gap-4 p-3 sm:p-4">
                 <Link href={`/manga/${s.slug}`} className="shrink-0">
-                  <Cover title={s.title} coverUrl={s.coverUrl} compact className="w-12 rounded-md sm:w-14" sizes="56px" />
+                  <Cover title={s.title} coverUrl={s.coverUrl} genres={s.genres.map((g) => g.slug)} compact className="w-12 rounded-md sm:w-14" sizes="56px" />
                 </Link>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">

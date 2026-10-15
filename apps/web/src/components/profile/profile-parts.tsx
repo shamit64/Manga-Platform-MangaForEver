@@ -76,7 +76,7 @@ export function PublicLibrary({ username, initial }: { username: string; initial
           {data.items.map((e) => (
             <li key={e.id}>
               <Link href={`/manga/${e.series!.slug}`} className="flex items-center gap-3 rounded-xl border border-line bg-surface p-2.5 hover:border-violet/60">
-                <Cover title={e.series!.title} coverUrl={e.series!.coverUrl} compact className="w-10 shrink-0 rounded-md" sizes="40px" />
+                <Cover title={e.series!.title} coverUrl={e.series!.coverUrl} genres={e.series!.genres.map((g) => g.slug)} compact className="w-10 shrink-0 rounded-md" sizes="40px" />
                 <div className="min-w-0">
                   <p className="truncate text-sm font-medium">{e.series!.title}</p>
                   <p className="text-xs text-muted">

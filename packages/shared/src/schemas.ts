@@ -244,10 +244,14 @@ export const collectionSchema = z.object({
 
 export const importSchema = z.object({
   provider: z.enum(["anilist"]).default("anilist"),
-  /** Import a single provider ID, or the first page of a search. */
+  /** Import a single provider ID, the first page of a search, or a page of the most popular titles. */
   externalId: z.string().regex(/^\d+$/).optional(),
   search: z.string().trim().min(1).max(100).optional(),
-  limit: z.number().int().min(1).max(25).default(10),
+  /** With neither externalId nor search: most popular titles of this type (manga JP, manhwa KR, manhua CN). */
+  contentType: z.enum(CONTENT_TYPES).optional(),
+  page: z.number().int().min(1).max(40).default(1),
+  limit: z.number().int().min(1).max(50).default(10),
+  skipExisting: z.boolean().default(false),
 });
 
 export const mergeSchema = z.object({

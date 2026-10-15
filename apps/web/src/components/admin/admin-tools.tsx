@@ -78,11 +78,17 @@ export function ImportTool() {
       setBusy(null);
     }
   }
-  async function importPopular() {
-    setBusy("popular");
+  const [pages, setPages] = React.useState<Record<string, number>>({ MANGA: 1, MANHWA: 1, MANHUA: 1 });
+  async function importPopular(contentType: "MANGA" | "MANHWA" | "MANHUA") {
+    setBusy(`popular-${contentType}`);
     try {
-      const r = await api<{ imported: number; refreshed: number }>("/admin/import", { method: "POST", body: { provider: "anilist", limit: 25 } });
-      toast.success(`Imported ${r.imported}, refreshed ${r.refreshed}`);
+      const page = pages[contentType];
+      const r = await api<{ imported: number; refreshed: number; skipped: number }>("/admin/import", {
+        method: "POST",
+        body: { provider: "anilist", contentType, page, limit: 50, skipExisting: true },
+      });
+      setPages((p) => ({ ...p, [contentType]: page + 1 }));
+      toast.success(`Added ${r.imported} ${CONTENT_TYPE_LABELS[contentType].toLowerCase()} (${r.skipped} already in the catalog)`);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Import failed");
     } finally {
@@ -103,10 +109,14 @@ export function ImportTool() {
       <form onSubmit={search} className="flex flex-wrap gap-2">
         <Input className="max-w-md" placeholder="Search AniList, e.g. “Vagabond”" value={q} onChange={(e) => setQ(e.target.value)} aria-label="Search AniList" />
         <Button type="submit" disabled={busy === "search"}>{busy === "search" ? "Searching…" : "Search AniList"}</Button>
-        <Button type="button" variant="outline" onClick={importPopular} disabled={busy === "popular"}>
-          <Download /> {busy === "popular" ? "Importing…" : "Import 25 most popular"}
-        </Button>
       </form>
+      <div className="flex flex-wrap gap-2">
+        {(["MANGA", "MANHWA", "MANHUA"] as const).map((t) => (
+          <Button key={t} type="button" variant="outline" onClick={() => importPopular(t)} disabled={busy === `popular-${t}`}>
+            <Download /> {busy === `popular-${t}` ? "Importing…" : `Import next 50 popular ${CONTENT_TYPE_LABELS[t].toLowerCase()}`}
+          </Button>
+        ))}
+      </div>
       {error && <ErrorNotice title="AniList is unavailable" description={error} />}
       {results && (results.length === 0 ? <EmptyState title="No AniList results" /> : (
         <ul className="grid gap-3 sm:grid-cols-2">
@@ -188,7 +198,7 @@ function FeaturedItem({ f, onSave, onRemove }: { f: FeaturedRow; onSave: (b: { r
   const [active, setActive] = React.useState(f.isActive);
   return (
     <li className="flex gap-4 rounded-2xl border border-line bg-surface p-4">
-      <Cover title={f.series.title} coverUrl={f.series.coverUrl} compact className="w-14 shrink-0 rounded-md" sizes="56px" />
+      <Cover title={f.series.title} coverUrl={f.series.coverUrl} genres={f.series.genres.map((g) => g.slug)} compact className="w-14 shrink-0 rounded-md" sizes="56px" />
       <div className="flex-1 space-y-2">
         <p className="font-semibold">{f.series.title}</p>
         <Textarea value={reason} onChange={(e) => setReason(e.target.value)} className="min-h-16" maxLength={300} aria-label="Reason" />

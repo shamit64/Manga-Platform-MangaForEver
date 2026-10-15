@@ -29,9 +29,22 @@ const SEARCH_QUERY = `query ($search: String, $page: Int, $perPage: Int) {
 const POPULAR_QUERY = `query ($page: Int, $perPage: Int) {
   Page(page: $page, perPage: $perPage) {
     pageInfo { hasNextPage }
-    media(type: MANGA, isAdult: false, sort: [POPULARITY_DESC]) { ${MEDIA_FIELDS} }
+    media(type: MANGA, sort: [POPULARITY_DESC]) { ${MEDIA_FIELDS} }
   }
 }`;
+
+const POPULAR_BY_COUNTRY_QUERY = `query ($page: Int, $perPage: Int, $country: CountryCode) {
+  Page(page: $page, perPage: $perPage) {
+    pageInfo { hasNextPage }
+    media(type: MANGA, format_in: [MANGA], isAdult: false, countryOfOrigin: $country, sort: [POPULARITY_DESC]) { ${MEDIA_FIELDS} }
+  }
+}`;
+
+/**
+ * AniList answers country-filtered queries for the (very large) Japanese catalogue with an empty page,
+ * so Japanese titles are taken from the overall popularity list and filtered here instead.
+ */
+const FILTER_LOCALLY = new Set(["JP"]);
 
 const BY_ID_QUERY = `query ($id: Int) { Media(id: $id, type: MANGA) { ${MEDIA_FIELDS} } }`;
 
@@ -97,6 +110,19 @@ export function stripHtml(s: string | null) {
     .trim();
 }
 
+const DEMOGRAPHICS: Record<string, ProviderSeries["demographic"]> = {
+  Shounen: "SHOUNEN",
+  Shoujo: "SHOUJO",
+  Seinen: "SEINEN",
+  Josei: "JOSEI",
+  Kids: "KODOMO",
+};
+
+function demographicFromTags(tags: AniListMedia["tags"]): ProviderSeries["demographic"] {
+  const t = (tags ?? []).filter((x) => x.category === "Demographic" && DEMOGRAPHICS[x.name]).sort((a, b) => b.rank - a.rank)[0];
+  return t ? DEMOGRAPHICS[t.name] : null;
+}
+
 export function mapAniList(m: AniListMedia): ProviderSeries {
   const country = COUNTRY[m.countryOfOrigin ?? ""] ?? { type: "MANGA" as const, name: m.countryOfOrigin ?? null };
   const title = m.title.english || m.title.romaji || m.title.native || `AniList #${m.id}`;
@@ -122,8 +148,8 @@ export function mapAniList(m: AniListMedia): ProviderSeries {
     description,
     type: country.type,
     countryOfOrigin: country.name,
-    publisher: null, // AniList doesn't expose serialising magazine reliably
-    demographic: null,
+    // AniList doesn't expose the serialising magazine, so publisher is left untouched (undefined).
+    demographic: demographicFromTags(m.tags),
     status: STATUS[m.status ?? ""] ?? "UNKNOWN",
     releaseYear: m.startDate?.year ?? null,
     startDate: fuzzyToDate(m.startDate),
@@ -141,7 +167,10 @@ export function mapAniList(m: AniListMedia): ProviderSeries {
     externalId: String(m.id),
     lastSyncedAt: new Date(),
     genres: m.genres ?? [],
-    tags: (m.tags ?? []).filter((t) => !t.isMediaSpoiler && !t.isAdult && t.rank >= 60).slice(0, 12).map((t) => t.name),
+    tags: (m.tags ?? [])
+      .filter((t) => !t.isMediaSpoiler && !t.isAdult && t.rank >= 60 && t.category !== "Demographic")
+      .slice(0, 12)
+      .map((t) => t.name),
     authors: [...new Set(authors)],
     artists: [...new Set(artists)],
   };
@@ -215,9 +244,17 @@ export class AniListProvider implements MetadataProvider {
     return { items: data.Page.media.filter((m) => !m.isAdult).map(mapAniList), hasNextPage: data.Page.pageInfo.hasNextPage };
   }
 
-  async popular(page = 1, perPage = 25): Promise<ProviderSearchResult> {
-    const data = await this.gql<{ Page: { pageInfo: { hasNextPage: boolean }; media: AniListMedia[] } }>(POPULAR_QUERY, { page, perPage });
-    return { items: data.Page.media.filter((m) => !m.isAdult).map(mapAniList), hasNextPage: data.Page.pageInfo.hasNextPage };
+  async popular(page = 1, perPage = 25, country?: string): Promise<ProviderSearchResult> {
+    type PageData = { Page: { pageInfo: { hasNextPage: boolean }; media: AniListMedia[] } };
+    if (country && !FILTER_LOCALLY.has(country)) {
+      const data = await this.gql<PageData>(POPULAR_BY_COUNTRY_QUERY, { page, perPage, country });
+      return { items: data.Page.media.filter((m) => !m.isAdult).map(mapAniList), hasNextPage: data.Page.pageInfo.hasNextPage };
+    }
+    const data = await this.gql<PageData>(POPULAR_QUERY, { page, perPage });
+    const media = data.Page.media.filter(
+      (m) => !m.isAdult && (!country || (m.countryOfOrigin === country && (m.format === "MANGA" || m.format === null))),
+    );
+    return { items: media.map(mapAniList), hasNextPage: data.Page.pageInfo.hasNextPage };
   }
 
   async getById(externalId: string): Promise<ProviderSeries | null> {
