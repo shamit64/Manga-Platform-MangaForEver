@@ -8,7 +8,7 @@ import { getMe } from "@/lib/server-api";
 export const metadata: Metadata = { title: "Create account" };
 
 export default async function RegisterPage() {
-  if (await getMe()) redirect("/library");
+  if (await getMe()) redirect("/dashboard");
   return (
     <AuthCard
       title="Create your account"

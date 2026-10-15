@@ -129,3 +129,19 @@ export const adminSetSourceLink = async (req: Request, res: Response) => {
   await audit(uid(req), "sourceLink.set", "MangaSeries", seriesId, body);
   res.json({ id: link.id, provider: link.provider, externalId: link.externalId });
 };
+
+// ───────── Search engines ─────────
+/** Every public series, genre and profile path with its last change, for the web app's sitemap.xml. */
+export const sitemapEntries = async (_req: Request, res: Response) => {
+  const [series, genres, users] = await Promise.all([
+    prisma.mangaSeries.findMany({ where: { isArchived: false, isAdult: false }, select: { slug: true, updatedAt: true, lastChapterAt: true }, orderBy: { popularityScore: "desc" }, take: 45_000 }),
+    prisma.genre.findMany({ select: { slug: true } }),
+    prisma.user.findMany({ where: { isSuspended: false, isDemo: false, emailVerifiedAt: { not: null } }, select: { username: true, updatedAt: true }, take: 5_000, orderBy: { updatedAt: "desc" } }),
+  ]);
+  res.set("Cache-Control", "public, max-age=3600");
+  res.json({
+    series: series.map((s) => ({ slug: s.slug, updatedAt: (s.lastChapterAt && s.lastChapterAt > s.updatedAt ? s.lastChapterAt : s.updatedAt).toISOString() })),
+    genres: genres.map((g) => g.slug),
+    users: users.map((u) => ({ username: u.username, updatedAt: u.updatedAt.toISOString() })),
+  });
+};

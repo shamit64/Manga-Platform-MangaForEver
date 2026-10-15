@@ -48,7 +48,7 @@ function Header() {
       <div className="hdr-in">
         <a className="logo" href="#" onClick=${(e) => { e.preventDefault(); go("home"); }} aria-label="MangaForEver home">
           <span className="logo-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
-          <span className="word">Manga<span className="text-brand">Verse</span></span>
+          <span className="word">Manga<span className="text-brand">For</span>Ever</span>
         </a>
         <nav className="nav" aria-label="Main"><${NavLinks} /></nav>
         <div className="hdr-tools">
@@ -92,7 +92,7 @@ function Footer() {
     <div className="wrap foot">
       <div>
         <a className="logo" href="#" style=${{ fontSize: "18px" }} onClick=${(e) => e.preventDefault()}>
-          <span className="logo-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span>Manga<span className="text-brand">Verse</span></span>
+          <span className="logo-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span>Manga<span className="text-brand">For</span>Ever</span>
         </a>
         <p style=${{ marginTop: "10px" }}>Discover. Track. Review. Explore. MangaForEver is a database and tracker. It hosts no chapters and links to AniList for official sources.</p>
       </div>

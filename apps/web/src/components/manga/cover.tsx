@@ -35,7 +35,7 @@ export function Cover({
   const art = coverArt(title, genres);
   if (coverUrl) {
     return (
-      <div className={cn("relative aspect-[2/3] overflow-hidden rounded-xl bg-raised", className)} style={{ ["--glow" as string]: art.accent }}>
+      <div className={cn("relative aspect-[2/3] overflow-hidden rounded-md bg-raised after:pointer-events-none after:absolute after:inset-0 after:rounded-[inherit] after:shadow-[inset_0_0_0_1px_rgba(255,255,255,.06),inset_0_-30px_40px_-30px_rgba(0,0,0,.45)]", className)} style={{ ["--glow" as string]: art.accent }}>
         <RemoteCover
           src={coverUrl}
           alt={`Cover of ${title}`}
@@ -47,7 +47,7 @@ export function Cover({
     );
   }
   return (
-    <div className={cn("relative isolate aspect-[2/3] overflow-hidden rounded-xl", className)} style={{ ["--glow" as string]: art.accent }}>
+    <div className={cn("relative isolate aspect-[2/3] overflow-hidden rounded-md", className)} style={{ ["--glow" as string]: art.accent }}>
       <GeneratedArt title={title} nativeTitle={nativeTitle} type={type} year={year} genres={genres} compact={compact} />
     </div>
   );
@@ -98,7 +98,7 @@ function GeneratedArt({
             </span>
           )}
           <p
-            className="font-display text-lg leading-[0.98] font-extrabold text-white"
+            className="font-display text-lg leading-[0.98] font-medium text-white"
             style={{ fontVariationSettings: '"wdth" 78', textShadow: "0 2px 12px rgba(0,0,0,.45)" }}
           >
             {title}

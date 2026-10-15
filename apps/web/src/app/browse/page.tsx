@@ -14,12 +14,12 @@ type SP = Record<string, string | string[] | undefined>;
 
 export async function generateMetadata({ searchParams }: { searchParams: Promise<SP> }): Promise<Metadata> {
   const { q } = await searchParams;
-  return { title: q ? `Search: ${q}` : "Explore the catalog" };
+  return { title: q ? `Search: ${q}` : "Browse manga, manhwa and manhua", alternates: { canonical: "/browse" } };
 }
 
 const PASS = ["q", "type", "genres", "genreMode", "tags", "status", "demographic", "yearFrom", "yearTo", "creator", "minRating", "minPopularity", "updatedWithinDays", "sort", "order", "page"];
 
-export default async function ExplorePage({ searchParams }: { searchParams: Promise<SP> }) {
+export default async function BrowsePage({ searchParams }: { searchParams: Promise<SP> }) {
   const sp = await searchParams;
   const query: Record<string, string> = { pageSize: "30" };
   for (const k of PASS) {
@@ -41,7 +41,7 @@ export default async function ExplorePage({ searchParams }: { searchParams: Prom
   return (
     <div>
       <PageHeader
-        title={q ? `Results for “${q}”` : "Explore"}
+        title={q ? `Results for “${q}”` : "Browse"}
         description={
           q
             ? "Matching titles, alternative and native titles, creators, genres and tags."
@@ -67,7 +67,7 @@ export default async function ExplorePage({ searchParams }: { searchParams: Prom
             <ActiveFilters genres={genres} />
           </Suspense>
           {error ? (
-            <ErrorNotice title="Couldn't load results" description={error} action={<Button asChild variant="outline" size="sm"><Link href="/explore">Reset</Link></Button>} />
+            <ErrorNotice title="Couldn't load results" description={error} action={<Button asChild variant="outline" size="sm"><Link href="/browse">Reset</Link></Button>} />
           ) : data && data.items.length === 0 ? (
             <EmptyState
               icon={<SearchX />}
@@ -75,14 +75,14 @@ export default async function ExplorePage({ searchParams }: { searchParams: Prom
               description="Try fewer filters, a creator's name, or a native-language title."
               action={
                 <Button asChild variant="outline">
-                  <Link href="/explore">Clear search and filters</Link>
+                  <Link href="/browse">Clear search and filters</Link>
                 </Button>
               }
             />
           ) : data ? (
             <>
               <SeriesGrid items={data.items} className="lg:grid-cols-4 xl:grid-cols-5" />
-              <Pagination page={data.page} totalPages={data.totalPages} basePath="/explore" params={sp} />
+              <Pagination page={data.page} totalPages={data.totalPages} basePath="/browse" params={sp} />
             </>
           ) : null}
         </div>

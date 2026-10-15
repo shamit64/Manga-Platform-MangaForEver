@@ -26,3 +26,21 @@ services:
         value: "2"
       - key: METADATA_PROVIDER
         value: anilist
+      - key: CHAPTER_PROVIDER
+        value: mangadex
+      - key: REQUIRE_EMAIL_VERIFICATION
+        value: "true"
+      - key: ADMIN_EMAILS
+        sync: false # your email; that account becomes admin
+      - key: RESEND_API_KEY
+        sync: false
+      - key: MAIL_FROM
+        value: "MangaForEver <onboarding@resend.dev>"
+      - key: JOBS_TOKEN
+        generateValue: true # copy to GitHub → Settings → Secrets → Actions → JOBS_TOKEN
+      - key: VAPID_PUBLIC_KEY
+        sync: false # optional: npx web-push generate-vapid-keys
+      - key: VAPID_PRIVATE_KEY
+        sync: false
+      - key: VAPID_SUBJECT
+        sync: false # e.g. mailto:you@example.com

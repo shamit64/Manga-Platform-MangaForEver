@@ -121,7 +121,7 @@ export function ImportTool() {
       {results && (results.length === 0 ? <EmptyState title="No AniList results" /> : (
         <ul className="grid gap-3 sm:grid-cols-2">
           {results.map((r) => (
-            <li key={r.externalId} className="flex gap-3 rounded-2xl border border-line bg-surface p-3">
+            <li key={r.externalId} className="flex gap-3 rounded-lg border border-line bg-surface p-3">
               <Cover title={r.title} coverUrl={r.coverUrl} className="w-16 shrink-0 rounded-lg" sizes="64px" />
               <div className="min-w-0 flex-1">
                 <p className="font-medium">{r.title}</p>
@@ -197,7 +197,7 @@ function FeaturedItem({ f, onSave, onRemove }: { f: FeaturedRow; onSave: (b: { r
   const [position, setPosition] = React.useState(f.position);
   const [active, setActive] = React.useState(f.isActive);
   return (
-    <li className="flex gap-4 rounded-2xl border border-line bg-surface p-4">
+    <li className="flex gap-4 rounded-lg border border-line bg-surface p-4">
       <Cover title={f.series.title} coverUrl={f.series.coverUrl} genres={f.series.genres.map((g) => g.slug)} compact className="w-14 shrink-0 rounded-md" sizes="56px" />
       <div className="flex-1 space-y-2">
         <p className="font-semibold">{f.series.title}</p>
@@ -231,7 +231,7 @@ export function CollectionsManager() {
       {!data ? <Skeleton className="h-40" /> : (
         <ul className="grid gap-3 md:grid-cols-2">
           {data.items.map((c) => (
-            <li key={c.id} className="rounded-2xl border border-line bg-surface p-4">
+            <li key={c.id} className="rounded-lg border border-line bg-surface p-4">
               <div className="flex items-start justify-between gap-2">
                 <div>
                   <p className="font-semibold">{c.title}</p>
@@ -332,7 +332,7 @@ export function ModerationQueue() {
       ) : (
         <ul className="space-y-4">
           {data.items.map((r) => (
-            <li key={r.id} className="rounded-2xl border border-line bg-surface p-5">
+            <li key={r.id} className="rounded-lg border border-line bg-surface p-5">
               <div className="flex flex-wrap items-center gap-2 text-sm">
                 <Badge tone="warn">{REPORT_REASON_LABELS[r.reason as keyof typeof REPORT_REASON_LABELS] ?? r.reason}</Badge>
                 <span className="text-muted">reported by @{r.reporter.username} {timeAgo(r.createdAt)}</span>
@@ -393,7 +393,7 @@ export function UsersManager() {
     <div className="space-y-4">
       <Input className="max-w-sm" placeholder="Search username or email…" value={q} onChange={(e) => setQ(e.target.value)} aria-label="Search users" />
       {error ? <ErrorNotice description={error} /> : !data ? <Skeleton className="h-60" /> : (
-        <div className="overflow-x-auto rounded-2xl border border-line">
+        <div className="overflow-x-auto rounded-lg border border-line">
           <table className="w-full text-sm">
             <thead className="bg-surface text-left text-xs text-muted">
               <tr><th className="px-4 py-3 font-medium">User</th><th className="px-4 py-3 font-medium">Role</th><th className="px-4 py-3 font-medium">Activity</th><th className="px-4 py-3 font-medium">Joined</th><th className="px-4 py-3 font-medium">Status</th></tr>
@@ -438,7 +438,7 @@ export function AuditLog() {
   if (!data.items.length) return <EmptyState title="No administrative actions yet" />;
   return (
     <div>
-      <ul className="divide-y divide-line rounded-2xl border border-line bg-surface text-sm">
+      <ul className="divide-y divide-line rounded-lg border border-line bg-surface text-sm">
         {data.items.map((a) => (
           <li key={a.id} className="grid gap-1 px-4 py-3 sm:grid-cols-[11rem_9rem_1fr]">
             <span className="text-muted">{new Date(a.createdAt).toLocaleString()}</span>

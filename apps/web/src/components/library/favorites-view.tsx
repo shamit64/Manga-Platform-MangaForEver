@@ -61,7 +61,7 @@ export function FavoritesView({ initial, genres }: { initial: Paginated<Fav>; ge
           description="Tap the heart on any series to keep it here."
           action={
             <Button asChild>
-              <Link href="/explore">Explore the catalog</Link>
+              <Link href="/browse">Explore the catalog</Link>
             </Button>
           }
         />
