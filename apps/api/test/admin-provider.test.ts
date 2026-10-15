@@ -119,14 +119,36 @@ describe("AniList provider", () => {
       externalPopularityRank: 5,
       externalId: "30002",
       chapterCount: null,
-      publisher: null,
       endDate: null,
       authors: ["Chugong"],
       artists: ["DUBU"],
       tags: ["Dungeon"], // spoiler tag dropped
     });
     expect(m.description).toBe("Ten years ago, the Gate appeared.\n\nSecond paragraph & more.");
+    expect(m.publisher).toBeUndefined(); // AniList has no publisher field — leave any curated value alone
+    expect(m.demographic ?? null).toBeNull();
     expect(m.altTitles).toEqual(expect.arrayContaining(["Na Honjaman Level Up", "나 혼자만 레벨업", "Only I Level Up"]));
+  });
+
+  it("reads the demographic from AniList's Demographic tags instead of listing it as a tag", () => {
+    const m = mapAniList({ ...media, tags: [...(media.tags ?? []), { name: "Seinen", rank: 80, isMediaSpoiler: false, isAdult: false, category: "Demographic" }] });
+    expect(m.demographic).toBe("SEINEN");
+    expect(m.tags).toEqual(["Dungeon"]);
+  });
+
+  it("filters popular manga to Japanese originals locally", async () => {
+    const page = { Page: { pageInfo: { hasNextPage: true }, media: [media, { ...media, id: 1, countryOfOrigin: "JP", title: { ...media.title, english: "Berserk" } }] } };
+    let body = "";
+    const fakeFetch = (async (_u: string, init: RequestInit) => {
+      body = String(init.body);
+      return new Response(JSON.stringify({ data: page }), { status: 200 });
+    }) as unknown as typeof fetch;
+    const p = new AniListProvider("https://example.test", fakeFetch, { timeoutMs: 1000, retries: 1, cacheTtlMs: 0 });
+    const res = await p.popular(1, 50, "JP");
+    expect(res.items.map((i) => i.title)).toEqual(["Berserk"]);
+    expect(res.hasNextPage).toBe(true);
+    await p.popular(1, 50, "KR");
+    expect(JSON.parse(body).variables).toMatchObject({ country: "KR" });
   });
 
   it("retries transient failures and then succeeds", async () => {
@@ -181,6 +203,33 @@ describe("imports", () => {
     const row = await prisma.mangaSeries.findFirstOrThrow({ where: { externalId: "30002" } });
     expect(row.lastSyncedAt).toBeTruthy();
     expect(row.ratingCount).toBe(0); // imports never touch community stats
+  });
+
+  it("bulk-imports popular titles by type and keeps existing rows untouched", async () => {
+    const calls: Array<[number | undefined, number | undefined, string | undefined]> = [];
+    const other = { ...media, id: 30003, title: { romaji: "Tower of God", english: "Tower of God", native: "신의 탑" }, synonyms: [] };
+    const fake: MetadataProvider = {
+      name: "anilist",
+      attribution: { label: "AniList", url: "https://anilist.co" },
+      search: async () => ({ items: [], hasNextPage: false }),
+      popular: async (page, perPage, country) => {
+        calls.push([page, perPage, country]);
+        return { items: [mapAniList(media), mapAniList(other)], hasNextPage: false };
+      },
+      getById: async () => null,
+    };
+    setProvider("anilist", fake);
+    const { agent } = await createUser("ADMIN");
+    const existing = await prisma.mangaSeries.findFirstOrThrow({ where: { externalProvider: "anilist", externalId: "30002" } });
+    await prisma.mangaSeries.update({ where: { id: existing.id }, data: { synopsis: "Curated synopsis" } });
+
+    const res = await agent.post("/api/v1/admin/import").send({ provider: "anilist", contentType: "MANHWA", page: 2, limit: 50, skipExisting: true });
+    expect(res.status).toBe(200);
+    expect(res.body).toMatchObject({ imported: 1, refreshed: 0, skipped: 1 });
+    expect(calls).toEqual([[2, 50, "KR"]]);
+    const kept = await prisma.mangaSeries.findUniqueOrThrow({ where: { id: existing.id } });
+    expect(kept.synopsis).toBe("Curated synopsis");
+    expect(await prisma.mangaSeries.count({ where: { externalProvider: "anilist", externalId: "30003" } })).toBe(1);
   });
 
   it("degrades gracefully when the provider is down, and the catalog keeps working", async () => {

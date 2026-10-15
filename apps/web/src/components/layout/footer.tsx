@@ -17,7 +17,7 @@ export function Footer() {
         <FooterCol title="About the data" links={[["How rankings work", "/rankings#how"], ["Community reviews", "/reviews"], ["API docs", "/api-docs"]]} />
       </div>
       <p className="mx-auto max-w-7xl px-4 pb-8 text-xs text-muted sm:px-6">
-        Titles marked “Sample data” come from MangaVerse’s bundled sample catalog. Imported titles credit their metadata source on each page.
+        Titles marked “Sample data” come from MangaVerse’s bundled sample catalog. Cover art, banners and external scores are provided by AniList (anilist.co) and shown from AniList’s servers; each series page credits its sources.
       </p>
     </footer>
   );

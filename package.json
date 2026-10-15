@@ -26,7 +26,10 @@
     "start:web": "npm run start -w @mangaverse/web",
     "db:test:prepare": "node scripts/prepare-test-db.mjs",
     "local": "node scripts/local.mjs",
-    "local:dev": "node scripts/local.mjs --dev"
+    "local:dev": "node scripts/local.mjs --dev",
+    "db:link-anilist": "node scripts/link-anilist.mjs",
+    "db:import-anilist": "tsx prisma/import-anilist.ts",
+    "site:build": "tsx scripts/build-site.ts"
   },
   "devDependencies": {
     "concurrently": "^9.2.1",

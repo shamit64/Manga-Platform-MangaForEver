@@ -4,7 +4,7 @@ import { DEMOGRAPHIC_LABELS, PUBLICATION_STATUS_LABELS, type SeriesDetail } from
 import { ChevronLeft, ChevronRight, Star } from "lucide-react";
 import Link from "next/link";
 import * as React from "react";
-import { SampleBadge, TypeBadge } from "@/components/manga/badges";
+import { GenreChip, SampleBadge, TypeBadge } from "@/components/manga/badges";
 import { Cover } from "@/components/manga/cover";
 import { FavoriteButton, LibraryButton } from "@/components/manga/series-actions";
 import { Button } from "@/components/ui/button";
@@ -30,10 +30,13 @@ export function Hero({ items }: { items: HeroItem[] }) {
 
   return (
     <section aria-roledescription="carousel" aria-label="Editor's picks" className="relative pt-8 pb-6 sm:pt-12">
-      <div className="tone tone-fade pointer-events-none absolute inset-x-[-50vw] top-0 -z-10 h-[420px]" aria-hidden />
+      <div className="aurora pointer-events-none absolute inset-x-[-10vw] -top-24 -z-10 h-[560px] opacity-90" aria-hidden />
+      <div className="tone tone-fade pointer-events-none absolute inset-x-[-50vw] top-0 -z-10 h-[420px] opacity-60" aria-hidden />
       <div className="grid items-center gap-8 lg:grid-cols-[1fr_minmax(0,560px)] lg:gap-12">
         <div key={s.id} className="order-2 lg:order-1" aria-live="polite">
-          <p className="mb-3 text-sm text-lilac">Editor’s pick {i + 1} of {items.length}</p>
+          <p className="mb-4 inline-flex items-center gap-1.5 rounded-full border border-amber/40 bg-amber/10 px-3 py-1 text-sm text-amber">
+            <Star className="size-3.5 fill-current" aria-hidden /> Editor’s pick {i + 1} of {items.length}
+          </p>
           <h1
             className="text-4xl leading-[0.95] font-extrabold sm:text-6xl"
             style={{ fontVariationSettings: '"wdth" 80' }}
@@ -49,12 +52,10 @@ export function Hero({ items }: { items: HeroItem[] }) {
             <SampleBadge source={s.source} />
           </div>
           <p className="mt-4 max-w-xl leading-relaxed text-text/90">{s.synopsis ?? "No synopsis available yet."}</p>
-          <ul className="mt-4 flex flex-wrap gap-1.5" aria-label="Genres and tags">
-            {[...s.genres, ...s.tags.slice(0, 3)].map((g) => (
+          <ul className="mt-4 flex flex-wrap gap-1.5" aria-label="Genres">
+            {s.genres.map((g) => (
               <li key={g.slug}>
-                <Link href={`/explore?genres=${g.slug}`} className="rounded-full border border-line px-2.5 py-1 text-xs text-muted hover:border-violet hover:text-text">
-                  {g.name}
-                </Link>
+                <GenreChip slug={g.slug} name={g.name} href={`/explore?genres=${g.slug}`} />
               </li>
             ))}
           </ul>
@@ -94,21 +95,21 @@ export function Hero({ items }: { items: HeroItem[] }) {
           <Link
             href={`/manga/${s.slug}`}
             tabIndex={-1}
-            className="row-span-2 block rounded-2xl border-[3px] border-text/90 bg-surface p-1.5 shadow-[8px_8px_0_0_var(--violet)] [animation:panel-in_.5s_ease-out_both]"
+            className="row-span-2 block rounded-2xl border-2 border-white/15 bg-white/5 p-1.5 shadow-[10px_10px_0_-2px_var(--violet),0_30px_60px_-30px_var(--pink)] [animation:panel-in_.5s_ease-out_both]"
             style={{ ["--tilt" as string]: "-1.5deg" }}
           >
-            <Cover title={s.title} nativeTitle={native} coverUrl={s.coverUrl} type={s.type} priority className="rounded-xl" sizes="(max-width: 1024px) 55vw, 320px" />
+            <Cover title={s.title} nativeTitle={native} coverUrl={s.coverUrl} type={s.type} year={s.releaseYear} genres={s.genres.map((g) => g.slug)} priority className="rounded-xl" sizes="(max-width: 1024px) 55vw, 320px" />
           </Link>
           <div
-            className="relative hidden min-h-36 flex-col justify-between overflow-hidden sm:flex rounded-2xl border-[3px] border-text/90 bg-surface p-4 [animation:panel-in_.5s_.08s_ease-out_both]"
+            className="relative hidden min-h-36 flex-col justify-between overflow-hidden rounded-2xl border-2 border-white/15 bg-surface p-4 [animation:panel-in_.5s_.08s_ease-out_both] sm:flex"
             style={{ ["--tilt" as string]: "1.2deg" }}
           >
             <div className="tone absolute inset-0 opacity-70" />
-            <p className="relative rounded-2xl rounded-bl-none bg-ink px-3 py-2.5 text-sm leading-snug shadow-sm">“{item.reason}”</p>
+            <p className="relative rounded-2xl rounded-bl-sm bg-white px-3.5 py-3 text-sm leading-snug font-medium text-[#16122b] shadow-sm">“{item.reason}”</p>
             <p className="relative mt-2 text-right text-xs text-muted">— MangaVerse editors</p>
           </div>
           <div
-            className="flex flex-col justify-center gap-3 rounded-2xl border-[3px] border-text/90 bg-violet p-4 text-white [animation:panel-in_.5s_.16s_ease-out_both]"
+            className="bg-brand flex flex-col justify-center gap-3 rounded-2xl border-2 border-white/20 p-4 text-white [animation:panel-in_.5s_.16s_ease-out_both]"
             style={{ ["--tilt" as string]: "-0.8deg" }}
           >
             <div>

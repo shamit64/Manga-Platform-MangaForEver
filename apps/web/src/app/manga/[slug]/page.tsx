@@ -13,7 +13,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { EmptyState } from "@/components/layout/section";
-import { SampleBadge, StatusBadge, TypeBadge } from "@/components/manga/badges";
+import { GenreChip, SampleBadge, StatusBadge, TypeBadge } from "@/components/manga/badges";
 import { Cover } from "@/components/manga/cover";
 import { DetailTabs, ViewTracker } from "@/components/manga/detail-tabs";
 import { SeriesActions } from "@/components/manga/series-actions";
@@ -236,7 +236,9 @@ export default async function SeriesPage({ params }: Params) {
           // eslint-disable-next-line @next/next/no-img-element
           <img src={s.bannerUrl} alt="" className="h-full w-full object-cover opacity-60" />
         ) : (
-          <div className="tone h-full w-full bg-gradient-to-br from-violet/25 via-indigo/10 to-transparent" />
+          <div className="relative h-full w-full overflow-hidden" style={{ background: `linear-gradient(120deg, color-mix(in oklab, ${"var(--violet)"} 30%, transparent), color-mix(in oklab, var(--pink) 18%, transparent) 55%, color-mix(in oklab, var(--cyan) 16%, transparent))` }}>
+            <div className="tone absolute inset-0 opacity-70" />
+          </div>
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/40 to-transparent" />
       </div>
@@ -247,9 +249,11 @@ export default async function SeriesPage({ params }: Params) {
           nativeTitle={native}
           coverUrl={s.coverUrl}
           type={s.type}
+          year={s.releaseYear}
+          genres={s.genres.map((g) => g.slug)}
           priority
           sizes="220px"
-          className="mx-auto w-44 shadow-2xl ring-4 ring-ink md:w-full"
+          className="mx-auto w-44 shadow-[0_30px_60px_-30px_var(--glow)] ring-4 ring-ink md:w-full"
         />
         <div className="md:pt-24">
           <div className="flex flex-wrap items-center gap-2">
@@ -264,9 +268,7 @@ export default async function SeriesPage({ params }: Params) {
           <ul className="mt-4 flex flex-wrap gap-1.5">
             {s.genres.map((g) => (
               <li key={g.slug}>
-                <Link href={`/explore?genres=${g.slug}`} className="rounded-full bg-raised px-3 py-1 text-sm hover:bg-violet/20 hover:text-lilac">
-                  {g.name}
-                </Link>
+                <GenreChip slug={g.slug} name={g.name} href={`/explore?genres=${g.slug}`} size="md" />
               </li>
             ))}
           </ul>
@@ -291,6 +293,7 @@ export default async function SeriesPage({ params }: Params) {
           </dl>
           <p className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted">
             <span>Metadata source: {DATA_SOURCE_LABELS[s.source]}</span>
+            {s.coverUrl && s.externalProvider === "anilist" && <span>Cover art via AniList</span>}
             {s.lastSyncedAt && <span>Last synced {formatDate(s.lastSyncedAt)}</span>}
             {s.externalUrls.map((u) => (
               <a key={u.url} href={u.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-lilac hover:underline">

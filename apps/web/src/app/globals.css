@@ -5,49 +5,59 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 /*
- * MangaVerse palette
- *   ink      — page background, a violet-tinted near-black
- *   surface  — cards and panels
- *   raised   — inputs, hovered rows
- *   line     — hairlines and panel gutters
- *   violet   — primary actions
- *   indigo   — secondary accent / gradients
- *   lilac    — links and highlights on dark
- *   gold     — ratings only
+ * MangaVerse palette — deep indigo night with a violet → pink → amber brand gradient.
+ *   ink / surface / raised / line   page, panels, inputs, hairlines (indigo-biased neutrals)
+ *   violet, pink, amber, cyan       brand + content hues (types and genres add their own)
+ *   lilac                           links and highlights
+ *   gold                            ratings only
  */
 :root {
-  --ink: #f6f4fb;
+  --ink: #f8f6ff;
   --surface: #ffffff;
-  --raised: #efebf8;
-  --line: #ddd6ee;
-  --text: #1b1726;
-  --muted: #605a75;
-  --violet: #6d3fe0;
-  --violet-strong: #5b2fcb;
+  --raised: #f0ecfd;
+  --line: #e2dcf5;
+  --text: #17132b;
+  --muted: #5f5a7d;
+  --violet: #6d28d9;
+  --violet-strong: #5b21b6;
   --indigo: #4f46e5;
-  --lilac: #6d3fe0;
-  --gold: #b7860b;
+  --pink: #db2777;
+  --amber: #d97706;
+  --cyan: #0891b2;
+  --lilac: #6d28d9;
+  --gold: #b45309;
   --danger: #c62f4a;
-  --ok: #0f8a5f;
-  --tone: rgba(27, 23, 38, 0.13);
+  --ok: #047857;
+  --tone: rgba(23, 19, 43, 0.12);
+  --aurora-a: rgba(124, 58, 237, 0.22);
+  --aurora-b: rgba(236, 72, 153, 0.16);
+  --aurora-c: rgba(6, 182, 212, 0.14);
+  --brand: linear-gradient(100deg, #7c3aed, #db2777 55%, #ea8a0c);
   color-scheme: light;
 }
 
 .dark {
-  --ink: #0f0d14;
-  --surface: #17141f;
-  --raised: #211d2c;
-  --line: #2e2940;
-  --text: #ece9f5;
-  --muted: #9d97b3;
+  --ink: #0b0918;
+  --surface: #141127;
+  --raised: #1d1937;
+  --line: #2a2550;
+  --text: #f1eeff;
+  --muted: #a5a0c8;
   --violet: #8b5cf6;
-  --violet-strong: #7c4dee;
+  --violet-strong: #7c3aed;
   --indigo: #6366f1;
+  --pink: #ec4899;
+  --amber: #f59e0b;
+  --cyan: #22d3ee;
   --lilac: #c4b5fd;
-  --gold: #f2c14e;
+  --gold: #fbbf24;
   --danger: #f0647d;
-  --ok: #4ad19a;
+  --ok: #34d399;
   --tone: rgba(196, 181, 253, 0.12);
+  --aurora-a: rgba(124, 58, 237, 0.5);
+  --aurora-b: rgba(236, 72, 153, 0.38);
+  --aurora-c: rgba(6, 182, 212, 0.3);
+  --brand: linear-gradient(100deg, #8b5cf6, #ec4899 55%, #f59e0b);
   color-scheme: dark;
 }
 
@@ -61,6 +71,9 @@
   --color-violet: var(--violet);
   --color-violet-strong: var(--violet-strong);
   --color-indigo: var(--indigo);
+  --color-pink: var(--pink);
+  --color-amber: var(--amber);
+  --color-cyan: var(--cyan);
   --color-lilac: var(--lilac);
   --color-gold: var(--gold);
   --color-danger: var(--danger);
@@ -72,6 +85,7 @@
 @layer base {
   html {
     -webkit-text-size-adjust: 100%;
+    overflow-x: clip;
   }
   body {
     overflow-x: clip;
@@ -118,10 +132,35 @@
   .rank-numeral {
     font-family: var(--font-display);
     font-weight: 800;
-    font-variation-settings: "wdth" 75;
-    -webkit-text-stroke: 1.5px var(--lilac);
+    font-variation-settings: "wdth" 72;
+    background: var(--brand);
+    -webkit-background-clip: text;
+    background-clip: text;
     color: transparent;
-    line-height: 0.8;
+    line-height: 0.85;
+  }
+  .bg-brand {
+    background-image: var(--brand);
+  }
+  .text-brand {
+    background-image: var(--brand);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  /* Soft colour field behind heroes and page headers. */
+  .aurora {
+    background:
+      radial-gradient(40% 50% at 18% 30%, var(--aurora-a), transparent 70%),
+      radial-gradient(35% 45% at 62% 20%, var(--aurora-b), transparent 70%),
+      radial-gradient(30% 40% at 90% 55%, var(--aurora-c), transparent 70%);
+    filter: blur(60px);
+  }
+  /* Tinted chip in the element's own hue (set --chip). */
+  .chip-tint {
+    color: color-mix(in oklab, var(--chip) 72%, var(--text));
+    background: color-mix(in oklab, var(--chip) 15%, transparent);
+    border: 1px solid color-mix(in oklab, var(--chip) 34%, transparent);
   }
 }
 

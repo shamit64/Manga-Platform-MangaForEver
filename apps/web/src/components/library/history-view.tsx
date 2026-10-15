@@ -76,7 +76,7 @@ export function HistoryView({ initial, prefs }: { initial: Paginated<Entry>; pre
             {items.map((h) => (
               <li key={h.id} className="flex items-center gap-4 p-3 sm:p-4">
                 <Link href={`/manga/${h.series.slug}`} className="shrink-0">
-                  <Cover title={h.series.title} coverUrl={h.series.coverUrl} compact className="w-11 rounded-md" sizes="44px" />
+                  <Cover title={h.series.title} coverUrl={h.series.coverUrl} genres={h.series.genres.map((g) => g.slug)} compact className="w-11 rounded-md" sizes="44px" />
                 </Link>
                 <div className="min-w-0 flex-1">
                   <Link href={`/manga/${h.series.slug}`} className="block truncate font-semibold hover:text-lilac">

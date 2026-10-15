@@ -46,7 +46,8 @@ export function Section({
 export function PageHeader({ title, description, children }: { title: string; description?: React.ReactNode; children?: React.ReactNode }) {
   return (
     <header className="relative pt-10 pb-6">
-      <div className="tone tone-fade pointer-events-none absolute inset-x-0 top-0 -z-10 h-40" aria-hidden />
+      <div className="aurora pointer-events-none absolute inset-x-[-10vw] -top-20 -z-10 h-64 opacity-60" aria-hidden />
+      <div className="tone tone-fade pointer-events-none absolute inset-x-0 top-0 -z-10 h-40 opacity-60" aria-hidden />
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div className="max-w-2xl">
           <h1 className="text-3xl font-extrabold sm:text-4xl">{title}</h1>

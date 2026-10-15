@@ -13,6 +13,8 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   transpilePackages: ["@mangaverse/shared"],
   images: {
+    // Set NEXT_IMAGE_UNOPTIMIZED=1 to let browsers load provider covers directly (e.g. behind a proxy).
+    unoptimized: process.env.NEXT_IMAGE_UNOPTIMIZED === "1",
     // Provider cover art (AniList CDN) is optimised and lazy-loaded through next/image.
     remotePatterns: [
       { protocol: "https", hostname: "s4.anilist.co" },

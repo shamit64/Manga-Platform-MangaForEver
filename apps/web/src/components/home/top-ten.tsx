@@ -31,7 +31,7 @@ export function TopTen({ data }: { data: Record<string, RankingResponse | null> 
             onClick={() => setTab(k)}
             className={cn(
               "cursor-pointer rounded-full border px-3.5 py-1.5 text-sm transition-colors",
-              tab === k ? "border-violet bg-violet/15 text-text" : "border-line text-muted hover:text-text",
+              tab === k ? "bg-brand border-transparent text-white" : "border-line text-muted hover:text-text",
             )}
           >
             {label}
@@ -46,12 +46,18 @@ export function TopTen({ data }: { data: Record<string, RankingResponse | null> 
       ) : (
         <ol className="grid gap-x-8 gap-y-1 md:grid-cols-2" role="tabpanel">
           {r.items.map((s) => (
-            <li key={s.id}>
-              <Link href={`/manga/${s.slug}`} className="group flex items-center gap-4 rounded-xl px-2 py-2.5 hover:bg-surface">
+            <li key={s.id} className="min-w-0">
+              <Link
+                href={`/manga/${s.slug}`}
+                className={cn(
+                  "group flex items-center gap-4 rounded-2xl px-2 py-2.5 hover:bg-surface",
+                  s.rank <= 3 && "bg-[linear-gradient(90deg,color-mix(in_oklab,var(--violet)_14%,transparent),transparent)]",
+                )}
+              >
                 <span className="rank-numeral w-14 shrink-0 text-right text-5xl" aria-label={`Rank ${s.rank}`}>
                   {s.rank}
                 </span>
-                <Cover title={s.title} coverUrl={s.coverUrl} compact className="w-12 shrink-0 rounded-md" sizes="48px" />
+                <Cover title={s.title} coverUrl={s.coverUrl} genres={s.genres.map((g) => g.slug)} compact className="w-12 shrink-0 rounded-md" sizes="48px" />
                 <div className="min-w-0 flex-1">
                   <p className="truncate font-semibold group-hover:text-lilac">{s.title}</p>
                   <p className="truncate text-xs text-muted">
@@ -62,7 +68,7 @@ export function TopTen({ data }: { data: Record<string, RankingResponse | null> 
                     <span className="flex flex-1 items-center gap-1.5 text-xs text-muted" title={`Popularity score ${s.metric}`}>
                       <TrendingUp className="size-3.5" aria-hidden />
                       <span className="h-1 max-w-24 flex-1 overflow-hidden rounded-full bg-line">
-                        <span className="block h-full rounded-full bg-gradient-to-r from-indigo to-violet" style={{ width: `${((s.metric ?? 0) / max) * 100}%` }} />
+                        <span className="bg-brand block h-full rounded-full" style={{ width: `${((s.metric ?? 0) / max) * 100}%` }} />
                       </span>
                       <span className="tabular-nums">{formatCount(s.metric)}</span>
                     </span>

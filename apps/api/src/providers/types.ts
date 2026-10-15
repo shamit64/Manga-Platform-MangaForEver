@@ -19,8 +19,8 @@ export interface MetadataProvider {
   readonly attribution: { label: string; url: string };
   search(query: string, page?: number, perPage?: number): Promise<ProviderSearchResult>;
   getById(externalId: string): Promise<ProviderSeries | null>;
-  /** Popular titles, for bulk catalog bootstrapping. */
-  popular(page?: number, perPage?: number): Promise<ProviderSearchResult>;
+  /** Popular titles, for bulk catalog bootstrapping. `country` is an ISO code (JP manga, KR manhwa, CN manhua). */
+  popular(page?: number, perPage?: number, country?: string): Promise<ProviderSearchResult>;
 }
 
 export class ProviderError extends Error {

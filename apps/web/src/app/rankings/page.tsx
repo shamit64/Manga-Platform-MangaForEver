@@ -75,7 +75,7 @@ export default async function RankingsPage({ searchParams }: { searchParams: Pro
               <li key={s.id}>
                 <Link href={`/manga/${s.slug}`} className="group flex items-center gap-4 px-3 py-3 hover:bg-raised/40 sm:px-5">
                   <span className={cn("w-12 shrink-0 text-right", s.rank <= 3 ? "rank-numeral text-4xl" : "font-display text-xl font-bold text-muted tabular-nums")}>{s.rank}</span>
-                  <Cover title={s.title} coverUrl={s.coverUrl} compact className="w-12 shrink-0 rounded-md" sizes="48px" />
+                  <Cover title={s.title} coverUrl={s.coverUrl} genres={s.genres.map((g) => g.slug)} compact className="w-12 shrink-0 rounded-md" sizes="48px" />
                   <div className="min-w-0 flex-1">
                     <p className="truncate font-semibold group-hover:text-lilac">{s.title}</p>
                     <p className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted">
