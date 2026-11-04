@@ -53,11 +53,15 @@ jobs:
         if: env.API_URL != '' && env.JOBS_TOKEN != ''
         run: |
           set -u
+          # Tolerate a stray trailing "/" or "." in the API_URL variable (a trailing "." makes Render answer 404).
+          API_URL=$(printf '%s' "$API_URL" | sed -E 's#[./[:space:]]+$##')
           # Render's free plan sleeps; wake it first (up to ~2 minutes).
+          awake=""
           for i in $(seq 1 12); do
-            curl -fsS --max-time 10 "$API_URL/health" >/dev/null && break
+            curl -fsS --max-time 10 "$API_URL/health" >/dev/null && { awake=1; break; }
             sleep 10
           done
+          [ -n "$awake" ] || echo "::warning::$API_URL/health did not answer after ~2 minutes; trying the jobs anyway."
           failed=""
           for job in ${{ steps.pick.outputs.jobs }}; do
             echo "::group::$job"
@@ -73,13 +77,35 @@ jobs:
         if: env.API_URL == '' || env.JOBS_TOKEN == ''
         run: echo "API_URL variable or JOBS_TOKEN secret not set yet; skipping."
 
+      # One issue per outage: opened (one notification) on the first failure, then only its
+      # description is updated, which sends no notifications. Closed by the step below on recovery.
       - name: Report failure
         if: failure()
         uses: actions/github-script@v7
         with:
           script: |
-            const title = "Scheduled job failing";
-            const body = `\`${process.env.FAILED?.trim() || "a job"}\` failed in [this run](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}).`;
+            const run = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            const what = process.env.FAILED?.trim() || "a job";
+            const marker = "<!-- latest-failure -->";
+            const latest = `${marker}\nLatest failure: \`${what}\` in [run ${context.runId}](${run}), ${new Date().toISOString()}.`;
             const { data } = await github.rest.issues.listForRepo({ ...context.repo, state: "open", labels: "jobs" });
-            if (data[0]) await github.rest.issues.createComment({ ...context.repo, issue_number: data[0].number, body });
-            else await github.rest.issues.create({ ...context.repo, title, body, labels: ["jobs"] });
+            const open = data.find((i) => !i.pull_request);
+            if (open) {
+              const intro = (open.body || "").split(marker)[0].trimEnd();
+              await github.rest.issues.update({ ...context.repo, issue_number: open.number, body: `${intro}\n\n${latest}` });
+            } else {
+              const intro = `\`${what}\` failed in [this run](${run}). While jobs keep failing this description is updated instead of new comments being added, and the issue closes itself when a run succeeds.`;
+              await github.rest.issues.create({ ...context.repo, title: "Scheduled job failing", labels: ["jobs"], body: `${intro}\n\n${latest}` });
+            }
+
+      - name: Close failure issue
+        if: success() && env.API_URL != '' && env.JOBS_TOKEN != ''
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const run = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            const { data } = await github.rest.issues.listForRepo({ ...context.repo, state: "open", labels: "jobs" });
+            for (const issue of data.filter((i) => !i.pull_request)) {
+              await github.rest.issues.createComment({ ...context.repo, issue_number: issue.number, body: `Recovered: [this run](${run}) succeeded.` });
+              await github.rest.issues.update({ ...context.repo, issue_number: issue.number, state: "closed", state_reason: "completed" });
+            }

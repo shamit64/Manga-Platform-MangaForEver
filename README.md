@@ -317,7 +317,7 @@ All routes are under `/api/v1`. Errors share one shape — `{ "error": { "code",
 **Automatic updates — GitHub Actions** (`.github/workflows/jobs.yml`):
 
 1. In the GitHub repo, Settings → Secrets and variables → Actions: add the **variable** `API_URL` (your Render URL) and the **secret** `JOBS_TOKEN` (same value as on the API).
-2. That's all. Jobs then run on schedule: `sync-chapters` every 15 minutes, `rankings` hourly, `link-sources`, `refresh-metadata`, `curate` and `cleanup` daily, `digest` daily, `import-series` weekly. A failing job opens (or comments on) an issue labelled `jobs`, and `keepalive.yml` stops GitHub from pausing the schedule.
+2. That's all. Jobs then run on schedule: `sync-chapters` every 15 minutes, `rankings` hourly, `link-sources`, `refresh-metadata`, `curate` and `cleanup` daily, `digest` daily, `import-series` weekly. A failing job opens one issue labelled `jobs` (later failures update it quietly instead of commenting) and the next successful run closes it; a stray trailing `/` or `.` in `API_URL` is ignored; and `keepalive.yml` stops GitHub from pausing the schedule.
 3. Any job can also be run from Admin → Jobs, or from the Actions tab with "Run workflow".
 
 ## Data honesty rules
