@@ -34,14 +34,14 @@
   "devDependencies": {
     "concurrently": "^9.2.1",
     "dotenv": "^17.2.3",
-    "prisma": "7.10.0",
+    "prisma": "7.10.1",
     "tsx": "^4.20.6",
     "typescript": "~5.9.3",
     "embedded-postgres": "18.4.0-beta.17"
   },
   "dependencies": {
-    "@prisma/adapter-pg": "7.10.0",
-    "@prisma/client": "7.10.0",
+    "@prisma/adapter-pg": "7.10.1",
+    "@prisma/client": "7.10.1",
     "bcryptjs": "^3.0.3",
     "pg": "^8.16.3"
   }
