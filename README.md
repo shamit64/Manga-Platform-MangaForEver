@@ -360,4 +360,5 @@ Captured from a local run with the sample catalog (generated covers; imported An
 
 ---
 
+
 MangaForEver hosts only chapters it has the right to show. Support creators by reading through official, licensed publishers.
